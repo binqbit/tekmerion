@@ -20,6 +20,8 @@ tests/
       case.rs          default actors, Policy rules and Case setup
     context.rs         Case scenario actors and addresses
     transactions.rs    signing, execution and rollback assertions
+  examples/
+    sdk_fixtures.rs    SDK compatibility vector generator
   programs/
     sdk_consumer/      minimal Anchor CPI consumer with PDA signing
 ```
@@ -53,5 +55,7 @@ Coverage includes:
 - Real CPI from a caller PDA, controller/signature rejection, successor predecessor accounts and atomic quorum payouts through remaining accounts.
 
 The [CPI consumer](programs/sdk_consumer/README.md) is registered alongside Tekmerion for the CPI scenarios.
+
+[SDK vectors](../sdk/fixtures/README.md) are generated from local contract execution.
 
 The direct vote ABI test independently checks the Anchor discriminator and answer/reason bytes. Signed transaction mutations verify that changing the Case, vault or answer invalidates the signature, and custody checks reject mismatched Case/vault pairs even with a new signature. Tests exercise local execution and transaction atomicity; a deployment and external audit operations require their own operational verification.
