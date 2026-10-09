@@ -47,12 +47,13 @@ maps those responsibilities to the source code.
 | [state](src/state/mod.rs)                             | Account layouts, PDA helpers, committee rules and lifecycle transitions                |
 | [state/audit.rs](src/state/audit.rs)                  | Decisions, immutable auditor votes and quorum lookup                                   |
 | [custody.rs](src/custody.rs)                          | Token validation, backing checks, exact transfers and claims                           |
-| [calculations](src/calculations/mod.rs)               | Pure checked amounts, contribution quotes and economic allocations |
+| [calculations](src/calculations/mod.rs)               | Pure checked amounts, contribution quotes and economic allocations shared with the SDK |
 
 All refund and reward calculations live together in
 [`calculations/settlement.rs`](src/calculations/settlement.rs). Funding caps,
 deadlines and checked amount types are adjacent modules under
-`tekmerion::calculations`. The program retains inline unit tests for committee invariants,
+`tekmerion::calculations`. The SDK uses these same functions through its program
+dependency. The program retains inline unit tests for committee invariants,
 completion classification and account layouts.
 
 Each instruction module exposes a crate-private `handle` function; the Anchor
@@ -69,7 +70,8 @@ data together without adding nested account contexts.
 
 Handlers authenticate account identities and signers. State methods enforce
 lifecycle rules, calculation functions determine entitlements, and custody verifies
-actual token debit and credit. Applications interpret subject data and finalized
+actual token debit and credit. Policy rules and economic calculations are
+shared with SDK account views. Applications interpret subject data and finalized
 results.
 
 Audit decisions and voting progress belong to `state/audit.rs`; Case methods

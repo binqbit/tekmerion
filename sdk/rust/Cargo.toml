@@ -1,0 +1,28 @@
+[package]
+name = "tekmerion-sdk"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+publish = false
+
+[workspace]
+
+[features]
+default = ["mainnet", "host"]
+mainnet = ["tekmerion/mainnet"]
+devnet = ["tekmerion/devnet"]
+host = []
+cpi = ["tekmerion/cpi"]
+idl-build = ["tekmerion/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "=1.2.1", default-features = false, features = ["solana-v3"] }
+anchor-spl = { version = "=1.2.1", default-features = false, features = ["solana-v3", "token"] }
+tekmerion = { path = "../../programs/tekmerion", default-features = false, features = ["no-entrypoint"] }
+solana-instruction = "~3.4.0"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0
