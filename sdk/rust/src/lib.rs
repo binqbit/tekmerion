@@ -1,10 +1,16 @@
+//! Instructions, Anchor CPI and optional RPC integration for the selected network.
+//!
 //! Builders never sign or submit. The `cpi` feature exposes the program's generated
 //! Anchor CPI API. The default `host` feature adds account views;
 //! disable it for onchain consumers. Account views validate supplied
 //! observations but cannot authenticate an RPC server or establish chain finality.
+//! The optional `rpc` feature adds coherent account reads, cancellable monitoring,
+//! transaction signing, simulation and confirmation through a caller-supplied RPC.
 
 #[cfg(feature = "host")]
 pub mod accounts;
+#[cfg(feature = "rpc")]
+pub mod client;
 #[cfg(feature = "host")]
 mod error;
 pub mod instructions;

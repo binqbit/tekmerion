@@ -1,6 +1,6 @@
 # Tekmerion Rust SDK
 
-Instruction builders, validated account views and
+Instruction builders, validated account views, optional RPC integration and
 Anchor CPI access for the selected network. The SDK reuses generated types and pure calculations from
 [`tekmerion::calculations`](../../programs/tekmerion/src/calculations/mod.rs).
 
@@ -18,6 +18,7 @@ addresses with disposable state.
 |---|---|
 | `mainnet` / `devnet` | Exactly one network, forwarded to the program |
 | `host` | Account views, SDK errors and funding/payout quotes |
+| `rpc` | Asynchronous state reads, monitoring, transaction signing, simulation and confirmation; enables `host` |
 | `cpi` | Original Anchor-generated `cpi` functions and account contexts |
 | `idl-build` | IDL generation forwarded to the original program |
 
@@ -32,6 +33,7 @@ and select their network with `cpi`, keeping host account views out of their bui
 |---|---|
 | `instructions` | Policy administration/acquisition, Case creation, capped contributions, auditor votes, finalization and claims; canonical addresses and generated Anchor encoding |
 | `accounts` (`host`) | Validated Case/Policy/vault observations with opaque subject identity, funding and current payout quotes, and authenticated claim markers |
+| `client` (`rpc`) | `TekmerionClient` over a caller-configured Solana RPC client |
 | `program` | Original Anchor program crate, including account types, generated instructions and program identity |
 | `cpi` (`cpi`) | Original Anchor-generated CPI interface; no duplicate protocol wrapper |
 
@@ -106,6 +108,45 @@ contribution, audit voting, result reads and claims.
 The SDK's optional `cpi` feature also exposes Anchor's generated interface for
 applications that choose to call Tekmerion from their own program.
 
+## Backend RPC integration
+
+Enable `rpc` for a backend; for devnet disable defaults and select `devnet,rpc`.
+The caller supplies a Tokio runtime, RPC URL, commitment and signers:
+
+```rust,ignore
+use tekmerion_sdk::client::{CommitmentConfig, RpcClient, TekmerionClient};
+
+let client = TekmerionClient::new(RpcClient::new_with_commitment(
+    rpc_url,
+    CommitmentConfig::confirmed(),
+));
+let view = client.fetch_case(case_address).await?;
+let (view, claim) = client.fetch_claim(case_address, owner).await?;
+let transaction = client.sign_transaction(&instructions, &payer, &signers).await?;
+let simulation = client.simulate(&transaction).await?;
+// Inspect simulation.value.err and logs before choosing to submit.
+let signature = client.send_and_confirm(&transaction).await?;
+```
+
+`fetch_policy` validates a Policy independently of any Case, including before
+its first use; a valid read with `active_uses == 0` is still admin-editable.
+After confirming acquisition, refetch and require `active_uses > 0` before
+reviewing rules and signing creation. A lagging RPC read must not silently fall
+back to the earlier rules. Case and claim reads discover the immutable author first, then
+fetch all required accounts and the Clock in one batch at an equal or later
+context slot. The returned views use only that final batch.
+
+`watch_case` and `watch_policy` poll validated snapshots at a caller-selected interval. Pass a
+`tokio::sync::watch::Receiver<bool>` and set it to `true` to stop; dropping its
+sender also cancels. Cancellation interrupts an in-flight read. RPC or validation
+errors return to the caller. Polling does not promise every intermediate vote or
+claim. Choose the commitment appropriate to how you will use the result.
+
+Signing fetches a recent blockhash once. Simulation and submission preserve the
+resulting message and signatures; submission does not create replacement
+transactions. Retain the signed transaction to reconcile its signature if an
+RPC call fails or confirmation is uncertain, before deciding to sign again.
+
 ## Anchor CPI
 
 ```toml
@@ -134,7 +175,8 @@ subject argument before the vault and the author receipt supplied last. Pass
 owners, executable flags, encoding and sizes for protocol/custody accounts,
 canonical protocol PDAs/bumps, Policy relationships, lifecycle consistency and
 sufficient backing. The subject identity is authenticated from the Case and its
-derived address. The subject account need not exist. If supplied directly, it must have the expected address,
+derived address. The subject account need not exist: RPC reads, claims and
+monitoring do not fetch it. If supplied directly, it must have the expected address,
 matching observation slot and nonexecutable flag. Its owner and bytes remain opaque.
 Static Policy parameters and audit answer/reason compatibility use the same
 predicates as the program. These shared rules do not replace the SDK's account,
@@ -147,7 +189,7 @@ using a result. Later Case views check the canonical predecessor address;
 this read does not independently fetch or validate that predecessor's account.
 
 When using views directly, the caller must fetch these accounts and chain Clock
-from one compatible observation.
+from one compatible observation; the RPC client performs that batching for you.
 Supplying matching slot labels does not authenticate their source.
 This SDK does not establish RPC consensus, network identity or chain finality.
 The contract tests use one isolated ProgramTest bank. Do not combine an
@@ -214,8 +256,11 @@ against capacity at execution. An old quote is never evidence of accepted credit
 From the repository root:
 
 ```sh
-cargo test --manifest-path sdk/rust/Cargo.toml --locked --no-default-features --features mainnet,host,cpi
+cargo test --manifest-path sdk/rust/Cargo.toml --locked --no-default-features --features mainnet,host,cpi,rpc
 ```
+
+The [RPC tests](tests/rpc.rs) exercise consistent reads, monitoring, signing,
+simulation and confirmation against an in-memory transport.
 
 `Policy::SPACE` and `Case::SPACE` are the canonical allocated account sizes.
 `finalized_at` records terminal chain time and remains unchanged by later claims.

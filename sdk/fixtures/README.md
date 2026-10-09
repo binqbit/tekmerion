@@ -12,5 +12,7 @@ funding, partial votes, Yes/No/Unknown decisions, timeout, optimistic settlement
 and claims. Expected contributions, quorum fees and claims are calculated by
 validated Rust views of those same bank accounts.
 
+Rust RPC tests use the raw account bytes with a mocked transport. They do not access a public chain or require a wallet.
+
 The retained mainnet/devnet SDK profiles select public addresses for encoding
 and validation; testing those byte profiles does not contact either network.
