@@ -2,6 +2,7 @@
   "name": "@tekmerion/sdk",
   "version": "0.1.0",
   "private": true,
+  "description": "Tekmerion instructions, authenticated bigint views and Solana RPC reads and execution",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,9 +21,10 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && npm run typecheck:examples && node --test tests/*.test.mjs",
     "prepack": "npm run build",
-    "format:check": "prettier --check src/*.ts tests/*.mjs package.json tsconfig*.json .prettierrc.json README.md"
+    "format:check": "prettier --check src/*.ts tests/*.mjs examples/*.ts package.json tsconfig*.json .prettierrc.json README.md",
+    "typecheck:examples": "tsc -p tsconfig.examples.json"
   },
   "dependencies": {
     "@anchor-lang/core": "1.2.1"
