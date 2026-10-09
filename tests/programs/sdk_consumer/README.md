@@ -4,7 +4,8 @@ This test-only SBF program demonstrates calling Tekmerion through the Rust SDK
 with a PDA authority. It owns no application state. Its two instructions forward
 Case creation and audit voting to the generated Anchor CPI interface.
 
-The fixture's fixed program
+The [runtime tests](../../cases/cpi.rs) execute both programs in ProgramTest,
+including Tekmerion's nested SPL Token transfers. The fixture's fixed program
 address is a local test identity, not a deployment.
 
 ## Dependency configuration
@@ -78,3 +79,9 @@ Both handlers preserve the caller's remaining-account order and privileges:
   Case as readonly. Tekmerion checks that its terminal outcome permits a retry.
 - Before an audit quorum, pass none. For the decisive vote, pass writable USDC
   accounts for the winning voters' fee recipients, in Policy index order.
+
+The tests reject a missing predecessor and missing, reversed or readonly payout
+accounts, then verify complete rollback and successful corrected calls. They
+also verify rejection of a direct unsigned PDA and a mismatched controller.
+The 2-of-3 audit test proves that arrival order does not change fee ordering:
+a fee of seven base units pays four to index zero and three to index one.

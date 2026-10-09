@@ -16,10 +16,14 @@ mod authorization;
 mod case_results;
 #[path = "cases/client_boundary.rs"]
 mod client_boundary;
+#[path = "cases/cpi.rs"]
+mod cpi;
 #[path = "cases/funding.rs"]
 mod funding;
 #[path = "cases/journey.rs"]
 mod journey;
+#[path = "cases/sdk_reads.rs"]
+mod sdk_reads;
 #[path = "cases/setup.rs"]
 mod setup;
 #[path = "cases/stake_receipts.rs"]

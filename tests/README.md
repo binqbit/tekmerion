@@ -11,7 +11,7 @@ tests/
   Cargo.toml           standalone contract test workspace
   lib.rs               reusable scenario support
   contract.rs          test suite entrypoint
-  cases/               contract execution scenarios
+  cases/               contract execution and SDK account-read scenarios
   support/
     setup/
       context.rs       local bank and context setup
@@ -39,6 +39,7 @@ Coverage includes:
 - Reusable token setup on a standalone `ProgramTestContext`, including repeated mint operations without changing the test Clock.
 - Contributions, top-ups, capped final credits, donations, clock boundaries and optimistic refunds.
 - Configured wallet authorization, opaque subjects, fresh successor collateral, cross-case isolation and stable terminal results across claims.
+- Absent and legitimately closed subjects preserve SDK reads, settlement and claims; subject identity remains bound to the Case.
 - First-use Policy approval: pre-signed creation uses the rules at execution, while confirmed acquisition followed by review/signing prevents later rule changes.
 - Invalid Policy creation and rent rollback, executable subjects, and malformed or inconsistent state at the canonical predecessor address; repaired inputs permit a fresh attempt without consuming previous claims.
 - Auditor signatures, unauthorized identities, duplicate votes, invalid answer/reason pairs, signed Case/account substitution and policy immutability.
@@ -48,5 +49,9 @@ Coverage includes:
 - Yes/No/Unknown allocation vectors, zero-fee audits, contributor rounding in both claim orders, aggregate custody backing and successful claims after thawing a frozen destination.
 - Funding-time custody deficits cannot be hidden by fresh stakes, top-ups or final contributions. Zero-entitlement claims still validate backing and destinations; corrupted vault authorities cannot consume claim receipts.
 - Author receipt creation and rollback, actual bond amounts, role and principal forgery rejection, independent receipts across later cases, persisted author receipt aliases, shared claim encoding and zero-entitlement claim discharge.
+- SDK account authentication, consistent observations, voting progress, quotes and paid markers.
+- Real CPI from a caller PDA, controller/signature rejection, successor predecessor accounts and atomic quorum payouts through remaining accounts.
+
+The [CPI consumer](programs/sdk_consumer/README.md) is registered alongside Tekmerion for the CPI scenarios.
 
 The direct vote ABI test independently checks the Anchor discriminator and answer/reason bytes. Signed transaction mutations verify that changing the Case, vault or answer invalidates the signature, and custody checks reject mismatched Case/vault pairs even with a new signature. Tests exercise local execution and transaction atomicity; a deployment and external audit operations require their own operational verification.

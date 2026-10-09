@@ -120,7 +120,8 @@ instructions are available through the original generated interface.
 
 The [minimal consumer](../../tests/programs/sdk_consumer/README.md)
 demonstrates PDA-authorized creation and audit votes, including predecessor and
-fee remaining accounts. This build excludes account views and RPC
+fee remaining accounts. Its [runtime tests](../../tests/cases/cpi.rs)
+execute actual cross-program calls. This build excludes account views and RPC
 dependencies.
 
 ## Account views and claims
@@ -236,6 +237,9 @@ The [settlement scenarios](../../tests/cases/audit_settlement.rs) and
 claims. Their [shared test support](../../tests/support/)
 owns disposable keys, signing and ProgramTestContext execution; none of that code
 enters the SDK.
+The [runtime read tests](../../tests/cases/sdk_reads.rs)
+cover stale funding and payout quotes, partial votes, last-claimant rewards,
+Unknown versus timeout and rejected account substitutions/corrupt observations.
 The [instruction tests](tests/instructions.rs) cover audit answers and reasons,
 canonical accounts, quorum payout order, the author's aliased receipt and
 contribution amount encoding. The contract tests verify signatures, reject
