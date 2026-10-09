@@ -6,6 +6,16 @@ An author backs a statement with USDC. Other participants can pool funds to chal
 
 The repository contains the smart contract.
 
+## Build the contract
+
+Run from the repository root:
+
+```sh
+bash scripts/build.sh
+```
+
+This builds the production SBF program with the mainnet USDC profile. The program, generated IDL, build metadata and checksums are placed in `target/production/release/`. See the [build guide](docs/build.md) for requirements and artifact details. Building does not deploy the program.
+
 ## Repository structure
 
 | Directory             | Purpose                         |
@@ -13,6 +23,7 @@ The repository contains the smart contract.
 | `programs/tekmerion/` | Smart contract                  |
 | `docs/`               | Product and developer guides    |
 | `idl/`                | Contract interface descriptions |
+| `scripts/`            | Production build tooling        |
 
 ## Documentation
 
@@ -21,3 +32,4 @@ The repository contains the smart contract.
 | [Concept](docs/concept.md)                         | Why Tekmerion exists and where it fits.                                 |
 | [How Tekmerion works](docs/how-it-works.md)        | Funding, voting, payments and contract checks, explained with diagrams. |
 | [Contract reference](programs/tekmerion/README.md) | Technical details for developers working with the contract.             |
+| [Production build](docs/build.md)                  | Building the SBF program and inspecting its release artifacts.          |

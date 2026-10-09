@@ -8,7 +8,21 @@ auditors automatically.
 
 Program ID: `TEKxbA5q3EhSDSBeYiW9AT3GGPyzruBSQUcuQXxdy3s`.
 
-## Network profile
+## Build and check
+
+Build the production SBF program from the repository root:
+
+```sh
+bash scripts/build.sh
+```
+
+The command selects the mainnet USDC profile and writes `tekmerion.so`, the
+generated `tekmerion.json`, build metadata and checksums to
+`target/production/release/`. It prepares the pinned tools and builds only the
+program and its interface. The [build guide](../../docs/build.md) describes the
+requirements and output bundle. Building performs no deployment.
+
+The [IDL](../../idl/tekmerion.json) records instruction arguments, account ordering, state fields and errors; devnet snapshots are in `idl/devnet/`.
 
 Exactly one Cargo feature must be selected: `mainnet` (default) or `devnet`.
 For devnet use `--no-default-features --features devnet` consistently for
