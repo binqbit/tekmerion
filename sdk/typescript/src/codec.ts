@@ -1,5 +1,5 @@
-import Anchor from '@anchor-lang/core';
-import type { BN, BorshCoder, Idl, IdlType } from '@anchor-lang/core';
+import { BorshCoder, type Idl, type IdlType } from '@anchor-lang/core';
+import BN from 'bn.js';
 import { PublicKey, TransactionInstruction, type AccountMeta } from '@solana/web3.js';
 import mainnet from './idl/mainnet.json' with { type: 'json' };
 import devnet from './idl/devnet.json' with { type: 'json' };
@@ -99,7 +99,7 @@ export class ProtocolCodec {
     if (network !== 'mainnet' && network !== 'devnet')
       throw new SdkError('InvalidArgument', 'Unknown network');
     this.#idl = structuredClone(network === 'mainnet' ? mainnet : devnet) as Idl;
-    this.#coder = new Anchor.BorshCoder(this.#idl);
+    this.#coder = new BorshCoder(this.#idl);
   }
   get programId(): PublicKey {
     return new PublicKey(this.#idl.address);
@@ -168,7 +168,7 @@ export class ProtocolCodec {
           type === 'i64' ? I64_MIN : 0n,
           type === 'i64' ? I64_MAX : type === 'u128' ? U128_MAX : U64_MAX,
         );
-        return new Anchor.BN(amount.toString());
+        return new BN(amount.toString());
       }
       if (
         encode &&

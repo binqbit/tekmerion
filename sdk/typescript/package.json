@@ -8,6 +8,10 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "browser": {
+        "types": "./dist/browser.d.ts",
+        "import": "./dist/browser.js"
+      },
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
@@ -27,13 +31,15 @@
     "typecheck:examples": "tsc -p tsconfig.examples.json"
   },
   "dependencies": {
-    "@anchor-lang/core": "1.2.1"
+    "@anchor-lang/core": "1.2.1",
+    "bn.js": "5.2.5"
   },
   "devDependencies": {
     "@types/node": "24.10.0",
     "typescript": "5.9.3",
     "prettier": "3.9.9",
-    "@solana/web3.js": "1.99.0"
+    "@solana/web3.js": "1.99.0",
+    "@types/bn.js": "5.2.0"
   },
   "peerDependencies": {
     "@solana/web3.js": "1.99.0"
