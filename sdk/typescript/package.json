@@ -1,0 +1,39 @@
+{
+  "name": "@tekmerion/sdk",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20.18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "prepack": "npm run build",
+    "format:check": "prettier --check src/*.ts tests/*.mjs package.json tsconfig*.json .prettierrc.json README.md"
+  },
+  "dependencies": {
+    "@anchor-lang/core": "1.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "typescript": "5.9.3",
+    "prettier": "3.9.9",
+    "@solana/web3.js": "1.99.0"
+  },
+  "peerDependencies": {
+    "@solana/web3.js": "1.99.0"
+  }
+}

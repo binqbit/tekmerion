@@ -4,7 +4,7 @@ Tekmerion helps applications resolve disputed statements through independent aud
 
 An author backs a statement with USDC. Other participants can pool funds to challenge it. A fully funded challenge goes to the appointed auditors, whose matching answers determine the outcome. That outcome determines the auditors' reward and the amounts participants can withdraw.
 
-The repository contains the smart contract and Rust SDK for integrating it into other applications.
+The repository contains the smart contract and Rust and TypeScript SDKs for integrating it into other applications.
 
 ## Build the contract
 
@@ -22,6 +22,7 @@ This builds the production SBF program with the mainnet USDC profile. The progra
 | --------------------- | ------------------------------- |
 | `programs/tekmerion/` | Smart contract                  |
 | `sdk/rust/`           | Rust SDK                        |
+| `sdk/typescript/`     | TypeScript SDK                  |
 | `tests/`              | Local contract tests            |
 | `docs/`               | Product and developer guides    |
 | `idl/`                | Contract interface descriptions |
