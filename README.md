@@ -34,6 +34,7 @@ This builds the production SBF program with the mainnet USDC profile. The progra
 | -------------------------------------------------- | ----------------------------------------------------------------------- |
 | [Concept](docs/concept.md)                         | Why Tekmerion exists and where it fits.                                 |
 | [How Tekmerion works](docs/how-it-works.md)        | Funding, voting, payments and contract checks, explained with diagrams. |
+| [SDK integration](sdk/README.md)                   | Connecting an application using the Rust or TypeScript SDK.             |
 | [Contract reference](programs/tekmerion/README.md) | Technical details for developers working with the contract.             |
 | [Production build](docs/build.md)                  | Building the SBF program and inspecting its release artifacts.          |
 | [Local testing](tests/README.md)                   | Setup requirements, running tests and test coverage.                    |

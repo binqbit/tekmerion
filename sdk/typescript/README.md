@@ -53,7 +53,7 @@ export function contributionInstruction(
 
 Answers are `yes`, `no` and `unknown`. Yes/No require `decisive`; Unknown uses `missingEvidence`, `staleEvidence`, `conflictingEvidence`, `unsupportedEvidence` or `inconclusive`.
 
-Before the first deposit, follow the Policy locking sequence: confirm `acquirePolicy`, refetch at or above its confirmed slot, require `activeUses > 0n`, then ask the author to review the locked rules before signing `createCase`. The [backend example](examples/backend.ts) implements `lockAndReadPolicy` for this preparation. An already locked Policy needs no extra acquisition. A valid Policy read with `activeUses === 0n` is still admin-editable; acquisition and creation in one transaction do not pin rules read earlier.
+Before the first deposit, follow the [Policy locking sequence](../README.md#first-case-with-a-policy): confirm `acquirePolicy`, refetch at or above its confirmed slot, require `activeUses > 0n`, then ask the author to review the locked rules before signing `createCase`. The [backend example](examples/backend.ts) implements `lockAndReadPolicy` for this preparation. An already locked Policy needs no extra acquisition. A valid Policy read with `activeUses === 0n` is still admin-editable; acquisition and creation in one transaction do not pin rules read earlier.
 
 ## Reads and quotes
 

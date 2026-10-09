@@ -86,4 +86,4 @@ These checks enforce the agreed process. The auditors assess the evidence; the a
 
 After rejection, an inconclusive audit or a timeout, the application may authorize a new attempt with fresh deposits. Previous withdrawals remain available. An accepted statement ends that sequence of attempts under the same rules.
 
-For the purpose behind the mechanism, see the [concept](concept.md). Implementation details belong in the [program reference](../programs/tekmerion/README.md).
+For the purpose behind the mechanism, see the [concept](concept.md). Implementation details belong in the [program reference](../programs/tekmerion/README.md), with integration instructions in the [SDK guide](../sdk/README.md).

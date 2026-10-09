@@ -93,7 +93,7 @@ review and signing. SDK builders do not fetch accounts or sign transactions.
 
 Use `create_policy` to configure a creation authority and the auditor committee.
 Before the first deposit, follow the
-Policy locking sequence: confirm
+[Policy locking sequence](../README.md#first-case-with-a-policy): confirm
 `acquire_policy`, reread and require `active_uses > 0`, then have the author review
 the locked rules. Build `create_case` with the configured `client_authority`
 wallet and author, then sign the transaction with those wallets and its payer.

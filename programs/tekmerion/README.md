@@ -79,7 +79,10 @@ Audit decisions and voting progress belong to `state/audit.rs`; Case methods
 own voting windows and settlement transitions. `PolicyRules` validates its
 parameters and deadlines. The creation instruction authenticates its preceding
 Case locally. Token custody stays in one module, while calculations,
-instruction builders and account views keep their own boundaries. Integrating applications supply their signers and decide when to submit or retry an operation.
+instruction builders and account views keep their own boundaries. The
+[SDKs](../../sdk/README.md) provide optional RPC reads, monitoring, simulation and
+transaction submission. Integrating applications supply their endpoint and
+signers and decide when to submit or retry an operation.
 
 Validation helpers use `require_*` names. Handlers keep authorization, amount
 calculation, token movement and state updates visible in execution order.
@@ -110,7 +113,8 @@ An unused Policy remains admin-editable until acquisition or creation executes.
 A creation signature commits to its address, not a previously read rule version.
 For approval of fixed terms, confirm acquisition, reread the locked Policy, then
 review and sign creation. Acquisition and creation in the same transaction do
-not pin rules read before that transaction.
+not pin rules read before that transaction. See the
+[first-Case integration sequence](../../sdk/README.md#first-case-with-a-policy).
 
 The configured `client_authority` can be a wallet or a PDA signing through CPI.
 Tekmerion binds the opaque, nonexecutable subject address, author and assertion.
