@@ -54,7 +54,8 @@ All refund and reward calculations live together in
 deadlines and checked amount types are adjacent modules under
 `tekmerion::calculations`. The SDK uses these same functions through its program
 dependency. The program retains inline unit tests for committee invariants,
-completion classification and account layouts.
+completion classification and account layouts. Transaction-level settlement
+scenarios live in the [local test workspace](../../tests/README.md).
 
 Each instruction module exposes a crate-private `handle` function; the Anchor
 entrypoint dispatches through `instructions::create_case::handle(...)`, for

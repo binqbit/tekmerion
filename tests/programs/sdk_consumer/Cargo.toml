@@ -1,0 +1,42 @@
+[package]
+name = "tekmerion-sdk-consumer"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.89"
+publish = false
+description = "Test-only SBF consumer of Tekmerion's Rust CPI SDK"
+
+[workspace]
+
+[lib]
+name = "sdk_consumer"
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["mainnet"]
+mainnet = ["tekmerion-sdk/mainnet"]
+devnet = ["tekmerion-sdk/devnet"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+idl-build = ["anchor-lang/idl-build", "tekmerion-sdk/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+anchor-lang = { version = "=1.2.1", default-features = false, features = ["solana-v3"] }
+tekmerion-sdk = { path = "../../../sdk/rust", default-features = false, features = ["cpi"] }
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[profile.release]
+overflow-checks = true
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

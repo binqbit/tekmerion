@@ -101,6 +101,8 @@ Auditor wallets submit
 `submit_audit` transactions directly. Read the result from the Case account;
 no extra application contract or result-consumption transaction is required.
 
+The [contract scenarios](../../tests/cases/) exercise wallet signing,
+contribution, audit voting, result reads and claims.
 The SDK's optional `cpi` feature also exposes Anchor's generated interface for
 applications that choose to call Tekmerion from their own program.
 
@@ -115,6 +117,11 @@ program can authorize creation or an auditor vote with its PDA through
 `CpiContext::new_with_signer`. Attach winning fee token accounts with
 `with_remaining_accounts`, preserving the required committee order. All nine
 instructions are available through the original generated interface.
+
+The [minimal consumer](../../tests/programs/sdk_consumer/README.md)
+demonstrates PDA-authorized creation and audit votes, including predecessor and
+fee remaining accounts. This build excludes account views and RPC
+dependencies.
 
 ## Account views and claims
 
@@ -142,7 +149,7 @@ When using views directly, the caller must fetch these accounts and chain Clock
 from one compatible observation.
 Supplying matching slot labels does not authenticate their source.
 This SDK does not establish RPC consensus, network identity or chain finality.
-Do not combine an
+The contract tests use one isolated ProgramTest bank. Do not combine an
 older Policy or receipt with a newer Case and relabel it as one observation.
 
 Views expose immutable typed getters. `case.audit.votes` records partial committee
@@ -224,6 +231,7 @@ when the discriminator and allocated size stay the same. Rebuild matching IDLs
 and recreate incompatible accounts; retained signed transactions cannot be
 reordered without fresh review and signatures.
 
+The [funding journey](../../tests/cases/journey.rs) uses the SDK from deposits through claims. Its [shared test support](../../tests/support/) owns disposable keys, signing and ProgramTestContext execution; none of that code enters the SDK.
 The [instruction tests](tests/instructions.rs) cover audit answers and reasons,
 canonical accounts, quorum payout order, the author's aliased receipt and
 contribution amount encoding.

@@ -1,0 +1,55 @@
+[package]
+name = "tekmerion-contract-tests"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+publish = false
+
+[workspace]
+exclude = ["programs/sdk_consumer"]
+
+[lib]
+path = "lib.rs"
+
+[[test]]
+name = "contract"
+path = "contract.rs"
+
+[features]
+default = ["mainnet"]
+mainnet = ["tekmerion/mainnet", "tekmerion-sdk/mainnet", "sdk-consumer/mainnet"]
+devnet = ["tekmerion/devnet", "tekmerion-sdk/devnet", "sdk-consumer/devnet"]
+
+[dependencies]
+anchor-lang = { version = "=1.2.1", default-features = false, features = ["solana-v3"] }
+tekmerion = { path = "../programs/tekmerion", default-features = false, features = ["no-entrypoint"] }
+tekmerion-sdk = { path = "../sdk/rust", default-features = false, features = ["host"] }
+sdk-consumer = { package = "tekmerion-sdk-consumer", path = "programs/sdk_consumer", default-features = false, features = ["no-entrypoint"] }
+solana-program-test = { version = "=4.2.0", features = ["agave-unstable-api"] }
+tokio = { version = "=1.53.2", features = ["rt-multi-thread"] }
+sha2 = "=0.10.9"
+solana-account = "4.3.0"
+solana-address = { version = "~2.6.1", features = ["curve25519", "sha2"] }
+solana-clock = "=3.1.1"
+solana-hash = "=4.5.0"
+solana-instruction = "~3.4.0"
+solana-instruction-error = "~2.4.0"
+solana-keypair = "=3.1.2"
+solana-message = "4.2.4"
+solana-signature = "=3.4.1"
+solana-signer = "=3.0.1"
+solana-transaction = "4.1.5"
+solana-transaction-error = "~3.3.1"
+solana-system-interface = { version = "=3.2.0", features = ["bincode"] }
+spl-token-interface = "=2.0.0"
+solana-program-pack = "=3.1.0"
+wincode = "=0.5.5"
+
+[dev-dependencies]
+serde_json = "=1.0.151"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0
