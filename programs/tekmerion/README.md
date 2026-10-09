@@ -22,7 +22,19 @@ generated `tekmerion.json`, build metadata and checksums to
 program and its interface. The [build guide](../../docs/build.md) describes the
 requirements and output bundle. Building performs no deployment.
 
-The [IDL](../../idl/tekmerion.json) records instruction arguments, account ordering, state fields and errors; devnet snapshots are in `idl/devnet/`.
+Before deployment, run the complete local checks separately:
+
+```sh
+bash scripts/test.sh
+```
+
+The runner prepares missing tools and dependencies, builds Tekmerion and runs
+program, local contract and SDK checks. Execution uses a local Solana bank;
+no RPC endpoint or wallet is required. The
+[test guide](../../tests/README.md) describes the local Solana context
+and setup modules. The [IDL](../../idl/tekmerion.json) records instruction arguments,
+account ordering, state fields and errors; devnet snapshots are in
+`idl/devnet/`.
 
 Exactly one Cargo feature must be selected: `mainnet` (default) or `devnet`.
 For devnet use `--no-default-features --features devnet` consistently for

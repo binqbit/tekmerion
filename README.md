@@ -14,7 +14,17 @@ Run from the repository root:
 bash scripts/build.sh
 ```
 
-This builds the production SBF program with the mainnet USDC profile. The program, generated IDL, build metadata and checksums are placed in `target/production/release/`. See the [build guide](docs/build.md) for requirements and artifact details. Building does not deploy the program.
+This builds the production SBF program with the mainnet USDC profile. The program, generated IDL, build metadata and checksums are placed in `target/production/release/`. See the [build guide](docs/build.md) for requirements and artifact details. Building does not deploy the program; run the local checks below before deployment.
+
+## Run locally
+
+Install the [local setup requirements](tests/README.md), then run from the repository root:
+
+```sh
+bash scripts/test.sh
+```
+
+The command prepares missing build tools and dependencies, then runs all contract and SDK tests locally. The first setup needs internet access for downloads; later runs reuse the local caches. Tests use temporary test funds and require no wallet.
 
 ## Repository structure
 
@@ -26,7 +36,7 @@ This builds the production SBF program with the mainnet USDC profile. The progra
 | `tests/`              | Local contract tests            |
 | `docs/`               | Product and developer guides    |
 | `idl/`                | Contract interface descriptions |
-| `scripts/`            | Production build tooling        |
+| `scripts/`            | Build and test tooling          |
 
 ## Documentation
 

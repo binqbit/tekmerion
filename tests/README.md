@@ -1,8 +1,14 @@
 # Local contract execution
 
-The contract tests execute the compiled Tekmerion SBF program in a local Solana bank. Tests use Rust 1.97.1, Anchor 1.2.1 and `solana-program-test` 4.2.0 with disposable signers, synthetic balances and a controlled Clock.
+Run the complete local checks from the repository root:
 
-Set `BPF_OUT_DIR` to the directory containing the compiled SBF programs when executing the test workspace. Token operations execute against the Token program in the local bank. Test setup and execution require no public RPC or live wallet. Independent workspaces retain separate Cargo output directories.
+```sh
+bash scripts/test.sh
+```
+
+Requirements: Bash, Python 3.11+, rustup, Node.js 20.18+ with npm, a C compiler, pkg-config and OpenSSL headers. The command installs missing pinned build tools and downloads locked Cargo/npm dependencies when needed. Initial setup needs internet access; subsequent runs reuse the tool, dependency and build caches. Tests use Rust 1.97.1, Anchor 1.2.1 and `solana-program-test` 4.2.0 with disposable signers, synthetic balances and a controlled Clock.
+
+Tekmerion is rebuilt into `target/local-contracts/deploy` and registered with `ProgramTest`. The runner sets `BPF_OUT_DIR` to that directory. Token operations execute against the Token program in the local bank. Test setup and execution require no public RPC or live wallet. Independent workspaces retain separate Cargo output directories.
 
 `TestContext` exposes its actual `ProgramTestContext` and retains the actors and addresses used by each Case scenario. A private Tokio runtime lets the synchronous scenario helpers call `banks_client` directly.
 
@@ -30,7 +36,7 @@ Setup helpers prepare local state. Assertions read actual bank accounts and tran
 
 Tests that inject corrupted program-owned accounts explicitly exercise defensive checks. They do not assume an ordinary caller can rewrite those accounts.
 
-For a custom async test, take the builder from `setup::programs::program_test()`, register extra programs or accounts, and pass it with the initial Clock to `setup::context::start`. The result is a native `ProgramTestContext`; token setup helpers accept it directly. Case scenarios can pass the same customized builder to `TestContext::with_program_test`.
+For a custom async test, take the builder from `setup::programs::program_test()`, register extra programs or accounts, and pass it with the initial Clock to `setup::context::start`. The result is a native `ProgramTestContext`; token setup helpers accept it directly. Case scenarios can pass the same customized builder to `TestContext::with_program_test`. The runner executes two contract cases in parallel.
 
 Both authors and contributors have canonical `StakeReceipt` accounts: side `0` records the author's actual bond and side `1` records challenge contributions. Both use `claim`; author claims repeat the same receipt in its readonly backing and writable claiming positions. Reading a finalized Case does not require another application program.
 
@@ -54,8 +60,15 @@ Coverage includes:
 - SDK account authentication, consistent observations, voting progress, quotes and paid markers.
 - Real CPI from a caller PDA, controller/signature rejection, successor predecessor accounts and atomic quorum payouts through remaining accounts.
 
-The [CPI consumer](programs/sdk_consumer/README.md) is registered alongside Tekmerion for the CPI scenarios.
+The runner builds the [CPI consumer](programs/sdk_consumer/README.md) alongside
+Tekmerion and registers it only for the CPI scenarios. It also regenerates
+[SDK vectors](../sdk/fixtures/README.md) from local execution and compares them with
+the maintained snapshots consumed by TypeScript and Rust RPC tests.
 
-[SDK vectors](../sdk/fixtures/README.md) are generated from local contract execution.
+The same command runs the program's inline unit tests and the Rust/TypeScript
+SDK tests. SDK-specific instruction, decoder and mocked RPC tests live under
+`sdk/rust/tests/` and `sdk/typescript/tests/`; see the
+[SDK check guide](../sdk/README.md#checks). Both SDK byte profiles are checked
+offline; their public mint addresses do not connect the tests to a network.
 
 The direct vote ABI test independently checks the Anchor discriminator and answer/reason bytes. Signed transaction mutations verify that changing the Case, vault or answer invalidates the signature, and custody checks reject mismatched Case/vault pairs even with a new signature. Tests exercise local execution and transaction atomicity; a deployment and external audit operations require their own operational verification.

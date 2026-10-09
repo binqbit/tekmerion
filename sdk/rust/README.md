@@ -256,9 +256,13 @@ against capacity at execution. An old quote is never evidence of accepted credit
 From the repository root:
 
 ```sh
-cargo test --manifest-path sdk/rust/Cargo.toml --locked --no-default-features --features mainnet,host,cpi,rpc
+bash scripts/test.sh
 ```
 
+The runner prepares missing tools and locked dependencies, checks formatting
+and Clippy, tests SDK encoding and mocked RPC behavior, and executes the
+contract locally using SDK builders. No RPC endpoint or wallet is needed.
+SDK build output is isolated from independently locked workspaces.
 The [RPC tests](tests/rpc.rs) exercise consistent reads, monitoring, signing,
 simulation and confirmation against an in-memory transport.
 

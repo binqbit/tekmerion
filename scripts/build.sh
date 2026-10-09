@@ -10,6 +10,7 @@ if (( $# )); then
       echo 'Build the mainnet SBF release and verify its generated IDL.'
       echo 'Output: target/production/release/{tekmerion.so,tekmerion.json,build-info.json,SHA256SUMS}'
       echo 'Prepares pinned tools and locked dependencies; requires no Node.js, RPC or wallet.'
+      echo 'Run bash scripts/test.sh separately before deploying a release.'
       exit 0 ;;
     *) echo "Unknown argument: $1" >&2; exit 2 ;;
   esac
@@ -83,7 +84,7 @@ bundle = stage / "release"
 idl = json.loads((stage / "tekmerion.json").read_text())
 expected_idl = json.loads((root / "idl/tekmerion.json").read_text())
 if idl != expected_idl:
-    raise SystemExit("IDL drift: review and update the maintained interface before building a release.")
+    raise SystemExit("IDL drift: run bash scripts/test.sh --update-idl and review the change.")
 
 anchor = tomllib.loads((root / "Anchor.toml").read_text())
 if idl["address"] != anchor["programs"]["localnet"]["tekmerion"]:

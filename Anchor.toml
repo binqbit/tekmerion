@@ -13,3 +13,6 @@ wallet = "~/.config/solana/id.json"
 
 [workspace]
 members = ["programs/tekmerion"]
+
+[scripts]
+test = "bash scripts/test.sh"

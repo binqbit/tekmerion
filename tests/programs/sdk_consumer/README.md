@@ -85,3 +85,15 @@ accounts, then verify complete rollback and successful corrected calls. They
 also verify rejection of a direct unsigned PDA and a mismatched controller.
 The 2-of-3 audit test proves that arrival order does not change fee ordering:
 a fee of seven base units pays four to index zero and three to index one.
+
+## Run
+
+From the repository root:
+
+```sh
+bash scripts/test.sh
+```
+
+The runner builds `sdk_consumer.so` using the SDK without `host`, then registers
+it alongside the real Tekmerion SBF program for the CPI tests. It does not add
+the fixture to the deployed contract or its IDL.

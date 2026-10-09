@@ -77,3 +77,15 @@ The program ID is `TEKxbA5q3EhSDSBeYiW9AT3GGPyzruBSQUcuQXxdy3s`. This build
 uses the mainnet USDC mint `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`.
 The profile selects public identities; building does not contact an RPC
 endpoint, deploy a program or perform a token transfer.
+
+Before deployment, run the separate local validation command:
+
+```sh
+bash scripts/test.sh
+```
+
+Run it from the repository root. It builds and checks the program, exercises
+contract transactions in a local Solana bank, and tests both SDKs with local
+fixtures and mock RPCs. Its additional setup requirements and coverage are in
+the [test guide](../tests/README.md). Building the release bundle does not run
+this suite.
