@@ -124,7 +124,8 @@ The initial Case has nonce zero and no remaining creation accounts. A later
 attempt supplies exactly its canonical preceding Case, which must have ended
 with audited No/Unknown or technical failure. Yes does not permit a successor.
 Each attempt has a fresh bond and vault; preceding claims stay independent.
-Applications may enforce their own retry rules.
+Applications may enforce their own retry rules. Tests call Tekmerion directly
+with wallet signers and read results from the Case account.
 
 ## State and custody
 

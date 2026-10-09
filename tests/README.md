@@ -37,3 +37,7 @@ The default policy has one independent auditor for concise settlement vectors.
 Coverage includes:
 
 - Reusable token setup on a standalone `ProgramTestContext`, including repeated mint operations without changing the test Clock.
+- Contributions, top-ups, capped final credits, donations, clock boundaries and optimistic refunds.
+- Configured wallet authorization, opaque subjects, fresh successor collateral and cross-case isolation.
+- First-use Policy approval: pre-signed creation uses the rules at execution, while confirmed acquisition followed by review/signing prevents later rule changes.
+- Invalid Policy creation and rent rollback, executable subjects, and malformed or inconsistent state at the canonical predecessor address; repaired inputs permit a fresh attempt without consuming previous claims.
