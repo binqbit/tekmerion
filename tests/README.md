@@ -1,6 +1,6 @@
 # Local contract execution
 
-Run the complete local checks from the repository root:
+Run the same checks as CI from the repository root:
 
 ```sh
 bash scripts/test.sh

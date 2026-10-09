@@ -88,4 +88,5 @@ Run it from the repository root. It builds and checks the program, exercises
 contract transactions in a local Solana bank, and tests both SDKs with local
 fixtures and mock RPCs. Its additional setup requirements and coverage are in
 the [test guide](../tests/README.md). Building the release bundle does not run
-this suite.
+this suite. [CI](../.github/workflows/contracts.yml) runs the local tests followed
+by the production build.
