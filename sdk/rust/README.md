@@ -231,7 +231,11 @@ when the discriminator and allocated size stay the same. Rebuild matching IDLs
 and recreate incompatible accounts; retained signed transactions cannot be
 reordered without fresh review and signatures.
 
-The [funding journey](../../tests/cases/journey.rs) uses the SDK from deposits through claims. Its [shared test support](../../tests/support/) owns disposable keys, signing and ProgramTestContext execution; none of that code enters the SDK.
+The [settlement scenarios](../../tests/cases/audit_settlement.rs) and
+[funding journey](../../tests/cases/journey.rs) use the SDK from deposits through
+claims. Their [shared test support](../../tests/support/)
+owns disposable keys, signing and ProgramTestContext execution; none of that code
+enters the SDK.
 The [instruction tests](tests/instructions.rs) cover audit answers and reasons,
 canonical accounts, quorum payout order, the author's aliased receipt and
 contribution amount encoding. The contract tests verify signatures, reject

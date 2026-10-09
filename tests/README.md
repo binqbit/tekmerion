@@ -42,6 +42,11 @@ Coverage includes:
 - First-use Policy approval: pre-signed creation uses the rules at execution, while confirmed acquisition followed by review/signing prevents later rule changes.
 - Invalid Policy creation and rent rollback, executable subjects, and malformed or inconsistent state at the canonical predecessor address; repaired inputs permit a fresh attempt without consuming previous claims.
 - Auditor signatures, unauthorized identities, duplicate votes, invalid answer/reason pairs, signed Case/account substitution and policy immutability.
+- Votes before full funding, substitution of another valid Policy, and pre-signed votes whose required quorum destinations change before execution; rejected votes preserve state and remain retryable with a newly reviewed transaction.
 - Matching-answer quorums, conflicting votes, strict audit deadlines, winners-only payments and deterministic fee rounding.
+- Missing, reordered, read-only, duplicated, substituted, malformed, uninitialized, frozen and wrong-mint payment accounts; rollback of the final vote and earlier fee transfers; successful retry and replay rejection.
+- Yes/No/Unknown allocation vectors, zero-fee audits, contributor rounding in both claim orders, aggregate custody backing and successful claims after thawing a frozen destination.
+- Funding-time custody deficits cannot be hidden by fresh stakes, top-ups or final contributions. Zero-entitlement claims still validate backing and destinations; corrupted vault authorities cannot consume claim receipts.
+- Author receipt creation and rollback, actual bond amounts, role and principal forgery rejection, independent receipts across later cases, persisted author receipt aliases, shared claim encoding and zero-entitlement claim discharge.
 
 The direct vote ABI test independently checks the Anchor discriminator and answer/reason bytes. Signed transaction mutations verify that changing the Case, vault or answer invalidates the signature, and custody checks reject mismatched Case/vault pairs even with a new signature. Tests exercise local execution and transaction atomicity; a deployment and external audit operations require their own operational verification.
