@@ -1,0 +1,19 @@
+[workspace]
+members = ["programs/tekmerion"]
+exclude = ["sdk/rust", "tests"]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.89"
+publish = false
+
+[workspace.dependencies]
+anchor-lang = { version = "=1.2.1", default-features = false, features = ["solana-v3", "init-if-needed"] }
+anchor-spl = { version = "=1.2.1", default-features = false, features = ["solana-v3", "token", "token_2022"] }
+
+[workspace.lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
+
+[profile.release]
+overflow-checks = true

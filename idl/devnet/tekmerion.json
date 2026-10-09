@@ -1,0 +1,1539 @@
+{
+  "address": "TEKxbA5q3EhSDSBeYiW9AT3GGPyzruBSQUcuQXxdy3s",
+  "metadata": {
+    "name": "tekmerion",
+    "version": "0.1.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "acquire_policy",
+      "discriminator": [
+        124,
+        161,
+        92,
+        95,
+        46,
+        157,
+        115,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "client_authority",
+          "signer": true
+        },
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy.admin",
+                "account": "Policy"
+              },
+              {
+                "kind": "account",
+                "path": "policy.identifier",
+                "account": "Policy"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subject",
+          "docs": [
+            "dependency and the handler rejects executable accounts."
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim",
+      "discriminator": [
+        62,
+        198,
+        214,
+        193,
+        213,
+        159,
+        108,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true,
+          "relations": [
+            "receipt"
+          ]
+        },
+        {
+          "name": "case",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case.policy",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.nonce",
+                "account": "Case"
+              }
+            ]
+          },
+          "relations": [
+            "author_receipt",
+            "receipt"
+          ]
+        },
+        {
+          "name": "author_receipt",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              },
+              {
+                "kind": "account",
+                "path": "case.author",
+                "account": "Case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "receipt",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "address": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination",
+          "writable": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "contribute",
+      "discriminator": [
+        82,
+        33,
+        68,
+        131,
+        32,
+        0,
+        205,
+        95
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "case",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case.policy",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.nonce",
+                "account": "Case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy.admin",
+                "account": "Policy"
+              },
+              {
+                "kind": "account",
+                "path": "policy.identifier",
+                "account": "Policy"
+              }
+            ]
+          }
+        },
+        {
+          "name": "receipt",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "address": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+        },
+        {
+          "name": "source",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "requested",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "create_case",
+      "discriminator": [
+        38,
+        206,
+        153,
+        185,
+        128,
+        192,
+        221,
+        84
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "client_authority",
+          "signer": true
+        },
+        {
+          "name": "author",
+          "signer": true
+        },
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy.admin",
+                "account": "Policy"
+              },
+              {
+                "kind": "account",
+                "path": "policy.identifier",
+                "account": "Policy"
+              }
+            ]
+          }
+        },
+        {
+          "name": "subject",
+          "docs": [
+            "the handler rejects executables and validates Tekmerion's Case history."
+          ],
+          "writable": true
+        },
+        {
+          "name": "case",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy"
+              },
+              {
+                "kind": "account",
+                "path": "subject"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "author_receipt",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  114,
+                  101,
+                  99,
+                  101,
+                  105,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              },
+              {
+                "kind": "account",
+                "path": "author"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "address": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+        },
+        {
+          "name": "source",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "author_principal",
+          "type": "u64"
+        },
+        {
+          "name": "assertion",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_policy",
+      "discriminator": [
+        27,
+        81,
+        33,
+        27,
+        196,
+        103,
+        246,
+        53
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "admin",
+          "signer": true
+        },
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "admin"
+              },
+              {
+                "kind": "arg",
+                "path": "identifier"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "identifier",
+          "type": "u64"
+        },
+        {
+          "name": "client_authority",
+          "type": "pubkey"
+        },
+        {
+          "name": "rules",
+          "type": {
+            "defined": {
+              "name": "PolicyRules"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "finalize_timeout",
+      "discriminator": [
+        112,
+        138,
+        236,
+        182,
+        22,
+        98,
+        125,
+        25
+      ],
+      "accounts": [
+        {
+          "name": "case",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case.policy",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.nonce",
+                "account": "Case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "finalize_unchallenged",
+      "discriminator": [
+        73,
+        155,
+        54,
+        248,
+        103,
+        200,
+        228,
+        127
+      ],
+      "accounts": [
+        {
+          "name": "case",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case.policy",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.nonce",
+                "account": "Case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "submit_audit",
+      "discriminator": [
+        129,
+        202,
+        59,
+        247,
+        177,
+        24,
+        17,
+        164
+      ],
+      "accounts": [
+        {
+          "name": "auditor",
+          "signer": true
+        },
+        {
+          "name": "case",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  97,
+                  115,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case.policy",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.nonce",
+                "account": "Case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy.admin",
+                "account": "Policy"
+              },
+              {
+                "kind": "account",
+                "path": "policy.identifier",
+                "account": "Policy"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint",
+          "address": "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU"
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "answer",
+          "type": {
+            "defined": {
+              "name": "AuditAnswer"
+            }
+          }
+        },
+        {
+          "name": "reason",
+          "type": {
+            "defined": {
+              "name": "AuditReason"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "update_policy",
+      "discriminator": [
+        212,
+        245,
+        246,
+        7,
+        163,
+        151,
+        18,
+        57
+      ],
+      "accounts": [
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "policy"
+          ]
+        },
+        {
+          "name": "policy",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy.admin",
+                "account": "Policy"
+              },
+              {
+                "kind": "account",
+                "path": "policy.identifier",
+                "account": "Policy"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "rules",
+          "type": {
+            "defined": {
+              "name": "PolicyRules"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Case",
+      "discriminator": [
+        24,
+        222,
+        147,
+        26,
+        60,
+        162,
+        154,
+        176
+      ]
+    },
+    {
+      "name": "Policy",
+      "discriminator": [
+        222,
+        135,
+        7,
+        163,
+        235,
+        177,
+        33,
+        68
+      ]
+    },
+    {
+      "name": "StakeReceipt",
+      "discriminator": [
+        189,
+        110,
+        129,
+        87,
+        79,
+        225,
+        96,
+        177
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidRules",
+      "msg": "Invalid Policy rules"
+    },
+    {
+      "code": 6001,
+      "name": "ArithmeticOverflow",
+      "msg": "Checked arithmetic failed"
+    },
+    {
+      "code": 6002,
+      "name": "PolicyInUse",
+      "msg": "Policy has a retained dependency"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidSubject",
+      "msg": "Subject must be nonexecutable; unexpected accounts are not allowed"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidHistory",
+      "msg": "Attempt does not match the canonical preceding Case"
+    },
+    {
+      "code": 6005,
+      "name": "InsufficientBond",
+      "msg": "Actual author principal is below the required bond"
+    },
+    {
+      "code": 6006,
+      "name": "InvalidTokenAccount",
+      "msg": "Unsupported or invalid token account"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidTransfer",
+      "msg": "Actual token movement differs from the authorized amount"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidPhase",
+      "msg": "Operation is unavailable in the current phase"
+    },
+    {
+      "code": 6009,
+      "name": "FundingClosed",
+      "msg": "Funding deadline has elapsed"
+    },
+    {
+      "code": 6010,
+      "name": "FundingStillOpen",
+      "msg": "Funding deadline has not elapsed"
+    },
+    {
+      "code": 6011,
+      "name": "AlreadyFunded",
+      "msg": "Challenge target is already reached"
+    },
+    {
+      "code": 6012,
+      "name": "InvalidContribution",
+      "msg": "Contribution must be positive"
+    },
+    {
+      "code": 6013,
+      "name": "UnsupportedRole",
+      "msg": "The author cannot contribute to their own challenge"
+    },
+    {
+      "code": 6014,
+      "name": "InvalidReceipt",
+      "msg": "Receipt does not match this Case and participant"
+    },
+    {
+      "code": 6015,
+      "name": "InsufficientBacking",
+      "msg": "Custody does not cover every outstanding entitlement"
+    },
+    {
+      "code": 6016,
+      "name": "AlreadyClaimed",
+      "msg": "Entitlement has already been claimed"
+    },
+    {
+      "code": 6017,
+      "name": "UnauthorizedAuditor",
+      "msg": "Signer is not a configured auditor"
+    },
+    {
+      "code": 6018,
+      "name": "DuplicateAuditVote",
+      "msg": "Auditor has already submitted a vote"
+    },
+    {
+      "code": 6019,
+      "name": "InvalidPayoutAccounts",
+      "msg": "Fee destinations do not match the winning quorum"
+    },
+    {
+      "code": 6020,
+      "name": "InvalidAuditResponse",
+      "msg": "Audit answer and reason are incompatible"
+    },
+    {
+      "code": 6021,
+      "name": "AuditExpired",
+      "msg": "Audit deadline has elapsed"
+    },
+    {
+      "code": 6022,
+      "name": "AuditStillOpen",
+      "msg": "Audit deadline has not elapsed"
+    },
+    {
+      "code": 6023,
+      "name": "InvalidFeeRecipient",
+      "msg": "Fee destination is not owned by the configured beneficiary"
+    }
+  ],
+  "types": [
+    {
+      "name": "AuditAnswer",
+      "docs": [
+        "Authenticated audit answers. Infrastructure failure is not an answer."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Yes"
+          },
+          {
+            "name": "No"
+          },
+          {
+            "name": "Unknown"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditContext",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deadline",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "votes",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AuditVote"
+                }
+              }
+            }
+          },
+          {
+            "name": "response",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "AuditDecision"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditDecision",
+      "docs": [
+        "Retained decision. The terminal response is the vote completing quorum."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "answer",
+            "type": {
+              "defined": {
+                "name": "AuditAnswer"
+              }
+            }
+          },
+          {
+            "name": "reason",
+            "type": {
+              "defined": {
+                "name": "AuditReason"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditReason",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Decisive"
+          },
+          {
+            "name": "MissingEvidence"
+          },
+          {
+            "name": "StaleEvidence"
+          },
+          {
+            "name": "ConflictingEvidence"
+          },
+          {
+            "name": "UnsupportedEvidence"
+          },
+          {
+            "name": "Inconclusive"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditVote",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "auditor_index",
+            "type": "u8"
+          },
+          {
+            "name": "response",
+            "type": {
+              "defined": {
+                "name": "AuditDecision"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditorConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Wallet signer or a PDA that signs through its owning program."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_recipient",
+            "docs": [
+              "Wallet owning the USDC account that receives this auditor's fee share."
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Case",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "policy",
+            "type": "pubkey"
+          },
+          {
+            "name": "subject",
+            "type": "pubkey"
+          },
+          {
+            "name": "author",
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "previous_case",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "assertion",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "author_principal",
+            "type": "u64"
+          },
+          {
+            "name": "challenge_target",
+            "type": "u64"
+          },
+          {
+            "name": "challenge_principal",
+            "type": "u64"
+          },
+          {
+            "name": "funding_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "audit",
+            "type": {
+              "defined": {
+                "name": "AuditContext"
+              }
+            }
+          },
+          {
+            "name": "phase",
+            "type": {
+              "defined": {
+                "name": "CasePhase"
+              }
+            }
+          },
+          {
+            "name": "result",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "CaseResult"
+                }
+              }
+            }
+          },
+          {
+            "name": "finalized_at",
+            "docs": [
+              "Chain time of the single terminal transition, unaffected by claims."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "author_entitlement",
+            "type": "u64"
+          },
+          {
+            "name": "contributor_entitlement",
+            "type": "u128"
+          },
+          {
+            "name": "fee_entitlement",
+            "type": "u64"
+          },
+          {
+            "name": "contributor_unpaid",
+            "type": "u128"
+          },
+          {
+            "name": "unclaimed_contributors",
+            "docs": [
+              "Accepted contributor receipts that have not discharged their claim."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fee_claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CasePhase",
+      "docs": [
+        "Lifecycle progress is separate from the assertion's answer."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Funding"
+          },
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "Finalized"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CaseResult",
+      "docs": [
+        "Absence of an answer is represented by Option, never an invented Unknown."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Yes"
+          },
+          {
+            "name": "No"
+          },
+          {
+            "name": "Unknown"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Policy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "identifier",
+            "type": "u64"
+          },
+          {
+            "name": "client_authority",
+            "docs": [
+              "Admin-selected signer identity; its key or PDA derivation belongs to the client."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "rules",
+            "type": {
+              "defined": {
+                "name": "PolicyRules"
+              }
+            }
+          },
+          {
+            "name": "active_uses",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyRules",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "auditors",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AuditorConfig"
+                }
+              }
+            }
+          },
+          {
+            "name": "threshold",
+            "type": "u8"
+          },
+          {
+            "name": "author_bond",
+            "type": "u64"
+          },
+          {
+            "name": "challenge_target",
+            "type": "u64"
+          },
+          {
+            "name": "audit_fee",
+            "type": "u64"
+          },
+          {
+            "name": "funding_duration",
+            "type": "u64"
+          },
+          {
+            "name": "audit_timeout",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "StakeReceipt",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "case",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "side",
+            "type": "u8"
+          },
+          {
+            "name": "principal",
+            "type": "u64"
+          },
+          {
+            "name": "claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}

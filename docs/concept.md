@@ -2,6 +2,8 @@
 
 Tekmerion is a reusable protocol for assertions that may need independent review. It brings together a bonded statement, an opportunity to challenge it, an agreed audit process and a result that another application can use.
 
+For a visual walkthrough of funding, auditor decisions and payments, see [how Tekmerion works](how-it-works.md).
+
 ## The problem and the people it serves
 
 An application can have clear rules for what to do once a fact is known, while establishing that fact still requires interpretation. Sources may be incomplete, contradictory or worded differently. Relying on an application's operator to settle every disagreement can leave users uncertain about how the answer was chosen.
@@ -31,7 +33,7 @@ flowchart TD
 
 The author's bond and challenge contributions support the review process. Contributions fund a challenge; auditors' signed answers determine the result.
 
-On the optimistic path, finalization makes the author's bond and accepted challenge contributions claimable in full without an audit fee. After an audit, the result determines who bears the agreed audit fee and how the bonded funds are allocated. A successful challenge entitles challengers to their contributions and a share of the losing author's collateral after the fee, proportional to their accepted contributions.
+On the optimistic path, finalization makes the author's bond and accepted challenge contributions claimable in full without an audit fee. After an audit, the result determines who bears the agreed audit fee and how the bonded funds are allocated. A successful challenge entitles challengers to their contributions and a share of the losing author's collateral after the fee, proportional to their accepted contributions. The [payment example](how-it-works.md#where-the-money-goes) shows how the outcome changes who receives the deposits.
 
 The audit fee is split equally among the auditors whose matching answers formed the quorum. Each auditor has a configured fee wallet. Remaining base units are distributed one each among quorum members in policy order, so individual shares differ by at most one base unit. The deciding vote and all fee transfers succeed together; a failed transfer leaves the vote retryable.
 

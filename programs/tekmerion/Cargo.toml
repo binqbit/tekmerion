@@ -1,0 +1,29 @@
+[package]
+name = "tekmerion"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+default = ["mainnet"]
+mainnet = []
+devnet = []
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+[dependencies]
+anchor-lang.workspace = true
+anchor-spl.workspace = true
+
+[lints]
+workspace = true
