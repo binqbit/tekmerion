@@ -32,12 +32,16 @@ For a custom async test, take the builder from `setup::programs::program_test()`
 
 Both authors and contributors have canonical `StakeReceipt` accounts: side `0` records the author's actual bond and side `1` records challenge contributions. Both use `claim`; author claims repeat the same receipt in its readonly backing and writable claiming positions. Reading a finalized Case does not require another application program.
 
-The default policy has one independent auditor for concise settlement vectors.
+The default policy has one independent auditor for concise settlement vectors. Committee scenarios additionally execute 2-of-3, 3-of-5 and maximum-size 9-of-9 decisions. Auditors submit an answer and reason directly, with the signature binding the vote to its Case and accounts. Every auditor votes once. Retained votes identify the auditor and preserve the answer and reason. The vote reaching the threshold atomically settles the case and transfers the fee to the matching voters' configured token wallets in committee order. Inconclusive opinions are real audit answers; an expired case without a matching quorum refunds deposits without an audit fee.
 
 Coverage includes:
 
 - Reusable token setup on a standalone `ProgramTestContext`, including repeated mint operations without changing the test Clock.
 - Contributions, top-ups, capped final credits, donations, clock boundaries and optimistic refunds.
-- Configured wallet authorization, opaque subjects, fresh successor collateral and cross-case isolation.
+- Configured wallet authorization, opaque subjects, fresh successor collateral, cross-case isolation and stable terminal results across claims.
 - First-use Policy approval: pre-signed creation uses the rules at execution, while confirmed acquisition followed by review/signing prevents later rule changes.
 - Invalid Policy creation and rent rollback, executable subjects, and malformed or inconsistent state at the canonical predecessor address; repaired inputs permit a fresh attempt without consuming previous claims.
+- Auditor signatures, unauthorized identities, duplicate votes, invalid answer/reason pairs, signed Case/account substitution and policy immutability.
+- Matching-answer quorums, conflicting votes, strict audit deadlines, winners-only payments and deterministic fee rounding.
+
+The direct vote ABI test independently checks the Anchor discriminator and answer/reason bytes. Signed transaction mutations verify that changing the Case, vault or answer invalidates the signature, and custody checks reject mismatched Case/vault pairs even with a new signature. Tests exercise local execution and transaction atomicity; a deployment and external audit operations require their own operational verification.
