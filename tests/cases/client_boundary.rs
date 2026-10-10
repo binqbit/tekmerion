@@ -28,7 +28,8 @@ fn attempt_ix(ctx: &TestContext, case: CaseAddress) -> Instruction {
             author: pk(ctx.actor(Actor::Author)),
             source: pk(ctx.token(Actor::Author)),
             author_principal: BOND,
-            assertion: [0x91; 32],
+            agreement_hash: [0xa1; 32],
+            result_hash: [0x91; 32],
         },
     )
 }
@@ -604,4 +605,27 @@ fn invalid_policy_creation_returns_rent_and_leaves_the_address_reusable() {
     assert_eq!(created.rules, rules());
     assert_eq!(created.active_uses, 0);
     assert_eq!(created.admin, pk(ctx.actor(Actor::Admin)));
+}
+
+#[test]
+fn both_document_commitments_are_required_before_author_funds_move() {
+    use anchor_lang::InstructionData;
+    for (agreement_hash, result_hash) in [([0; 32], [1; 32]), ([1; 32], [0; 32])] {
+        let mut ctx = TestContext::new();
+        let mut instruction = ctx.submit_case_ix(BOND);
+        instruction.data = tekmerion::instruction::CreateCase {
+            nonce: 0,
+            author_principal: BOND,
+            agreement_hash,
+            result_hash,
+        }
+        .data();
+        ctx.reject(
+            &[instruction],
+            &[Actor::ClientAuthority, Actor::Author],
+            ExpectedError::Protocol(Error::InvalidCommitment),
+        );
+        assert_eq!(ctx.policy_state().active_uses, 0);
+        assert_eq!(ctx.amount(ctx.token(Actor::Author)), BALANCE);
+    }
 }

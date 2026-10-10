@@ -83,8 +83,13 @@ pub(crate) fn handle(
     ctx: Context<CreateCase>,
     nonce: u64,
     author_principal: u64,
-    assertion: [u8; 32],
+    agreement_hash: [u8; 32],
+    result_hash: [u8; 32],
 ) -> Result<()> {
+    require!(
+        agreement_hash != [0; 32] && result_hash != [0; 32],
+        TekmerionError::InvalidCommitment
+    );
     let previous_case = validate_previous_case(
         &ctx.accounts.subject.to_account_info(),
         &ctx.accounts.policy.key(),
@@ -128,7 +133,8 @@ pub(crate) fn handle(
         author: ctx.accounts.author.key(),
         nonce,
         previous_case,
-        assertion,
+        agreement_hash,
+        result_hash,
         author_principal,
         challenge_target: ctx.accounts.policy.rules.challenge_target,
         funding_deadline: deadline.unix_seconds(),

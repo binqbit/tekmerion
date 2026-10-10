@@ -40,7 +40,8 @@ function build(client, vector) {
         author: pubkey(value.author),
         source: pubkey(value.source),
         authorPrincipal: BigInt(value.authorPrincipal),
-        assertion: Buffer.from(value.assertionHex, 'hex'),
+        agreementHash: Buffer.from(value.agreementHashHex, 'hex'),
+        resultHash: Buffer.from(value.resultHashHex, 'hex'),
       });
     case 'contribute':
       return client.contribute(
@@ -112,7 +113,7 @@ for (const network of ['mainnet', 'devnet']) {
         client.accountSize('Case'),
         client.accountSize('StakeReceipt'),
       ],
-      [710, 323, 83],
+      [710, 355, 83],
     );
   });
   for (const current of fixture.snapshots) {

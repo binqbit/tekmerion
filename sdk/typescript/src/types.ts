@@ -48,7 +48,8 @@ export interface CaseAddress {
 export interface Case extends CaseAddress {
   readonly author: PublicKey;
   readonly previousCase: PublicKey | null;
-  readonly assertion: readonly number[];
+  readonly agreementHash: readonly number[];
+  readonly resultHash: readonly number[];
   readonly authorPrincipal: bigint;
   readonly challengeTarget: bigint;
   readonly challengePrincipal: bigint;

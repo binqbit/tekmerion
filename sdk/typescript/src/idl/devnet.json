@@ -534,7 +534,16 @@
           "type": "u64"
         },
         {
-          "name": "assertion",
+          "name": "agreement_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "result_hash",
           "type": {
             "array": [
               "u8",
@@ -1105,6 +1114,11 @@
       "code": 6023,
       "name": "InvalidFeeRecipient",
       "msg": "Fee destination is not owned by the configured beneficiary"
+    },
+    {
+      "code": 6024,
+      "name": "InvalidCommitment",
+      "msg": "Agreement and result hashes must not be zero"
     }
   ],
   "types": [
@@ -1285,7 +1299,16 @@
             }
           },
           {
-            "name": "assertion",
+            "name": "agreement_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "result_hash",
             "type": {
               "array": [
                 "u8",

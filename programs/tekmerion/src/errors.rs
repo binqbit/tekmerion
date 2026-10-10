@@ -67,4 +67,6 @@ pub enum TekmerionError {
     AuditStillOpen,
     #[msg("Fee destination is not owned by the configured beneficiary")]
     InvalidFeeRecipient,
+    #[msg("Agreement and result hashes must not be zero")]
+    InvalidCommitment,
 }

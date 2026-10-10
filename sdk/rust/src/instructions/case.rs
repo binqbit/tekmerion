@@ -39,7 +39,8 @@ pub struct CreateCase {
 
     // Assertion inputs.
     pub author_principal: u64,
-    pub assertion: [u8; 32],
+    pub agreement_hash: [u8; 32],
+    pub result_hash: [u8; 32],
 }
 
 /// Later attempts include the canonical predecessor as a readonly account.
@@ -66,7 +67,8 @@ pub fn create_case(case: CaseAddress, input: CreateCase) -> Instruction {
         tekmerion::instruction::CreateCase {
             nonce: case.nonce,
             author_principal: input.author_principal,
-            assertion: input.assertion,
+            agreement_hash: input.agreement_hash,
+            result_hash: input.result_hash,
         },
     );
     if let Some(nonce) = case.nonce.checked_sub(1) {

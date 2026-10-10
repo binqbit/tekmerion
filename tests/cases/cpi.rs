@@ -60,7 +60,8 @@ fn create_case(ctx: &TestContext, case: CaseAddress, previous: Option<Pubkey>) -
         data: sdk_consumer::instruction::CreateCase {
             nonce: case.nonce,
             author_principal: BOND,
-            assertion: [0x91; 32],
+            agreement_hash: [0xa1; 32],
+            result_hash: [0x91; 32],
         }
         .data(),
     }

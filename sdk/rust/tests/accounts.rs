@@ -123,6 +123,7 @@ fn read_case_view<'subject>(
         author,
         0_u64,
         None::<Pubkey>,
+        [0xa1_u8; 32],
         [91_u8; 32],
     )
         .serialize(&mut case_bytes)

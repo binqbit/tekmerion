@@ -94,13 +94,14 @@ fn main() {
             author: pk(ctx.actor(Actor::Author)),
             source: pk(ctx.token(Actor::Author)),
             author_principal: BOND,
-            assertion: [0x91; 32],
+            agreement_hash: [0xa1; 32],
+            result_hash: [0x91; 32],
         };
         instructions.push(instruction("createCase", &format!("createCase-{nonce}"), json!({
             "caseAddress": case_address(address),
             "payer": input.payer.to_string(), "clientAuthority": input.client_authority.to_string(),
             "author": input.author.to_string(), "source": input.source.to_string(),
-            "authorPrincipal": BOND.to_string(), "assertionHex": hex(&input.assertion),
+            "authorPrincipal": BOND.to_string(), "agreementHashHex": hex(&input.agreement_hash), "resultHashHex": hex(&input.result_hash),
         }), sdk::create_case(address, input)));
     }
 

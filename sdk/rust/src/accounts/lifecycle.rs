@@ -10,7 +10,11 @@ use crate::{Result, SdkError};
 /// This checks consistency; it cannot prove the supplied bytes came from a chain.
 pub(super) fn validate(case: &Case, policy: &Policy, author_claimed: bool) -> Result<u128> {
     let rules = &policy.rules;
-    if !rules.has_valid_parameters() || case.audit.votes.len() > rules.auditors.len() {
+    if !rules.has_valid_parameters()
+        || case.audit.votes.len() > rules.auditors.len()
+        || case.agreement_hash == [0; 32]
+        || case.result_hash == [0; 32]
+    {
         return Err(SdkError::InvalidState);
     }
     let mut seen = [false; MAX_AUDITORS];

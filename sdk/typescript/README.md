@@ -39,17 +39,17 @@ export function contributionInstruction(
 
 `CaseAddress` is `{ policy: PublicKey, subject: PublicKey, nonce: bigint }`. The builders derive canonical Case, vault, policy, stake receipt and predecessor PDAs. They return unsigned `TransactionInstruction` values; the program enforces authorization and current state.
 
-| Builder                                                           | Inputs beyond the Case identity                                                           |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `createPolicy(input)`                                             | `payer`, `admin`, `clientAuthority`, `identifier`, `rules`                                |
-| `updatePolicy(admin, identifier, rules)`                          | Policy admin and identifier                                                               |
-| `acquirePolicy(policy, clientAuthority, subject)`                 | Policy, authority and opaque subject                                                      |
-| `createCase(identity, input)`                                     | `payer`, `clientAuthority`, `author`, `source`, `authorPrincipal`, 32-byte `assertion`    |
-| `contribute(identity, input, requested)`                          | `payer`, `owner`, `source`, requested base units                                          |
-| `submitAudit(identity, auditor, answer, reason, feeDestinations)` | Member signer, decision, ordered SPL token accounts                                       |
-| `finalizeUnchallenged(identity)`                                  | No extra input                                                                            |
-| `finalizeTimeout(identity)`                                       | No extra input                                                                            |
-| `claim(identity, author, destination)`                            | Case author and `{ owner, destination }`; the author receipt is aliased for author claims |
+| Builder                                                           | Inputs beyond the Case identity                                                                             |
+| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `createPolicy(input)`                                             | `payer`, `admin`, `clientAuthority`, `identifier`, `rules`                                                  |
+| `updatePolicy(admin, identifier, rules)`                          | Policy admin and identifier                                                                                 |
+| `acquirePolicy(policy, clientAuthority, subject)`                 | Policy, authority and opaque subject                                                                        |
+| `createCase(identity, input)`                                     | `payer`, `clientAuthority`, `author`, `source`, `authorPrincipal`, 32-byte `agreementHash` and `resultHash` |
+| `contribute(identity, input, requested)`                          | `payer`, `owner`, `source`, requested base units                                                            |
+| `submitAudit(identity, auditor, answer, reason, feeDestinations)` | Member signer, decision, ordered SPL token accounts                                                         |
+| `finalizeUnchallenged(identity)`                                  | No extra input                                                                                              |
+| `finalizeTimeout(identity)`                                       | No extra input                                                                                              |
+| `claim(identity, author, destination)`                            | Case author and `{ owner, destination }`; the author receipt is aliased for author claims                   |
 
 Answers are `yes`, `no` and `unknown`. Yes/No require `decisive`; Unknown uses `missingEvidence`, `staleEvidence`, `conflictingEvidence`, `unsupportedEvidence` or `inconclusive`.
 

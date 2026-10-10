@@ -108,7 +108,7 @@ and post-transfer balance checks remain explicit.
 | `create_policy(identifier, client_authority, rules)` | Admin and payer signatures; creates validated committee and economics                                          |
 | `update_policy(rules)`                               | Stored admin; only while `active_uses == 0`                                                                    |
 | `acquire_policy()`                                   | Stored client authority; retains an application dependency and permanently locks the rules                     |
-| `create_case(nonce, author_principal, assertion)`    | Client authority and author; transfers the bond and creates Case, vault and author receipt                     |
+| `create_case(nonce, author_principal, agreement_hash, result_hash)`    | Client authority and author; transfers the bond and creates Case, vault and author receipt                     |
 | `contribute(requested)`                              | Contributor signature and owned token source; caps accepted principal at the remaining target                  |
 | `submit_audit(answer, reason)`                       | Configured auditor signature; records its single vote and automatically settles/pays upon quorum               |
 | `finalize_unchallenged()`                            | Anyone after the funding deadline while below target; optimistic Yes with full refunds                         |
@@ -129,7 +129,7 @@ not pin rules read before that transaction. See the
 [first-Case integration sequence](../../sdk/README.md#first-case-with-a-policy).
 
 The configured `client_authority` can be a wallet or a PDA signing through CPI.
-Tekmerion binds the opaque, nonexecutable subject address, author and assertion.
+Tekmerion binds the opaque, nonexecutable subject address, author and two nonzero 32-byte commitments: `agreement_hash` for the agreed rules and `result_hash` for the proposed result. The client defines the documents and their canonical encoding; both hashes remain immutable for the Case.
 It does not infer an external program identity or interpret subject data.
 The subject need not have a funded account. Closing an external subject account
 later does not invalidate the Case or prevent settlement and withdrawals.

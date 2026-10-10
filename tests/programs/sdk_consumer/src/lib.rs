@@ -16,7 +16,8 @@ pub mod sdk_consumer {
         ctx: Context<'info, CreateCase<'info>>,
         nonce: u64,
         author_principal: u64,
-        assertion: [u8; 32],
+        agreement_hash: [u8; 32],
+        result_hash: [u8; 32],
     ) -> Result<()> {
         let controller = ctx.accounts.controller.key();
         let bump = [ctx.bumps.authority];
@@ -43,7 +44,7 @@ pub mod sdk_consumer {
         )
         .with_remaining_accounts(ctx.remaining_accounts.to_vec());
 
-        tekmerion_sdk::cpi::create_case(cpi, nonce, author_principal, assertion)
+        tekmerion_sdk::cpi::create_case(cpi, nonce, author_principal, agreement_hash, result_hash)
     }
 
     pub fn submit_audit<'info>(

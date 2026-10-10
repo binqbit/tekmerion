@@ -18,7 +18,7 @@ fn tkt_001_002_053_057_fee_free_journey_preserves_unpaid_rights_and_policy_lock(
             assert_eq!(ctx.amount(ctx.vault), BOND);
             assert_eq!(ctx.account(ctx.subject), subject_before);
             assert!(ctx.case_state().previous_case.is_none());
-            assert_eq!(ctx.case_state().assertion, [0x91; 32]);
+            assert_eq!(ctx.case_state().result_hash, [0x91; 32]);
             assert_eq!(ctx.case_state().phase(), CasePhase::Funding);
             assert_eq!(ctx.case_state().result(), None);
             assert_eq!(ctx.case_state().completion_method(), None);

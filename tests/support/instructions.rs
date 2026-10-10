@@ -86,7 +86,8 @@ impl TestContext {
                 author: pk(self.actor(Actor::Author)),
                 source: pk(self.token(Actor::Author)),
                 author_principal,
-                assertion: [0x91; 32],
+                agreement_hash: [0xa1; 32],
+                result_hash: [0x91; 32],
             },
         )
     }

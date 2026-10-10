@@ -180,7 +180,9 @@ function lifecycle(
           codec.programId,
         )[0];
   requireState(
-    same(state.previousCase, previous) &&
+    state.agreementHash.some((byte) => byte !== 0) &&
+      state.resultHash.some((byte) => byte !== 0) &&
+      same(state.previousCase, previous) &&
       policy.activeUses !== 0n &&
       state.authorPrincipal >= rules.authorBond &&
       state.challengeTarget === rules.challengeTarget &&

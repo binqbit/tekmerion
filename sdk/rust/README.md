@@ -48,7 +48,7 @@ Neither the protocol nor SDK identifies a client program from its authority.
 See the [authority contract](../../programs/tekmerion/README.md#instructions).
 
 `create_case(CaseAddress, CreateCase)` builds direct submission with explicit
-payer, client authority, author, source, principal and assertion. For a nonzero
+payer, client authority, author, source, principal, agreement hash and result hash. For a nonzero
 nonce it appends the canonical preceding Case as a readonly remaining account.
 Creation also initializes the author's `StakeReceipt` at `case.receipt(&author)`;
 the payer funds its rent along with the Case and vault.

@@ -43,7 +43,8 @@ pub(crate) struct CaseInitialization {
     pub author: Pubkey,
     pub nonce: u64,
     pub previous_case: Option<Pubkey>,
-    pub assertion: [u8; 32],
+    pub agreement_hash: [u8; 32],
+    pub result_hash: [u8; 32],
 
     // Funding terms.
     pub author_principal: u64,
@@ -64,7 +65,8 @@ pub struct Case {
     pub author: Pubkey,
     pub nonce: u64,
     pub previous_case: Option<Pubkey>,
-    pub assertion: [u8; 32],
+    pub agreement_hash: [u8; 32],
+    pub result_hash: [u8; 32],
 
     // Funding terms and progress.
     pub author_principal: u64,
@@ -102,7 +104,7 @@ impl Case {
         + 3 * 32
         + 8
         + 33
-        + 32
+        + 2 * 32
         + 3 * 8
         + 8
         + AuditContext::SPACE
@@ -126,7 +128,8 @@ impl Case {
             author: initial.author,
             nonce: initial.nonce,
             previous_case: initial.previous_case,
-            assertion: initial.assertion,
+            agreement_hash: initial.agreement_hash,
+            result_hash: initial.result_hash,
             author_principal: initial.author_principal,
             challenge_target: initial.challenge_target,
             challenge_principal: 0,

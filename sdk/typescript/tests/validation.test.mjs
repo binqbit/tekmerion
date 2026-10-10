@@ -328,3 +328,14 @@ test('quotes enforce exact deadline, valid response pairs and zero-fee quorum de
     [0n, 0n],
   );
 });
+
+for (const field of ['agreement_hash', 'result_hash']) {
+  test(`rejects a missing ${field} commitment in otherwise valid Case state`, async () => {
+    const current = snapshot('funded');
+    const supplied = accounts(current.accounts);
+    supplied.case = await mutateAccount(current.accounts.case, 'Case', (state) => {
+      state[field] = Array(32).fill(0);
+    });
+    fail(() => evaluate(current, supplied), 'InvalidState');
+  });
+}

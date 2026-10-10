@@ -34,7 +34,8 @@ export interface CreateCase {
   readonly author: PublicKey;
   readonly source: PublicKey;
   readonly authorPrincipal: bigint;
-  readonly assertion: Uint8Array;
+  readonly agreementHash: Uint8Array;
+  readonly resultHash: Uint8Array;
 }
 export interface Contribution {
   readonly payer: PublicKey;
@@ -126,7 +127,12 @@ export class TekmerionClient {
         source: input.source,
         vault: this.vaultAddress(identity)[0],
       },
-      { nonce: identity.nonce, authorPrincipal: input.authorPrincipal, assertion: input.assertion },
+      {
+        nonce: identity.nonce,
+        authorPrincipal: input.authorPrincipal,
+        agreementHash: input.agreementHash,
+        resultHash: input.resultHash,
+      },
       remaining,
     );
   }
