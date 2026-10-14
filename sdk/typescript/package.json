@@ -1,6 +1,6 @@
 {
   "name": "@tekmerion/sdk",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Tekmerion instructions, authenticated bigint views and Solana RPC reads and execution",
   "type": "module",

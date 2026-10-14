@@ -8086,7 +8086,7 @@ dependencies = [
 
 [[package]]
 name = "tekmerion"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
@@ -8094,7 +8094,7 @@ dependencies = [
 
 [[package]]
 name = "tekmerion-contract-tests"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anchor-lang",
  "serde_json",
@@ -8124,7 +8124,7 @@ dependencies = [
 
 [[package]]
 name = "tekmerion-sdk"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anchor-lang",
  "anchor-spl",
@@ -8134,7 +8134,7 @@ dependencies = [
 
 [[package]]
 name = "tekmerion-sdk-consumer"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anchor-lang",
  "tekmerion-sdk",
