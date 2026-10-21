@@ -4,7 +4,7 @@ use tekmerion::calculations::{
     funding::FundingSnapshot,
     time::{ChainDeadline, ChainTimestamp},
 };
-use tekmerion::{AUTHOR_SIDE, Case, Policy, StakeReceipt};
+use tekmerion::{AUTHOR_SIDE, Case, CaseMode, Policy, StakeReceipt};
 
 use super::{AccountData, Observation, PolicyView, lifecycle};
 use crate::{Result, SdkError, instructions::CaseAddress};
@@ -66,7 +66,7 @@ impl CaseView {
         }
         if author_receipt.side != AUTHOR_SIDE
             || author_receipt.principal != case.author_principal
-            || author_receipt.principal == 0
+            || (author_receipt.principal == 0 && case.mode != CaseMode::DirectAudit)
         {
             return Err(SdkError::InvalidState);
         }

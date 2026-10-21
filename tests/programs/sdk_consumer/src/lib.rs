@@ -15,7 +15,7 @@ pub mod sdk_consumer {
     pub fn create_case<'info>(
         ctx: Context<'info, CreateCase<'info>>,
         nonce: u64,
-        author_principal: u64,
+        funding: tekmerion_sdk::program::CaseFunding,
         agreement_hash: [u8; 32],
         result_hash: [u8; 32],
     ) -> Result<()> {
@@ -44,7 +44,7 @@ pub mod sdk_consumer {
         )
         .with_remaining_accounts(ctx.remaining_accounts.to_vec());
 
-        tekmerion_sdk::cpi::create_case(cpi, nonce, author_principal, agreement_hash, result_hash)
+        tekmerion_sdk::cpi::create_case(cpi, nonce, funding, agreement_hash, result_hash)
     }
 
     pub fn submit_audit<'info>(

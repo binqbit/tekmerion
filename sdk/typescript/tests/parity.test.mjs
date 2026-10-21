@@ -39,7 +39,10 @@ function build(client, vector) {
         clientAuthority: pubkey(value.clientAuthority),
         author: pubkey(value.author),
         source: pubkey(value.source),
-        authorPrincipal: BigInt(value.authorPrincipal),
+        funding:
+          value.funding.kind === 'bonded'
+            ? { kind: 'bonded', principal: BigInt(value.funding.principal) }
+            : { kind: 'direct', expectedFee: BigInt(value.funding.expectedFee) },
         agreementHash: Buffer.from(value.agreementHashHex, 'hex'),
         resultHash: Buffer.from(value.resultHashHex, 'hex'),
       });
@@ -113,7 +116,7 @@ for (const network of ['mainnet', 'devnet']) {
         client.accountSize('Case'),
         client.accountSize('StakeReceipt'),
       ],
-      [710, 355, 83],
+      [710, 356, 83],
     );
   });
   for (const current of fixture.snapshots) {
@@ -125,6 +128,7 @@ for (const network of ['mainnet', 'devnet']) {
         supplied,
       );
       const expected = current.expected;
+      assert.equal(view.case.mode, expected.mode);
       assert.equal(view.case.phase, expected.phase);
       assert.equal(view.case.result, expected.result);
       assert.equal(view.completionMethod, expected.completion);

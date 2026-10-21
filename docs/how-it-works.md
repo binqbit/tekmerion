@@ -10,7 +10,9 @@ Before participants commit funds, the rules define the minimum author deposit, c
 
 ```mermaid
 flowchart TD
-    Rules["Application locks the rules; author reviews them"] --> Author["Author submits a statement and deposits a bond"]
+    Rules["Application locks the rules; author reviews them"] --> Direct["Direct audit: author deposits only the audit fee"]
+    Direct --> Audit
+    Rules --> Author["Author submits a statement and deposits a bond"]
     Author --> Challenge["Participants have time to fund a challenge"]
     Challenge -->|"Target reached"| Audit["Auditors review the statement and vote"]
     Challenge -->|"Target missed at deadline"| Accepted["Close review: accept statement and enable full refunds"]
@@ -19,9 +21,11 @@ flowchart TD
     Decision --> Payout["Matching auditors are paid; participants can withdraw their allocation"]
 ```
 
-The audit starts as soon as the challenge reaches its target and has its own fixed time limit from that moment. For example, if 70 of the required 100 USDC is collected and someone offers 50, the contract accepts only 30. Further contributions stop when the target is reached. Until the review ends, deposits remain locked.
+In challenge mode, the audit starts as soon as the challenge reaches its target and has its own fixed time limit from that moment. For example, if 70 of the required 100 USDC is collected and someone offers 50, the contract accepts only 30. Further contributions stop when the target is reached. Until the review ends, deposits remain locked.
 
 An underfunded challenge leads to acceptance after the funding deadline and an explicit closing action. Auditors have not verified the statement in this path. Deadlines never send money by themselves: anyone can close an expired review, and each participant then requests their withdrawal.
+
+A direct audit starts immediately when the author submits and prepays the exact Policy fee. It has no bond, contributions or optimistic acceptance. Its audit deadline starts at creation. The chosen mode is stored permanently on the Case; an existing Case cannot switch modes. Both paths use the same committee, vote rules and audit timeout.
 
 ## How auditors reach a decision
 
@@ -46,7 +50,9 @@ Agreement that the evidence is inconclusive is a completed audit and earns a fee
 
 ## Where the money goes
 
-Each review keeps its funds separate. The full amount deposited by the author is at risk, even if it exceeds the minimum. Challenge participants receive shares based on their accepted contributions.
+For a direct audit, the entire prepaid fee goes to the deciding quorum for support, rejection or an inconclusive answer. If no quorum arrives before the audit deadline, anyone can close the timeout and the author can withdraw the full fee. There are no challenger rewards and no author reward. Network fees and account rent are separate.
+
+Each challenge review keeps its funds separate. The full bond deposited by the author is at risk, even if it exceeds the minimum. Challenge participants receive shares based on their accepted contributions.
 
 For example, the author deposits **125 USDC**, challengers together deposit **100 USDC**, and the agreed audit fee is **10 USDC**. When auditors reach agreement, the pool is split as follows:
 
@@ -75,9 +81,9 @@ Auditor payments happen together with the deciding vote. If one payment fails, t
 
 | Moment                    | Checks enforced by the contract                                                                                                                  |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Starting a review         | The application authorizes it, the author agrees, and the required bond is actually deposited.                                                   |
+| Starting a review         | The application authorizes it, the author agrees, and the selected mode’s required bond or exact audit fee is actually deposited.                                                   |
 | Accepting a contribution  | Funding is still open, the contributor is not the author, and only the remaining amount needed is collected.                                     |
-| Accepting a vote          | The challenge is fully funded, the sender is an appointed auditor, that auditor has not voted before, and the audit voting window is still open. |
+| Accepting a vote          | The challenge or direct audit is fully funded, the sender is an appointed auditor, that auditor has not voted before, and the audit voting window is still open. |
 | Deciding the outcome      | Enough auditors gave the same answer. A finished result cannot be changed.                                                                       |
 | Closing an expired review | Its relevant deadline has been reached and no earlier decision has already ended it.                                                             |
 | Paying people             | The money is available, each payment goes to its entitled recipient, and the same entitlement cannot be paid twice.                              |

@@ -69,4 +69,6 @@ pub enum TekmerionError {
     InvalidFeeRecipient,
     #[msg("Agreement and result hashes must not be zero")]
     InvalidCommitment,
+    #[msg("Reviewed audit fee differs from the Policy fee")]
+    InvalidAuditFee,
 }

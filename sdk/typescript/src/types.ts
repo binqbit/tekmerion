@@ -9,6 +9,10 @@ export type AuditReason =
   | 'conflictingEvidence'
   | 'unsupportedEvidence'
   | 'inconclusive';
+export type CaseMode = 'challenge' | 'direct';
+export type CaseFunding =
+  | { readonly kind: 'bonded'; readonly principal: bigint }
+  | { readonly kind: 'direct'; readonly expectedFee: bigint };
 export type CasePhase = 'funding' | 'funded' | 'finalized';
 export type CompletionMethod = 'optimistic' | 'audited' | 'technicalFailure';
 export interface AuditDecision {
@@ -50,6 +54,7 @@ export interface Case extends CaseAddress {
   readonly previousCase: PublicKey | null;
   readonly agreementHash: readonly number[];
   readonly resultHash: readonly number[];
+  readonly mode: CaseMode;
   readonly authorPrincipal: bigint;
   readonly challengeTarget: bigint;
   readonly challengePrincipal: bigint;

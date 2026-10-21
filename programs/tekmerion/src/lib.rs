@@ -41,11 +41,11 @@ pub mod tekmerion {
     pub fn create_case(
         ctx: Context<CreateCase>,
         nonce: u64,
-        author_principal: u64,
+        funding: CaseFunding,
         agreement_hash: [u8; 32],
         result_hash: [u8; 32],
     ) -> Result<()> {
-        instructions::create_case::handle(ctx, nonce, author_principal, agreement_hash, result_hash)
+        instructions::create_case::handle(ctx, nonce, funding, agreement_hash, result_hash)
     }
 
     pub fn contribute(ctx: Context<Contribute>, requested: u64) -> Result<()> {

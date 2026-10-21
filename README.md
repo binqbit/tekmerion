@@ -4,6 +4,8 @@ Tekmerion helps applications resolve disputed statements through independent aud
 
 An author backs a statement with USDC. Other participants can pool funds to challenge it. A fully funded challenge goes to the appointed auditors, whose matching answers determine the outcome. That outcome determines the auditors' reward and the amounts participants can withdraw.
 
+Alternatively, the author can choose a direct audit when submitting: pay only the fixed audit fee and start the review immediately, without a bond or challenge window. The fee is earned on any audited answer; if the audit times out without a quorum, the author can reclaim it. Each Case permanently records which mode was chosen.
+
 The repository contains the smart contract and Rust and TypeScript SDKs for integrating it into other applications.
 
 ## Build the contract

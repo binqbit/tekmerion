@@ -1,6 +1,6 @@
 use anchor_lang::{AnchorDeserialize, AnchorSerialize, prelude::Pubkey, system_program};
 use solana_instruction::{AccountMeta, Instruction};
-use tekmerion::{AuditAnswer, AuditReason, Case, StakeReceipt};
+use tekmerion::{AuditAnswer, AuditReason, Case, CaseFunding, StakeReceipt};
 
 use super::instruction;
 
@@ -27,7 +27,7 @@ impl CaseAddress {
     }
 }
 
-/// Bonded submission authorized by the configured client and the token owner.
+/// Bonded or directly funded audit authorized by the configured client and the token owner.
 /// The caller owns client-specific subject and current-Case validation.
 pub struct CreateCase {
     // Signers.
@@ -39,7 +39,7 @@ pub struct CreateCase {
     pub source: Pubkey,
 
     // Assertion inputs.
-    pub author_principal: u64,
+    pub funding: CaseFunding,
     pub agreement_hash: [u8; 32],
     pub result_hash: [u8; 32],
 }
@@ -67,7 +67,7 @@ pub fn create_case(case: CaseAddress, input: CreateCase) -> Instruction {
         },
         tekmerion::instruction::CreateCase {
             nonce: case.nonce,
-            author_principal: input.author_principal,
+            funding: input.funding,
             agreement_hash: input.agreement_hash,
             result_hash: input.result_hash,
         },

@@ -15,6 +15,7 @@ import type {
   Case,
   CaseAccounts,
   CaseAddress,
+  CaseFunding,
   Network,
   Observation,
   PolicyRules,
@@ -33,7 +34,7 @@ export interface CreateCase {
   readonly clientAuthority: PublicKey;
   readonly author: PublicKey;
   readonly source: PublicKey;
-  readonly authorPrincipal: bigint;
+  readonly funding: CaseFunding;
   readonly agreementHash: Uint8Array;
   readonly resultHash: Uint8Array;
 }
@@ -129,7 +130,7 @@ export class TekmerionClient {
       },
       {
         nonce: identity.nonce,
-        authorPrincipal: input.authorPrincipal,
+        funding: input.funding,
         agreementHash: input.agreementHash,
         resultHash: input.resultHash,
       },

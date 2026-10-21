@@ -29,11 +29,15 @@ flowchart TD
     E --> F
 ```
 
+The author can instead create a **direct audit**: pay only the fixed audit fee and enter the audit immediately. No bond, challenge window or optimistic acceptance applies. Every Case permanently records its mode, and existing Cases cannot switch modes.
+
 ## How funds are used
 
-The author's bond and challenge contributions support the review process. Contributions fund a challenge; auditors' signed answers determine the result.
+In challenge mode, the author's bond and challenge contributions support the review process. Contributions fund a challenge; auditors' signed answers determine the result.
 
 On the optimistic path, finalization makes the author's bond and accepted challenge contributions claimable in full without an audit fee. After an audit, the result determines who bears the agreed audit fee and how the bonded funds are allocated. A successful challenge entitles challengers to their contributions and a share of the losing author's collateral after the fee, proportional to their accepted contributions. The [payment example](how-it-works.md#where-the-money-goes) shows how the outcome changes who receives the deposits.
+
+For direct audits, Yes, No and Unknown all consume the prepaid fee; a timeout without quorum refunds it to the author through the same withdrawal operation. The author earns no reward and cannot lose more review principal than the fee.
 
 The audit fee is split equally among the auditors whose matching answers formed the quorum. Each auditor has a configured fee wallet. Remaining base units are distributed one each among quorum members in policy order, so individual shares differ by at most one base unit. The deciding vote and all fee transfers succeed together; a failed transfer leaves the vote retryable.
 
@@ -55,4 +59,4 @@ The author sees the assertion enter its challenge window after posting a bond. C
 
 Different authors can open Cases for the same subject concurrently. Each author has at most one unfinished Case in their own sequence. This prevents one author from occupying the only submission slot and blocking other authors from seeking a decision. Each Case has independent funding, deadlines, audit and withdrawals. The application chooses which accepted Case becomes its final result; Tekmerion does not compare results or cancel other Cases.
 
-A rejected, undecided or timed-out assertion can lead to a fresh paid attempt when the application allows one. The new Case links back to the completed previous Case, keeping the history understandable. An accepted Yes, including optimistic acceptance, prevents another attempt in the same Policy/subject/author chain. Each permitted attempt follows the same process shown in Basic flow, with its own bond, one challenge window and at most one audit. Earlier results and unpaid claims remain available; an old answer cannot stand in for the current one. The application controls whether another attempt is allowed and protects any result it has already made final.
+A rejected, undecided or timed-out assertion can lead to a fresh paid attempt when the application allows one. The new Case links back to the completed previous Case, keeping the history understandable. An accepted Yes, including optimistic acceptance, prevents another attempt in the same Policy/subject/author chain. Each permitted attempt chooses its own immutable mode: a bond and challenge window, or an immediately funded direct audit. It has at most one audit. Earlier results and unpaid claims remain available; an old answer cannot stand in for the current one. The application controls whether another attempt is allowed and protects any result it has already made final.

@@ -4,8 +4,8 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 use crate::calculations::time::{ChainDeadline, ChainTimestamp};
 use crate::state::case::CaseInitialization;
 use crate::{
-    Case, CasePhase, CaseResult, CompletionMethod, Policy, StakeReceipt, USDC_MINT,
-    errors::TekmerionError,
+    Case, CaseFunding, CaseMode, CasePhase, CaseResult, CompletionMethod, Policy, StakeReceipt,
+    USDC_MINT, errors::TekmerionError,
 };
 
 #[derive(Accounts)]
@@ -83,7 +83,7 @@ pub struct CreateCase<'info> {
 pub(crate) fn handle(
     ctx: Context<CreateCase>,
     nonce: u64,
-    author_principal: u64,
+    funding: CaseFunding,
     agreement_hash: [u8; 32],
     result_hash: [u8; 32],
 ) -> Result<()> {
@@ -99,17 +99,44 @@ pub(crate) fn handle(
         ctx.remaining_accounts,
     )?;
 
-    require!(
-        author_principal >= ctx.accounts.policy.rules.author_bond,
-        TekmerionError::InsufficientBond
-    );
-    author_principal
-        .checked_add(ctx.accounts.policy.rules.challenge_target)
-        .ok_or(TekmerionError::ArithmeticOverflow)?;
-
     let now = ChainTimestamp::from_unix_seconds(Clock::get()?.unix_timestamp);
-    let deadline = ChainDeadline::checked_after(now, ctx.accounts.policy.rules.funding_duration)
-        .map_err(crate::errors::domain_error)?;
+    let rules = &ctx.accounts.policy.rules;
+    let (mode, author_principal, challenge_target, funding_deadline, audit_deadline) = match funding
+    {
+        CaseFunding::Bonded { principal } => {
+            require!(
+                principal >= rules.author_bond,
+                TekmerionError::InsufficientBond
+            );
+            principal
+                .checked_add(rules.challenge_target)
+                .ok_or(TekmerionError::ArithmeticOverflow)?;
+            let deadline = ChainDeadline::checked_after(now, rules.funding_duration)
+                .map_err(crate::errors::domain_error)?;
+            (
+                CaseMode::Challenge,
+                principal,
+                rules.challenge_target,
+                deadline.unix_seconds(),
+                None,
+            )
+        }
+        CaseFunding::DirectAudit { expected_fee } => {
+            require!(
+                expected_fee == rules.audit_fee,
+                TekmerionError::InvalidAuditFee
+            );
+            let deadline = ChainDeadline::checked_after(now, rules.audit_timeout)
+                .map_err(crate::errors::domain_error)?;
+            (
+                CaseMode::DirectAudit,
+                rules.audit_fee,
+                0,
+                now.unix_seconds(),
+                Some(deadline.unix_seconds()),
+            )
+        }
+    };
     let active_uses = ctx
         .accounts
         .policy
@@ -137,12 +164,16 @@ pub(crate) fn handle(
         previous_case,
         agreement_hash,
         result_hash,
+        mode,
         author_principal,
-        challenge_target: ctx.accounts.policy.rules.challenge_target,
-        funding_deadline: deadline.unix_seconds(),
+        challenge_target,
+        funding_deadline,
         bump: ctx.bumps.case,
         vault_bump: ctx.bumps.vault,
     }));
+    if let Some(deadline) = audit_deadline {
+        ctx.accounts.case.start_direct_audit(deadline)?;
+    }
     ctx.accounts
         .author_receipt
         .set_inner(StakeReceipt::new_author(

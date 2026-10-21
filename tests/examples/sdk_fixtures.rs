@@ -93,7 +93,7 @@ fn main() {
             client_authority: pk(ctx.authority),
             author: pk(ctx.actor(Actor::Author)),
             source: pk(ctx.token(Actor::Author)),
-            author_principal: BOND,
+            funding: tekmerion::CaseFunding::Bonded { principal: BOND },
             agreement_hash: [0xa1; 32],
             result_hash: [0x91; 32],
         };
@@ -101,9 +101,17 @@ fn main() {
             "caseAddress": case_address(address),
             "payer": input.payer.to_string(), "clientAuthority": input.client_authority.to_string(),
             "author": input.author.to_string(), "source": input.source.to_string(),
-            "authorPrincipal": BOND.to_string(), "agreementHashHex": hex(&input.agreement_hash), "resultHashHex": hex(&input.result_hash),
+            "funding": {"kind": "bonded", "principal": BOND.to_string()}, "agreementHashHex": hex(&input.agreement_hash), "resultHashHex": hex(&input.result_hash),
         }), sdk::create_case(address, input)));
     }
+
+    instructions.push(instruction("createCase", "createCase-direct", json!({
+        "caseAddress": case_address(ctx.case_address()),
+        "payer": ctx.actor(Actor::Payer).to_string(), "clientAuthority": ctx.authority.to_string(),
+        "author": ctx.actor(Actor::Author).to_string(), "source": ctx.token(Actor::Author).to_string(),
+        "funding": {"kind": "direct", "expectedFee": rules.audit_fee.to_string()},
+        "agreementHashHex": hex(&[0xa1; 32]), "resultHashHex": hex(&[0x91; 32]),
+    }), ctx.direct_case_ix(rules.audit_fee)));
 
     for requested in [1, u64::MAX] {
         instructions.push(instruction("contribute", &format!("contribute-{requested}"), json!({
@@ -196,6 +204,60 @@ fn main() {
         snapshots.push(snapshot(&format!("{outcome}-all-claimed"), &ctx));
     }
 
+    for outcome in ["yes", "no", "unknown", "timeout"] {
+        ctx = TestContext::with_rules(rules.clone(), BALANCE);
+        ctx.ok(
+            &[ctx.direct_case_ix(rules.audit_fee)],
+            &ctx.creation_signers(),
+        );
+        if outcome == "yes" {
+            snapshots.push(snapshot("direct-auditing", &ctx));
+        }
+        if outcome == "timeout" {
+            ctx.set_time(ctx.case_state().audit.deadline.unwrap());
+            ctx.ok(&[ctx.finalize_timeout_ix()], &[]);
+        } else {
+            let answer = match outcome {
+                "yes" => AuditAnswer::Yes,
+                "no" => AuditAnswer::No,
+                _ => AuditAnswer::Unknown,
+            };
+            let decision = ctx.audit_decision(answer);
+            ctx.vote(Actor::Auditor3, &decision);
+            ctx.vote(Actor::Auditor1, &decision);
+        }
+        snapshots.push(snapshot(&format!("direct-{outcome}-finalized"), &ctx));
+        ctx.ok(&[ctx.author_claim_ix()], &[Actor::Author]);
+        snapshots.push(snapshot(&format!("direct-{outcome}-claimed"), &ctx));
+    }
+
+    let mut zero_rules = rules.clone();
+    zero_rules.audit_fee = 0;
+    for timeout in [false, true] {
+        ctx = TestContext::with_rules(zero_rules.clone(), BALANCE);
+        ctx.ok(&[ctx.direct_case_ix(0)], &ctx.creation_signers());
+        if timeout {
+            ctx.set_time(ctx.case_state().audit.deadline.unwrap());
+            ctx.ok(&[ctx.finalize_timeout_ix()], &[]);
+            snapshots.push(snapshot("direct-zero-timeout-finalized", &ctx));
+        } else {
+            snapshots.push(snapshot("direct-zero-auditing", &ctx));
+            let decision = ctx.audit_decision(AuditAnswer::Yes);
+            ctx.vote(Actor::Auditor3, &decision);
+            ctx.vote(Actor::Auditor1, &decision);
+            snapshots.push(snapshot("direct-zero-finalized", &ctx));
+        }
+        ctx.ok(&[ctx.author_claim_ix()], &[Actor::Author]);
+        snapshots.push(snapshot(
+            if timeout {
+                "direct-zero-timeout-claimed"
+            } else {
+                "direct-zero-claimed"
+            },
+            &ctx,
+        ));
+    }
+
     println!("{}", serde_json::to_string_pretty(&json!({
         "network": if cfg!(feature="devnet") { "devnet" } else { "mainnet" },
         "programId": tekmerion::ID.to_string(), "mint": MINT.to_string(),
@@ -262,6 +324,7 @@ fn snapshot(name: &str, ctx: &TestContext) -> Value {
         accounts.insert(name.to_string(), account(ctx, key));
     }
     let mut expected = json!({
+        "mode": match case.mode { tekmerion::CaseMode::Challenge => "challenge", tekmerion::CaseMode::DirectAudit => "direct" },
         "phase": match case.phase() { CasePhase::Funding => "funding", CasePhase::Funded => "funded", CasePhase::Finalized => "finalized" },
         "result": case.result().map(|result| match result { CaseResult::Yes => "yes", CaseResult::No => "no", CaseResult::Unknown => "unknown" }),
         "completion": case.completion_method().map(|method| match method { CompletionMethod::Optimistic => "optimistic", CompletionMethod::Audited => "audited", CompletionMethod::TechnicalFailure => "technicalFailure" }),

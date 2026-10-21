@@ -544,8 +544,12 @@
           "type": "u64"
         },
         {
-          "name": "author_principal",
-          "type": "u64"
+          "name": "funding",
+          "type": {
+            "defined": {
+              "name": "CaseFunding"
+            }
+          }
         },
         {
           "name": "agreement_hash",
@@ -1148,6 +1152,11 @@
       "code": 6024,
       "name": "InvalidCommitment",
       "msg": "Agreement and result hashes must not be zero"
+    },
+    {
+      "code": 6025,
+      "name": "InvalidAuditFee",
+      "msg": "Reviewed audit fee differs from the Policy fee"
     }
   ],
   "types": [
@@ -1346,6 +1355,14 @@
             }
           },
           {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "CaseMode"
+              }
+            }
+          },
+          {
             "name": "author_principal",
             "type": "u64"
           },
@@ -1430,6 +1447,52 @@
           {
             "name": "vault_bump",
             "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CaseFunding",
+      "docs": [
+        "Creation terms. Direct audits bind the exact fee reviewed by the author."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Bonded",
+            "fields": [
+              {
+                "name": "principal",
+                "type": "u64"
+              }
+            ]
+          },
+          {
+            "name": "DirectAudit",
+            "fields": [
+              {
+                "name": "expected_fee",
+                "type": "u64"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "CaseMode",
+      "docs": [
+        "Immutable choice between optimistic challenges and an author-paid audit."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Challenge"
+          },
+          {
+            "name": "DirectAudit"
           }
         ]
       }

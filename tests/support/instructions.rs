@@ -86,7 +86,23 @@ impl TestContext {
                 client_authority: pk(self.authority),
                 author: pk(self.actor(Actor::Author)),
                 source: pk(self.token(Actor::Author)),
-                author_principal,
+                funding: tekmerion::CaseFunding::Bonded {
+                    principal: author_principal,
+                },
+                agreement_hash: [0xa1; 32],
+                result_hash: [0x91; 32],
+            },
+        )
+    }
+    pub fn direct_case_ix(&self, expected_fee: u64) -> Instruction {
+        sdk::create_case(
+            self.case_address(),
+            sdk::CreateCase {
+                payer: pk(self.actor(Actor::Payer)),
+                client_authority: pk(self.authority),
+                author: pk(self.actor(Actor::Author)),
+                source: pk(self.token(Actor::Author)),
+                funding: tekmerion::CaseFunding::DirectAudit { expected_fee },
                 agreement_hash: [0xa1; 32],
                 result_hash: [0x91; 32],
             },

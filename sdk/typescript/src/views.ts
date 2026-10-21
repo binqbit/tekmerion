@@ -100,11 +100,18 @@ export function validPolicyRules(rules: PolicyRules): boolean {
   );
 }
 export function completionMethod(state: Case): CompletionMethod | null {
-  if (state.phase !== 'finalized' || state.challengeTarget === 0n || state.finalizedAt === null)
+  if (
+    state.phase !== 'finalized' ||
+    state.finalizedAt === null ||
+    (state.mode === 'challenge'
+      ? state.challengeTarget === 0n
+      : state.challengeTarget !== 0n || state.challengePrincipal !== 0n)
+  )
     return null;
   const { deadline, response, votes } = state.audit;
   if (deadline === null && response === null && state.result === 'yes') {
-    return state.challengePrincipal < state.challengeTarget &&
+    return state.mode === 'challenge' &&
+      state.challengePrincipal < state.challengeTarget &&
       votes.length === 0 &&
       state.finalizedAt >= state.fundingDeadline
       ? 'optimistic'
@@ -125,6 +132,14 @@ export function completionMethod(state: Case): CompletionMethod | null {
   return null;
 }
 function allocation(state: Case, fee: bigint): [bigint, bigint, bigint] {
+  if (state.mode === 'direct') {
+    requireState(
+      state.authorPrincipal === fee &&
+        state.challengeTarget === 0n &&
+        state.challengePrincipal === 0n,
+    );
+    return [0n, 0n, fee];
+  }
   const author = state.authorPrincipal;
   const target = state.challengeTarget;
   if (target === 0n || fee > author || fee > target) throw new SdkError('Arithmetic');
@@ -189,8 +204,13 @@ function lifecycle(
       state.resultHash.some((byte) => byte !== 0) &&
       same(state.previousCase, previous) &&
       policy.activeUses !== 0n &&
-      state.authorPrincipal >= rules.authorBond &&
-      state.challengeTarget === rules.challengeTarget &&
+      (state.mode === 'challenge'
+        ? state.authorPrincipal >= rules.authorBond &&
+          state.challengeTarget === rules.challengeTarget
+        : state.authorPrincipal === rules.auditFee &&
+          state.challengeTarget === 0n &&
+          state.challengePrincipal === 0n &&
+          state.audit.deadline === state.fundingDeadline + rules.auditTimeout) &&
       state.challengePrincipal <= state.challengeTarget &&
       state.authorPrincipal + state.challengeTarget <= U64_MAX &&
       state.unclaimedContributors <= state.challengePrincipal,
@@ -199,7 +219,8 @@ function lifecycle(
   if (state.phase !== 'finalized') {
     requireState(
       state.phase === 'funding'
-        ? !funded &&
+        ? state.mode === 'challenge' &&
+            !funded &&
             state.audit.deadline === null &&
             state.audit.response === null &&
             state.audit.votes.length === 0
@@ -347,7 +368,9 @@ export class CaseView {
         receipt.bump === receiptBump,
     );
     requireState(
-      receipt.side === 0 && receipt.principal === state.authorPrincipal && receipt.principal > 0n,
+      receipt.side === 0 &&
+        receipt.principal === state.authorPrincipal &&
+        (receipt.principal > 0n || state.mode === 'direct'),
     );
     // The canonical Case binds this opaque identity even after the subject closes.
     if (accounts.subject !== undefined) {

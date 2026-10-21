@@ -10,6 +10,7 @@ fn fresh_case() -> Case {
         previous_case: None,
         agreement_hash: [0xa1; 32],
         result_hash: [1; 32],
+        mode: CaseMode::Challenge,
         author_principal: 125,
         challenge_target: 100,
         funding_deadline: 100,

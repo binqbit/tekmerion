@@ -35,6 +35,20 @@ pub enum CompletionMethod {
     TechnicalFailure,
 }
 
+/// Immutable choice between optimistic challenges and an author-paid audit.
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CaseMode {
+    Challenge,
+    DirectAudit,
+}
+
+/// Creation terms. Direct audits bind the exact fee reviewed by the author.
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CaseFunding {
+    Bonded { principal: u64 },
+    DirectAudit { expected_fee: u64 },
+}
+
 /// Authenticated creation inputs supplied after the instruction verifies custody.
 pub(crate) struct CaseInitialization {
     // Immutable assertion identity and history.
@@ -45,6 +59,7 @@ pub(crate) struct CaseInitialization {
     pub previous_case: Option<Pubkey>,
     pub agreement_hash: [u8; 32],
     pub result_hash: [u8; 32],
+    pub mode: CaseMode,
 
     // Funding terms.
     pub author_principal: u64,
@@ -67,6 +82,7 @@ pub struct Case {
     pub previous_case: Option<Pubkey>,
     pub agreement_hash: [u8; 32],
     pub result_hash: [u8; 32],
+    pub mode: CaseMode,
 
     // Funding terms and progress.
     pub author_principal: u64,
@@ -105,6 +121,7 @@ impl Case {
         + 8
         + 33
         + 2 * 32
+        + 1
         + 3 * 8
         + 8
         + AuditContext::SPACE
@@ -130,6 +147,7 @@ impl Case {
             previous_case: initial.previous_case,
             agreement_hash: initial.agreement_hash,
             result_hash: initial.result_hash,
+            mode: initial.mode,
             author_principal: initial.author_principal,
             challenge_target: initial.challenge_target,
             challenge_principal: 0,
@@ -160,7 +178,14 @@ impl Case {
     /// Derive terminal provenance from the retained funding and audit evidence.
     /// Pending phases and inconsistent terminal combinations have no method.
     pub fn completion_method(&self) -> Option<CompletionMethod> {
-        if self.phase != CasePhase::Finalized || self.challenge_target == 0 {
+        if self.phase != CasePhase::Finalized
+            || match self.mode {
+                CaseMode::Challenge => self.challenge_target == 0,
+                CaseMode::DirectAudit => {
+                    self.challenge_target != 0 || self.challenge_principal != 0
+                }
+            }
+        {
             return None;
         }
 
@@ -168,7 +193,8 @@ impl Case {
 
         match (self.audit.deadline, self.audit.response, self.result) {
             (None, None, Some(CaseResult::Yes)) => {
-                if self.challenge_principal >= self.challenge_target
+                if self.mode != CaseMode::Challenge
+                    || self.challenge_principal >= self.challenge_target
                     || !self.audit.votes.is_empty()
                     || finalized_at < self.funding_deadline
                 {
@@ -205,7 +231,23 @@ impl Case {
     }
 
     pub(crate) fn require_funding(&self) -> Result<()> {
+        require!(
+            self.mode == CaseMode::Challenge,
+            TekmerionError::InvalidPhase
+        );
         self.require_pending_phase(CasePhase::Funding)
+    }
+
+    /// Called only during authenticated creation after the full fee is in custody.
+    pub(crate) fn start_direct_audit(&mut self, deadline: i64) -> Result<()> {
+        require!(
+            self.mode == CaseMode::DirectAudit,
+            TekmerionError::InvalidPhase
+        );
+        self.require_pending_phase(CasePhase::Funding)?;
+        self.audit.start(deadline)?;
+        self.phase = CasePhase::Funded;
+        Ok(())
     }
 
     pub(crate) fn require_audit_open(&self, now: i64) -> Result<()> {

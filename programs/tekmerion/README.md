@@ -54,7 +54,7 @@ maps those responsibilities to the source code.
 | ----------------------------------------------------- | -------------------------------------------------------------------------------------- |
 | [lib.rs](src/lib.rs)                                  | Program identity and thin Anchor dispatch                                              |
 | [instructions/policy](src/instructions/policy/mod.rs) | Policy authorization, creation and updates                                             |
-| [instructions/case](src/instructions/case/mod.rs)     | Bonded creation, contributions, signed audit votes and finalization                    |
+| [instructions/case](src/instructions/case/mod.rs)     | Bonded/direct creation, contributions, signed audit votes and finalization                    |
 | [instructions/claim.rs](src/instructions/claim.rs)    | Shared author and contributor payout instruction                                       |
 | [state](src/state/mod.rs)                             | Account layouts, PDA helpers, committee rules and lifecycle transitions                |
 | [state/audit.rs](src/state/audit.rs)                  | Decisions, immutable auditor votes and quorum lookup                                   |
@@ -108,7 +108,7 @@ and post-transfer balance checks remain explicit.
 | `create_policy(identifier, client_authority, rules)` | Admin and payer signatures; creates validated committee and economics                                          |
 | `update_policy(rules)`                               | Stored admin; only while `active_uses == 0`                                                                    |
 | `acquire_policy()`                                   | Stored client authority; retains an application dependency and permanently locks the rules                     |
-| `create_case(nonce, author_principal, agreement_hash, result_hash)`    | Client authority and author; transfers the bond and creates Case, vault and author receipt                     |
+| `create_case(nonce, funding, agreement_hash, result_hash)`    | Client authority and author; transfers the chosen bond or fee and creates Case, vault and author receipt                     |
 | `contribute(requested)`                              | Contributor signature and owned token source; caps accepted principal at the remaining target                  |
 | `submit_audit(answer, reason)`                       | Configured auditor signature; records its single vote and automatically settles/pays upon quorum               |
 | `finalize_unchallenged()`                            | Anyone after the funding deadline while below target; optimistic Yes with full refunds                         |
@@ -118,8 +118,10 @@ and post-transfer balance checks remain explicit.
 Policy admission accepts 1–9 unique auditor authorities and unique fee wallets,
 a strict-majority threshold, positive minimum bond/target/durations, and a fee
 not exceeding either bond minimum or target. Cases retain the Policy, making
-those rules immutable. The full actual author principal is at risk, including
-any excess over the minimum. A funded challenge fixes its audit deadline once.
+those rules immutable. In challenge mode, the full author bond is at risk, including any excess over the minimum. A funded challenge fixes its audit deadline once.
+
+`CaseFunding::Bonded { principal }` starts a Challenge Case in Funding.
+`CaseFunding::DirectAudit { expected_fee }` verifies the reviewed fee equals the Policy fee, transfers only that fee from the author, and starts a DirectAudit Case in Funded. Its `author_principal` records the actual fee deposit, its challenge target/principal are zero, and `funding_deadline` records creation time (there is no funding window). Its audit deadline is creation time plus the Policy timeout. Any audited answer pays that fee to the deciding quorum and leaves no author/contributor entitlement. TechnicalFailure returns the fee to the author through `claim()`. No existing Case can convert modes.
 
 An unused Policy remains admin-editable until acquisition or creation executes.
 A creation signature commits to its address, not a previously read rule version.
@@ -140,7 +142,7 @@ Each author has an independent Case sequence for a Policy and subject. Its initi
 Case has nonce zero and no remaining creation accounts. A later attempt supplies
 exactly its canonical preceding Case from the same author, which must have ended
 with audited No/Unknown or technical failure. Yes does not permit a successor.
-Each attempt has a fresh bond and vault; preceding claims stay independent.
+Each attempt has its chosen deposit and a fresh vault; preceding claims stay independent.
 Applications may enforce their own retry rules. Tests call Tekmerion directly
 with wallet signers and read results from the Case account.
 
@@ -149,13 +151,14 @@ with wallet signers and read results from the Case account.
 | Account      | PDA seeds                                           | Reserved bytes including discriminator |
 | ------------ | --------------------------------------------------- | -------------------------------------: |
 | Policy       | `policy`, admin, identifier as little-endian u64    | 710                                    |
-| Case         | `case`, Policy, subject, author, nonce as little-endian u64 | 355                                    |
+| Case         | `case`, Policy, subject, author, nonce as little-endian u64 | 356                                    |
 | StakeReceipt | `receipt`, Case, owner                              | 83                                     |
 | Vault        | `vault`, Case                                       | Classic SPL Token account              |
 
 The Case is the vault's token authority. Policy and Case allocations reserve
 space for the maximum committee and votes. The protocol uses `u64` token
 amounts and widened `u128` liabilities; Clock timestamps are `i64`.
+`CaseMode` is immutable: Challenge=0 or DirectAudit=1, stored after the result hash.
 `CasePhase` tags are Funding=0, Funded=1 and Finalized=2. The quorum-reaching
 vote moves a funded Case directly to Finalized in the payment transaction.
 `result` records Yes/No/Unknown, or no answer after a timeout. The
@@ -181,8 +184,8 @@ same transaction. Zero entitlements can also be discharged once.
 
 Authors and challengers use the same `StakeReceipt` account type, with
 `side = 0` for the author and `side = 1` for a challenger. Creation records the
-author's actual bond; challenge receipts aggregate accepted contributions and
-top-ups. Each receipt stores its own `claimed` marker. Both roles call `claim()`
+author's actual deposit (bond or direct fee); challenge receipts aggregate accepted contributions and
+top-ups. Zero principal is valid only for the author of a zero-fee DirectAudit Case; its zero entitlement can still be discharged once. Each receipt stores its own `claimed` marker. Both roles call `claim()`
 with the same accounts in this order: owner signer, writable Case, readonly
 author receipt, writable owner receipt, mint, writable vault, writable
 destination and Token program. The signer must own the receipt and destination.

@@ -39,19 +39,21 @@ export function contributionInstruction(
 
 `CaseAddress` is `{ policy: PublicKey, subject: PublicKey, author: PublicKey, nonce: bigint }`. The builders derive canonical Case, vault, policy, stake receipt and predecessor PDAs. They return unsigned `TransactionInstruction` values; the program enforces authorization and current state.
 
-| Builder                                                           | Inputs beyond the Case identity                                                                             |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `createPolicy(input)`                                             | `payer`, `admin`, `clientAuthority`, `identifier`, `rules`                                                  |
-| `updatePolicy(admin, identifier, rules)`                          | Policy admin and identifier                                                                                 |
-| `acquirePolicy(policy, clientAuthority, subject)`                 | Policy, authority and opaque subject                                                                        |
-| `createCase(identity, input)`                                     | `payer`, `clientAuthority`, `author`, `source`, `authorPrincipal`, 32-byte `agreementHash` and `resultHash` |
-| `contribute(identity, input, requested)`                          | `payer`, `owner`, `source`, requested base units                                                            |
-| `submitAudit(identity, auditor, answer, reason, feeDestinations)` | Member signer, decision, ordered SPL token accounts                                                         |
-| `finalizeUnchallenged(identity)`                                  | No extra input                                                                                              |
-| `finalizeTimeout(identity)`                                       | No extra input                                                                                              |
-| `claim(identity, author, destination)`                            | Case author and `{ owner, destination }`; the author receipt is aliased for author claims                   |
+| Builder                                                           | Inputs beyond the Case identity                                                                     |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `createPolicy(input)`                                             | `payer`, `admin`, `clientAuthority`, `identifier`, `rules`                                          |
+| `updatePolicy(admin, identifier, rules)`                          | Policy admin and identifier                                                                         |
+| `acquirePolicy(policy, clientAuthority, subject)`                 | Policy, authority and opaque subject                                                                |
+| `createCase(identity, input)`                                     | `payer`, `clientAuthority`, `author`, `source`, `funding`, 32-byte `agreementHash` and `resultHash` |
+| `contribute(identity, input, requested)`                          | `payer`, `owner`, `source`, requested base units                                                    |
+| `submitAudit(identity, auditor, answer, reason, feeDestinations)` | Member signer, decision, ordered SPL token accounts                                                 |
+| `finalizeUnchallenged(identity)`                                  | No extra input                                                                                      |
+| `finalizeTimeout(identity)`                                       | No extra input                                                                                      |
+| `claim(identity, author, destination)`                            | Case author and `{ owner, destination }`; the author receipt is aliased for author claims           |
 
 Answers are `yes`, `no` and `unknown`. Yes/No require `decisive`; Unknown uses `missingEvidence`, `staleEvidence`, `conflictingEvidence`, `unsupportedEvidence` or `inconclusive`.
+
+`funding` is `{ kind: 'bonded', principal: bigint }` or `{ kind: 'direct', expectedFee: bigint }`. The direct fee must match the reviewed Policy. `case.mode` is `'challenge'` or `'direct'`; mode is separate from phase. A direct audit immediately enters `funded`, has zero challenge target, and uses the existing author receipt/claim for a full fee refund only after technical failure. Any audited answer consumes the fee. A zero-fee direct audit still retains a canonical zero-principal author receipt.
 
 Before the first deposit, follow the [Policy locking sequence](../README.md#first-case-with-a-policy): confirm `acquirePolicy`, refetch at or above its confirmed slot, require `activeUses > 0n`, then ask the author to review the locked rules before signing `createCase`. The [backend example](examples/backend.ts) implements `lockAndReadPolicy` for this preparation. An already locked Policy needs no extra acquisition. A valid Policy read with `activeUses === 0n` is still admin-editable; acquisition and creation in one transaction do not pin rules read earlier.
 

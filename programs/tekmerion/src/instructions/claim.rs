@@ -64,7 +64,7 @@ pub(crate) fn handle(ctx: Context<Claim>) -> Result<()> {
     ctx.accounts.case.require_finalized()?;
     ctx.accounts
         .author_receipt
-        .require_author_principal(ctx.accounts.case.author_principal)?;
+        .require_author_principal(ctx.accounts.case.author_principal, ctx.accounts.case.mode)?;
 
     let is_author = ctx.accounts.owner.key() == ctx.accounts.case.author;
     let claim_side = if is_author {
@@ -72,7 +72,9 @@ pub(crate) fn handle(ctx: Context<Claim>) -> Result<()> {
     } else {
         CHALLENGE_SIDE
     };
-    ctx.accounts.receipt.require_claimable(claim_side)?;
+    ctx.accounts
+        .receipt
+        .require_claimable(claim_side, ctx.accounts.case.mode)?;
 
     let (amount, contributor_claim) = if is_author {
         (ctx.accounts.case.author_entitlement, None)

@@ -13,7 +13,7 @@ use tekmerion_sdk::{
     instructions::CaseAddress,
     program::{
         AUTHOR_SIDE, AuditAnswer, AuditContext, AuditDecision, AuditReason, AuditVote,
-        AuditorConfig, Case, CasePhase, CaseResult, Policy, PolicyRules, StakeReceipt,
+        AuditorConfig, Case, CaseMode, CasePhase, CaseResult, Policy, PolicyRules, StakeReceipt,
     },
 };
 
@@ -126,6 +126,7 @@ fn read_case_view<'subject>(
         None::<Pubkey>,
         [0xa1_u8; 32],
         [91_u8; 32],
+        CaseMode::Challenge,
     )
         .serialize(&mut case_bytes)
         .unwrap();

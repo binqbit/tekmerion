@@ -47,7 +47,7 @@ its owner, schema, PDA derivation and application lifecycle belong to the client
 Neither the protocol nor SDK identifies a client program from its authority.
 See the [authority contract](../../programs/tekmerion/README.md#instructions).
 
-`create_case(CaseAddress, CreateCase)` builds direct submission with explicit
+`create_case(CaseAddress, CreateCase)` builds submission with explicit
 payer, client authority, author, source, principal, agreement hash and result hash. For a nonzero
 nonce it appends the canonical preceding Case as a readonly remaining account.
 Creation also initializes the author's `StakeReceipt` at `case.receipt(&author)`;
@@ -146,6 +146,12 @@ Signing fetches a recent blockhash once. Simulation and submission preserve the
 resulting message and signatures; submission does not create replacement
 transactions. Retain the signed transaction to reconcile its signature if an
 RPC call fails or confirmation is uncertain, before deciding to sign again.
+
+`CreateCase.funding` selects `program::CaseFunding::Bonded { principal }` or
+`DirectAudit { expected_fee }`. The latter starts the audit immediately with only
+the author-paid fee. `Case.mode` distinguishes Challenge from DirectAudit; its
+phase still describes lifecycle. Existing author claims refund the direct fee
+only after TechnicalFailure; every audited answer pays it to the quorum.
 
 ## Anchor CPI
 

@@ -20,6 +20,8 @@ mod client_boundary;
 mod concurrent_authors;
 #[path = "cases/cpi.rs"]
 mod cpi;
+#[path = "cases/direct_audit.rs"]
+mod direct_audit;
 #[path = "cases/funding.rs"]
 mod funding;
 #[path = "cases/journey.rs"]

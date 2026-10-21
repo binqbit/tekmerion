@@ -178,6 +178,17 @@ pub fn timeout_refunds(
     })
 }
 
+/// A direct audit consumes only its prepaid fee, regardless of the answer.
+/// There is no bond, challenger reward, or separate refund beneficiary.
+pub fn direct_audit_allocation(fee: UsdcAmount) -> FundedAllocation {
+    FundedAllocation {
+        author: UsdcAmount::ZERO,
+        contributors: LiabilityTotal::ZERO,
+        audit_fee: fee,
+        total: LiabilityTotal::from_amount(fee),
+    }
+}
+
 /// Calculate floor(R * principal / T), widening before multiplication.
 ///
 /// R is the losing-author reward pool A - F. This is a reward share, excluding

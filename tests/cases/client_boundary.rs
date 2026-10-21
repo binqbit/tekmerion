@@ -27,7 +27,7 @@ fn attempt_ix(ctx: &TestContext, case: CaseAddress) -> Instruction {
             client_authority: pk(ctx.authority),
             author: pk(ctx.actor(Actor::Author)),
             source: pk(ctx.token(Actor::Author)),
-            author_principal: BOND,
+            funding: tekmerion::CaseFunding::Bonded { principal: BOND },
             agreement_hash: [0xa1; 32],
             result_hash: [0x91; 32],
         },
@@ -616,7 +616,7 @@ fn both_document_commitments_are_required_before_author_funds_move() {
         let mut instruction = ctx.submit_case_ix(BOND);
         instruction.data = tekmerion::instruction::CreateCase {
             nonce: 0,
-            author_principal: BOND,
+            funding: tekmerion::CaseFunding::Bonded { principal: BOND },
             agreement_hash,
             result_hash,
         }

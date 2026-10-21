@@ -38,7 +38,7 @@ Tests that inject corrupted program-owned accounts explicitly exercise defensive
 
 For a custom async test, take the builder from `setup::programs::program_test()`, register extra programs or accounts, and pass it with the initial Clock to `setup::context::start`. The result is a native `ProgramTestContext`; token setup helpers accept it directly. Case scenarios can pass the same customized builder to `TestContext::with_program_test`. The runner executes two contract cases in parallel.
 
-Both authors and contributors have canonical `StakeReceipt` accounts: side `0` records the author's actual bond and side `1` records challenge contributions. Both use `claim`; author claims repeat the same receipt in its readonly backing and writable claiming positions. Reading a finalized Case does not require another application program.
+Both authors and contributors have canonical `StakeReceipt` accounts: side `0` records the author's actual deposit (bond or direct audit fee) and side `1` records challenge contributions. Both use `claim`; author claims repeat the same receipt in its readonly backing and writable claiming positions. Reading a finalized Case does not require another application program.
 
 The default policy has one independent auditor for concise settlement vectors. Committee scenarios additionally execute 2-of-3, 3-of-5 and maximum-size 9-of-9 decisions. Auditors submit an answer and reason directly, with the signature binding the vote to its Case and accounts. Every auditor votes once. Retained votes identify the auditor and preserve the answer and reason. The vote reaching the threshold atomically settles the case and transfers the fee to the matching voters' configured token wallets in committee order. Inconclusive opinions are real audit answers; an expired case without a matching quorum refunds deposits without an audit fee.
 
@@ -56,6 +56,7 @@ Coverage includes:
 - Matching-answer quorums, conflicting votes, strict audit deadlines, winners-only payments and deterministic fee rounding.
 - Missing, reordered, read-only, duplicated, substituted, malformed, uninitialized, frozen and wrong-mint payment accounts; rollback of the final vote and earlier fee transfers; successful retry and replay rejection.
 - Yes/No/Unknown allocation vectors, zero-fee audits, contributor rounding in both claim orders, aggregate custody backing and successful claims after thawing a frozen destination.
+- Direct audits verify the exact author fee, immediate audit, immutable mode, quorum fee rollback, Yes/No/Unknown allocations, timeout refunds, zero-fee receipts, replay protection and per-author retries. A new attempt may choose a different mode after No, Unknown or TechnicalFailure; pending and accepted Cases still block that author's next attempt, and previous claims remain independent.
 - Funding-time custody deficits cannot be hidden by fresh stakes, top-ups or final contributions. Zero-entitlement claims still validate backing and destinations; corrupted vault authorities cannot consume claim receipts.
 - Author receipt creation and rollback, actual bond amounts, role and principal forgery rejection, independent receipts across later cases, persisted author receipt aliases, shared claim encoding and zero-entitlement claim discharge.
 - SDK account authentication, consistent observations, voting progress, quotes and paid markers.

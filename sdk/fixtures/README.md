@@ -5,11 +5,11 @@
 builders and actual execution of the compiled contract in Solana's local test
 runtime. They contain public disposable account state, not wallet secrets.
 
-Each profile contains 26 instruction vectors and 22 account snapshots. Vectors
+Each profile contains 27 instruction vectors and 36 account snapshots. Vectors
 include all nine instructions, all valid audit answer/reason pairs, remaining
 account order, aliased author claims and `u64::MAX` arguments. Snapshots cover
 funding, partial votes, Yes/No/Unknown decisions, timeout, optimistic settlement
-and claims. Expected contributions, quorum fees and claims are calculated by
+and claims, plus immediate direct audits, all their answers, timeout refunds and zero-fee author receipts. Expected contributions, quorum fees and claims are calculated by
 validated Rust views of those same bank accounts.
 
 The TypeScript tests compare both public identity profiles against these

@@ -1,8 +1,11 @@
 use tekmerion::calculations::{
     amounts::UsdcAmount,
     settlement::{self, AuditedOutcome},
+    time::{ChainDeadline, ChainTimestamp},
 };
-use tekmerion::{AuditAnswer, Case, CasePhase, CaseResult, CompletionMethod, MAX_AUDITORS, Policy};
+use tekmerion::{
+    AuditAnswer, Case, CaseMode, CasePhase, CaseResult, CompletionMethod, MAX_AUDITORS, Policy,
+};
 
 use crate::{Result, SdkError};
 
@@ -45,8 +48,24 @@ pub(super) fn validate(case: &Case, policy: &Policy, author_claimed: bool) -> Re
         .map(|nonce| Case::address(&case.policy, &case.subject, &case.author, nonce).0);
     if case.previous_case != previous_case
         || policy.active_uses == 0
-        || case.author_principal < rules.author_bond
-        || case.challenge_target != rules.challenge_target
+        || match case.mode {
+            CaseMode::Challenge => {
+                case.author_principal < rules.author_bond
+                    || case.challenge_target != rules.challenge_target
+            }
+            CaseMode::DirectAudit => {
+                case.author_principal != rules.audit_fee
+                    || case.challenge_target != 0
+                    || case.challenge_principal != 0
+                    || case.audit.deadline
+                        != ChainDeadline::checked_after(
+                            ChainTimestamp::from_unix_seconds(case.funding_deadline),
+                            rules.audit_timeout,
+                        )
+                        .ok()
+                        .map(ChainDeadline::unix_seconds)
+            }
+        }
         || case.challenge_principal > case.challenge_target
         || case
             .author_principal
@@ -62,7 +81,8 @@ pub(super) fn validate(case: &Case, policy: &Policy, author_claimed: bool) -> Re
         CasePhase::Funding | CasePhase::Funded => {
             let valid_phase = match case.phase() {
                 CasePhase::Funding => {
-                    !funded
+                    case.mode == CaseMode::Challenge
+                        && !funded
                         && case.audit.deadline.is_none()
                         && case.audit.response.is_none()
                         && case.audit.votes.is_empty()
@@ -127,13 +147,19 @@ pub(super) fn validate(case: &Case, policy: &Policy, author_claimed: bool) -> Re
                         (AuditAnswer::Unknown, CaseResult::Unknown) => AuditedOutcome::Unknown,
                         _ => return Err(SdkError::InvalidState),
                     };
-                    let allocation = settlement::audited_allocation(
-                        UsdcAmount::from_base_units(case.author_principal),
-                        UsdcAmount::from_base_units(case.challenge_target),
-                        UsdcAmount::from_base_units(rules.audit_fee),
-                        outcome,
-                    )
-                    .map_err(|_| SdkError::Arithmetic)?;
+                    let allocation = if case.mode == CaseMode::DirectAudit {
+                        settlement::direct_audit_allocation(UsdcAmount::from_base_units(
+                            rules.audit_fee,
+                        ))
+                    } else {
+                        settlement::audited_allocation(
+                            UsdcAmount::from_base_units(case.author_principal),
+                            UsdcAmount::from_base_units(case.challenge_target),
+                            UsdcAmount::from_base_units(rules.audit_fee),
+                            outcome,
+                        )
+                        .map_err(|_| SdkError::Arithmetic)?
+                    };
                     (
                         allocation.author().base_units(),
                         allocation.contributors().base_units(),

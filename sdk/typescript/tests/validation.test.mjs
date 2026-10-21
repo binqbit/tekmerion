@@ -356,3 +356,82 @@ for (const field of ['agreement_hash', 'result_hash']) {
     fail(() => evaluate(current, supplied), 'InvalidState');
   });
 }
+
+for (const [name, mutation] of [
+  [
+    'mode substituted with challenge',
+    (state) => {
+      state.mode = { Challenge: {} };
+    },
+  ],
+  [
+    'invented challenge target',
+    (state) => {
+      state.challenge_target = state.author_principal;
+    },
+  ],
+  [
+    'invented challenge principal',
+    (state) => {
+      state.challenge_principal = state.author_principal;
+    },
+  ],
+  [
+    'extended audit deadline',
+    (state) => {
+      state.audit.deadline = state.audit.deadline.addn(1);
+    },
+  ],
+  [
+    'funding phase substituted',
+    (state) => {
+      state.phase = { Funding: {} };
+    },
+  ],
+  [
+    'invented contributor receipt count',
+    (state) => {
+      state.unclaimed_contributors = state.author_principal;
+    },
+  ],
+]) {
+  test(`direct audit rejects ${name}`, async () => {
+    const current = snapshot('direct-auditing');
+    const supplied = accounts(current.accounts);
+    supplied.case = await mutateAccount(current.accounts.case, 'Case', mutation);
+    fail(() => evaluate(current, supplied), 'InvalidState');
+  });
+}
+
+test('direct audit rejects an altered Policy fee and checks full fee backing', async () => {
+  const current = snapshot('direct-auditing');
+  const supplied = accounts(current.accounts);
+  supplied.policy = await mutateAccount(current.accounts.policy, 'Policy', (state) => {
+    state.rules.audit_fee = state.rules.audit_fee.addn(1);
+  });
+  fail(() => evaluate(current, supplied), 'InvalidState');
+  const underfunded = accounts(current.accounts);
+  underfunded.vault.data.writeBigUInt64LE(6n, 64);
+  fail(() => evaluate(current, underfunded), 'InsufficientBacking');
+});
+
+test('direct audit terminal entitlements cannot become bond rewards or optimistic acceptance', async () => {
+  for (const name of ['direct-yes-finalized', 'direct-no-finalized', 'direct-unknown-finalized']) {
+    const current = snapshot(name);
+    const supplied = accounts(current.accounts);
+    supplied.case = await mutateAccount(current.accounts.case, 'Case', (state) => {
+      state.author_entitlement = state.author_principal;
+    });
+    fail(() => evaluate(current, supplied), 'InvalidState');
+  }
+  const current = snapshot('direct-yes-finalized');
+  const supplied = accounts(current.accounts);
+  supplied.case = await mutateAccount(current.accounts.case, 'Case', (state) => {
+    state.audit.deadline = null;
+    state.audit.response = null;
+    state.audit.votes = [];
+    state.fee_claimed = false;
+    state.fee_entitlement = state.author_entitlement;
+  });
+  fail(() => evaluate(current, supplied), 'InvalidState');
+});

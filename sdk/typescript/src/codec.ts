@@ -18,6 +18,7 @@ export const I64_MIN = -(1n << 63n);
 export const I64_MAX = (1n << 63n) - 1n;
 export const TOKEN_PROGRAM_ID = new PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA');
 export const PROGRAM_ID = new PublicKey(mainnet.address);
+const enumName = (name: string): string => (name === 'DirectAudit' ? 'direct' : camel(name));
 const camel = (name: string): string =>
   name
     .replace(/_([a-z])/g, (_, value: string) => value.toUpperCase())
@@ -202,13 +203,31 @@ export class ProtocolCodec {
     if ('defined' in type) {
       const definition = this.definition(type.defined.name);
       if (definition.kind === 'enum') {
-        const name = encode ? value : Object.keys(value as object)[0];
+        const name = encode
+          ? typeof value === 'object' && value !== null
+            ? (value as { kind: string }).kind
+            : value
+          : Object.keys(value as object)[0];
         const variant = definition.variants.find(
-          (variant) => (encode ? camel(variant.name) : variant.name) === name,
+          (variant) => (encode ? enumName(variant.name) : variant.name) === name,
         );
         if (!variant)
           throw new SdkError(encode ? 'InvalidArgument' : 'InvalidAccount', 'Unknown enum variant');
-        return encode ? { [variant.name]: {} } : camel(variant.name);
+        if (!variant.fields) return encode ? { [variant.name]: {} } : enumName(variant.name);
+        const source = (
+          encode ? value : (value as Record<string, unknown>)[variant.name]
+        ) as Record<string, unknown>;
+        const fields = Object.fromEntries(
+          variant.fields.map((field) => {
+            if (typeof field !== 'object' || field === null || !('name' in field))
+              throw new Error('Unsupported unnamed enum field');
+            return [
+              encode ? field.name : camel(field.name),
+              this.transform(field.type, source[encode ? camel(field.name) : field.name], encode),
+            ];
+          }),
+        );
+        return encode ? { [variant.name]: fields } : { kind: enumName(variant.name), ...fields };
       }
       if (definition.kind === 'struct') {
         const object = value as Record<string, unknown>;

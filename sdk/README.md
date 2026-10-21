@@ -27,6 +27,15 @@ Choose `mainnet` or `devnet` consistently with the contract's mint profile. A
 profile selects public identities; it does not deploy the contract or verify
 that an RPC endpoint serves that network.
 
+## Case modes
+
+Creation selects Challenge (bond and challenge window) or DirectAudit (only the
+author-paid Policy fee, immediate audit). The immutable mode is exposed by both
+SDKs separately from lifecycle phase. Direct audits use the same Case, vault,
+author receipt, auditor votes and claim instruction. The author can recover the
+fee after TechnicalFailure; Yes, No and Unknown pay it to the deciding quorum.
+Existing Cases cannot switch modes.
+
 ## Concurrent authors
 
 Case addresses bind Policy, subject, author and a nonce that starts at zero for

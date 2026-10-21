@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::errors::TekmerionError;
+use crate::{CaseMode, errors::TekmerionError};
 
 pub const AUTHOR_SIDE: u8 = 0;
 pub const CHALLENGE_SIDE: u8 = 1;
@@ -29,7 +29,7 @@ impl StakeReceipt {
         Pubkey::find_program_address(&[Self::SEED, case.as_ref(), owner.as_ref()], &crate::ID)
     }
 
-    /// Created once with the Case after the exact author bond transfer succeeds.
+    /// Created once with the Case after the exact author deposit transfer succeeds.
     pub(crate) fn new_author(case: Pubkey, owner: Pubkey, principal: u64, bump: u8) -> Self {
         Self {
             case,
@@ -42,8 +42,8 @@ impl StakeReceipt {
     }
 
     /// The caller authenticates the canonical Case/author PDA and its bindings.
-    pub(crate) fn require_author_principal(&self, principal: u64) -> Result<()> {
-        self.require_side(AUTHOR_SIDE)?;
+    pub(crate) fn require_author_principal(&self, principal: u64, mode: CaseMode) -> Result<()> {
+        self.require_side(AUTHOR_SIDE, mode)?;
         require!(self.principal == principal, TekmerionError::InvalidReceipt);
 
         Ok(())
@@ -93,16 +93,18 @@ impl StakeReceipt {
         })
     }
 
-    pub(crate) fn require_claimable(&self, side: u8) -> Result<()> {
-        self.require_side(side)?;
+    pub(crate) fn require_claimable(&self, side: u8, mode: CaseMode) -> Result<()> {
+        self.require_side(side, mode)?;
         require!(!self.claimed, TekmerionError::AlreadyClaimed);
 
         Ok(())
     }
 
-    fn require_side(&self, side: u8) -> Result<()> {
+    fn require_side(&self, side: u8, mode: CaseMode) -> Result<()> {
         require!(
-            matches!(side, AUTHOR_SIDE | CHALLENGE_SIDE) && self.side == side && self.principal > 0,
+            matches!(side, AUTHOR_SIDE | CHALLENGE_SIDE)
+                && self.side == side
+                && (self.principal > 0 || (side == AUTHOR_SIDE && mode == CaseMode::DirectAudit)),
             TekmerionError::InvalidReceipt
         );
 
@@ -121,9 +123,21 @@ mod tests {
     #[test]
     fn author_receipt_cannot_be_topped_up_or_claimed_as_a_challenge() {
         let receipt = author_receipt();
-        assert!(receipt.require_author_principal(125).is_ok());
-        assert!(receipt.require_author_principal(124).is_err());
-        assert!(receipt.require_claimable(CHALLENGE_SIDE).is_err());
+        assert!(
+            receipt
+                .require_author_principal(125, CaseMode::Challenge)
+                .is_ok()
+        );
+        assert!(
+            receipt
+                .require_author_principal(124, CaseMode::Challenge)
+                .is_err()
+        );
+        assert!(
+            receipt
+                .require_claimable(CHALLENGE_SIDE, CaseMode::Challenge)
+                .is_err()
+        );
         assert!(
             receipt
                 .prepare_contribution(receipt.case, receipt.owner, receipt.bump, 1)
@@ -136,16 +150,40 @@ mod tests {
     #[test]
     fn author_claim_status_remains_readable_after_discharge_but_cannot_replay() {
         let mut receipt = author_receipt();
-        assert!(receipt.require_claimable(AUTHOR_SIDE).is_ok());
+        assert!(
+            receipt
+                .require_claimable(AUTHOR_SIDE, CaseMode::Challenge)
+                .is_ok()
+        );
         receipt.claimed = true;
-        assert!(receipt.require_author_principal(125).is_ok());
-        assert!(receipt.require_claimable(AUTHOR_SIDE).is_err());
+        assert!(
+            receipt
+                .require_author_principal(125, CaseMode::Challenge)
+                .is_ok()
+        );
+        assert!(
+            receipt
+                .require_claimable(AUTHOR_SIDE, CaseMode::Challenge)
+                .is_err()
+        );
 
         receipt.claimed = false;
         receipt.side = CHALLENGE_SIDE;
-        assert!(receipt.require_author_principal(125).is_err());
-        assert!(receipt.require_claimable(AUTHOR_SIDE).is_err());
-        assert!(receipt.require_claimable(CHALLENGE_SIDE).is_ok());
+        assert!(
+            receipt
+                .require_author_principal(125, CaseMode::Challenge)
+                .is_err()
+        );
+        assert!(
+            receipt
+                .require_claimable(AUTHOR_SIDE, CaseMode::Challenge)
+                .is_err()
+        );
+        assert!(
+            receipt
+                .require_claimable(CHALLENGE_SIDE, CaseMode::Challenge)
+                .is_ok()
+        );
     }
 
     #[test]

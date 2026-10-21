@@ -26,7 +26,7 @@ fn create(ctx: &TestContext, actor: Actor, nonce: u64) -> Instruction {
             client_authority: pk(ctx.authority),
             author: pk(ctx.actor(actor)),
             source: pk(ctx.token(actor)),
-            author_principal: BOND,
+            funding: tekmerion::CaseFunding::Bonded { principal: BOND },
             agreement_hash: [0xa1; 32],
             result_hash: [0x91; 32],
         },

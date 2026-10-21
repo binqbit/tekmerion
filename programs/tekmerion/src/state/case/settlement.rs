@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use super::{Case, CasePhase, CaseResult};
+use super::{Case, CaseMode, CasePhase, CaseResult};
 use crate::calculations::{
     amounts::UsdcAmount,
     settlement::{self, AuditedOutcome, FundedAllocation, OptimisticRefunds},
@@ -42,6 +42,18 @@ impl Case {
         audit_fee: u64,
     ) -> Result<FundedAllocation> {
         self.require_pending_phase(CasePhase::Funded)?;
+
+        if self.mode == CaseMode::DirectAudit {
+            require!(
+                self.author_principal == audit_fee
+                    && self.challenge_target == 0
+                    && self.challenge_principal == 0,
+                TekmerionError::InvalidPhase
+            );
+            return Ok(settlement::direct_audit_allocation(
+                UsdcAmount::from_base_units(audit_fee),
+            ));
+        }
 
         settlement::audited_allocation(
             UsdcAmount::from_base_units(self.author_principal),
