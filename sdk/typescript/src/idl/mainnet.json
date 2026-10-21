@@ -107,6 +107,11 @@
               },
               {
                 "kind": "account",
+                "path": "case.author",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
                 "path": "case.nonce",
                 "account": "Case"
               }
@@ -254,6 +259,11 @@
               {
                 "kind": "account",
                 "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.author",
                 "account": "Case"
               },
               {
@@ -449,6 +459,10 @@
               {
                 "kind": "account",
                 "path": "subject"
+              },
+              {
+                "kind": "account",
+                "path": "author"
               },
               {
                 "kind": "arg",
@@ -665,6 +679,11 @@
               },
               {
                 "kind": "account",
+                "path": "case.author",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
                 "path": "case.nonce",
                 "account": "Case"
               }
@@ -730,6 +749,11 @@
               {
                 "kind": "account",
                 "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.author",
                 "account": "Case"
               },
               {
@@ -803,6 +827,11 @@
               {
                 "kind": "account",
                 "path": "case.subject",
+                "account": "Case"
+              },
+              {
+                "kind": "account",
+                "path": "case.author",
                 "account": "Case"
               },
               {

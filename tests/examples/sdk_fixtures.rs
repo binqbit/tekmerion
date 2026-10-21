@@ -220,7 +220,7 @@ fn account(ctx: &TestContext, key: Address) -> Value {
 }
 
 fn case_address(address: CaseAddress) -> Value {
-    json!({"policy": address.policy.to_string(), "subject": address.subject.to_string(), "nonce": address.nonce.to_string()})
+    json!({"policy": address.policy.to_string(), "subject": address.subject.to_string(), "author": address.author.to_string(), "nonce": address.nonce.to_string()})
 }
 
 fn policy_rules(rules: &PolicyRules) -> Value {

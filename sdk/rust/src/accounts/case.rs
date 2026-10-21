@@ -11,7 +11,7 @@ use crate::{Result, SdkError, instructions::CaseAddress};
 
 /// A validated Case and its related accounts from one observation.
 /// Immutable getters prevent consumers from mutating the validated projection.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CaseView {
     pub(super) observation: Observation,
     pub(super) address: CaseAddress,
@@ -37,8 +37,12 @@ impl CaseView {
         let subject_account = subject_account.into();
         let case: Case = case_account.decode(observation, tekmerion::ID, Case::SPACE)?;
         let policy = PolicyView::read(observation, expected.policy, policy_account)?;
-        let (case_key, case_bump) =
-            Case::address(&expected.policy, &expected.subject, expected.nonce);
+        let (case_key, case_bump) = Case::address(
+            &expected.policy,
+            &expected.subject,
+            &expected.author,
+            expected.nonce,
+        );
         let (vault_key, vault_bump) = Case::vault_address(&case_key);
         let author_receipt: StakeReceipt =
             author_receipt_account.decode(observation, tekmerion::ID, StakeReceipt::SPACE)?;
@@ -47,6 +51,7 @@ impl CaseView {
         if case_account.key != case_key
             || case.policy != expected.policy
             || case.subject != expected.subject
+            || case.author != expected.author
             || case.nonce != expected.nonce
             || case.bump != case_bump
             || case.vault_bump != vault_bump

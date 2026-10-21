@@ -19,6 +19,7 @@ pub struct Contribute<'info> {
             Case::SEED,
             case.policy.as_ref(),
             case.subject.as_ref(),
+            case.author.as_ref(),
             &case.nonce.to_le_bytes(),
         ],
         bump = case.bump,

@@ -23,6 +23,7 @@ impl TestContext {
                 b"case",
                 self.policy.as_ref(),
                 self.subject.as_ref(),
+                self.actor(Actor::Author).as_ref(),
                 &0_u64.to_le_bytes(),
             ],
             MAIN,

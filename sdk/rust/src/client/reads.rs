@@ -93,9 +93,15 @@ impl TekmerionClient {
         )?;
         if preliminary.policy != expected.policy
             || preliminary.subject != expected.subject
+            || preliminary.author != expected.author
             || preliminary.nonce != expected.nonce
-            || Case::address(&expected.policy, &expected.subject, expected.nonce).1
-                != preliminary.bump
+            || Case::address(
+                &expected.policy,
+                &expected.subject,
+                &expected.author,
+                expected.nonce,
+            )
+            .1 != preliminary.bump
         {
             return Err(SdkError::InvalidRelationship.into());
         }

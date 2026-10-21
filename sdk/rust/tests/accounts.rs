@@ -104,9 +104,10 @@ fn read_case_view<'subject>(
     let identity = CaseAddress {
         policy: policy_key,
         subject,
+        author,
         nonce: 0,
     };
-    let (case_key, case_bump) = Case::address(&policy_key, &subject, 0);
+    let (case_key, case_bump) = Case::address(&policy_key, &subject, &author, 0);
     let (vault_key, vault_bump) = Case::vault_address(&case_key);
     let funded = phase != CasePhase::Funding;
     let finalized = phase == CasePhase::Finalized;

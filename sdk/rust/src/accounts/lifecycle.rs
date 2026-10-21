@@ -42,7 +42,7 @@ pub(super) fn validate(case: &Case, policy: &Policy, author_claimed: bool) -> Re
     let previous_case = case
         .nonce
         .checked_sub(1)
-        .map(|nonce| Case::address(&case.policy, &case.subject, nonce).0);
+        .map(|nonce| Case::address(&case.policy, &case.subject, &case.author, nonce).0);
     if case.previous_case != previous_case
         || policy.active_uses == 0
         || case.author_principal < rules.author_bond

@@ -227,12 +227,13 @@ impl Case {
         Ok(())
     }
 
-    pub fn address(policy: &Pubkey, subject: &Pubkey, nonce: u64) -> (Pubkey, u8) {
+    pub fn address(policy: &Pubkey, subject: &Pubkey, author: &Pubkey, nonce: u64) -> (Pubkey, u8) {
         Pubkey::find_program_address(
             &[
                 Self::SEED,
                 policy.as_ref(),
                 subject.as_ref(),
+                author.as_ref(),
                 &nonce.to_le_bytes(),
             ],
             &crate::ID,
@@ -243,11 +244,12 @@ impl Case {
         Pubkey::find_program_address(&[Self::VAULT_SEED, case.as_ref()], &crate::ID)
     }
 
-    pub fn signer_seeds<'a>(&'a self, nonce: &'a [u8; 8], bump: &'a [u8; 1]) -> [&'a [u8]; 5] {
+    pub fn signer_seeds<'a>(&'a self, nonce: &'a [u8; 8], bump: &'a [u8; 1]) -> [&'a [u8]; 6] {
         [
             Self::SEED,
             self.policy.as_ref(),
             self.subject.as_ref(),
+            self.author.as_ref(),
             nonce,
             bump,
         ]

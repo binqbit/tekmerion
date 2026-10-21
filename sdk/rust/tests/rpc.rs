@@ -81,6 +81,7 @@ fn case_address() -> CaseAddress {
     CaseAddress {
         policy: Pubkey::new_from_array([41; 32]),
         subject: Pubkey::new_from_array([42; 32]),
+        author: Pubkey::new_from_array([43; 32]),
         nonce: 0,
     }
 }
@@ -402,6 +403,11 @@ fn identity(snapshot: &Value) -> CaseAddress {
             .parse()
             .unwrap(),
         subject: snapshot["caseAddress"]["subject"]
+            .as_str()
+            .unwrap()
+            .parse()
+            .unwrap(),
+        author: snapshot["caseAddress"]["author"]
             .as_str()
             .unwrap()
             .parse()

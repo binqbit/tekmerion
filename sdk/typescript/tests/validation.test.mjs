@@ -38,6 +38,23 @@ test('builders preserve full u64 values and reject number coercion or out-of-ran
   assert.equal(instruction.data.readBigUInt64LE(8), (1n << 64n) - 1n);
 });
 
+test('author identity separates same-subject cases and authenticates observed state', async () => {
+  const current = snapshot('funded');
+  const original = identity(current.caseAddress);
+  const other = { ...original, author: pubkey(fixture.actors.alice) };
+  assert.notDeepEqual(client.caseAddress(original), client.caseAddress(other));
+  assert.notDeepEqual(client.vaultAddress(original), client.vaultAddress(other));
+  fail(
+    () => client.readCase(observation(current.observation), other, accounts(current.accounts)),
+    'InvalidRelationship',
+  );
+  const supplied = accounts(current.accounts);
+  supplied.case = await mutateAccount(current.accounts.case, 'Case', (state) => {
+    state.author = other.author;
+  });
+  fail(() => evaluate(current, supplied), 'InvalidRelationship');
+});
+
 test('authenticated snapshots cannot be modified through source bytes or returned getters', () => {
   const current = snapshot('yes-partial-vote');
   const supplied = accounts(current.accounts);

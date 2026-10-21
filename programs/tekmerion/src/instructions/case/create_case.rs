@@ -41,6 +41,7 @@ pub struct CreateCase<'info> {
             Case::SEED,
             policy.key().as_ref(),
             subject.key().as_ref(),
+            author.key().as_ref(),
             &nonce.to_le_bytes(),
         ],
         bump,
@@ -93,6 +94,7 @@ pub(crate) fn handle(
     let previous_case = validate_previous_case(
         &ctx.accounts.subject.to_account_info(),
         &ctx.accounts.policy.key(),
+        &ctx.accounts.author.key(),
         nonce,
         ctx.remaining_accounts,
     )?;
@@ -154,11 +156,12 @@ pub(crate) fn handle(
     Ok(())
 }
 
-/// Validate the protocol-owned attempt chain after Policy signer authorization.
+/// Validate the protocol-owned per-author attempt chain after Policy signer authorization.
 /// Client subject data and lifecycle rules remain the client's responsibility.
 fn validate_previous_case(
     subject: &AccountInfo<'_>,
     policy_key: &Pubkey,
+    author: &Pubkey,
     nonce: u64,
     remaining: &[AccountInfo<'_>],
 ) -> Result<Option<Pubkey>> {
@@ -183,12 +186,13 @@ fn validate_previous_case(
     let previous = Case::try_deserialize(&mut data.as_ref())
         .map_err(|_| error!(TekmerionError::InvalidHistory))?;
 
-    let (expected_key, bump) = Case::address(policy_key, subject.key, nonce - 1);
+    let (expected_key, bump) = Case::address(policy_key, subject.key, author, nonce - 1);
     require!(
         previous_key == expected_key
             && previous.bump == bump
             && previous.policy == *policy_key
             && previous.subject == subject.key()
+            && previous.author == *author
             && previous.nonce == nonce - 1,
         TekmerionError::InvalidHistory
     );

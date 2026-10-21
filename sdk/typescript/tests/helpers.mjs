@@ -14,6 +14,7 @@ export const observation = (value) => ({
 export const identity = (value) => ({
   policy: pubkey(value.policy),
   subject: pubkey(value.subject),
+  author: pubkey(value.author),
   nonce: BigInt(value.nonce),
 });
 export const account = (value) => ({

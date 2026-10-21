@@ -16,6 +16,8 @@ mod authorization;
 mod case_results;
 #[path = "cases/client_boundary.rs"]
 mod client_boundary;
+#[path = "cases/concurrent_authors.rs"]
+mod concurrent_authors;
 #[path = "cases/cpi.rs"]
 mod cpi;
 #[path = "cases/funding.rs"]

@@ -14,7 +14,7 @@ pub struct SubmitAudit<'info> {
     // Protocol accounts.
     #[account(
         mut,
-        seeds = [Case::SEED, case.policy.as_ref(), case.subject.as_ref(), &case.nonce.to_le_bytes()],
+        seeds = [Case::SEED, case.policy.as_ref(), case.subject.as_ref(), case.author.as_ref(), &case.nonce.to_le_bytes()],
         bump = case.bump,
     )]
     pub case: Box<Account<'info, Case>>,

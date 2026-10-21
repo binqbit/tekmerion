@@ -176,7 +176,12 @@ function lifecycle(
     state.nonce === 0n
       ? null
       : caseAddress(
-          { policy: state.policy, subject: state.subject, nonce: state.nonce - 1n },
+          {
+            policy: state.policy,
+            subject: state.subject,
+            author: state.author,
+            nonce: state.nonce - 1n,
+          },
           codec.programId,
         )[0];
   requireState(
@@ -331,6 +336,7 @@ export class CaseView {
       accounts.case.key.equals(address) &&
         state.policy.equals(expected.policy) &&
         state.subject.equals(expected.subject) &&
+        state.author.equals(expected.author) &&
         state.nonce === expected.nonce &&
         state.bump === bump &&
         state.vaultBump === vaultBump &&

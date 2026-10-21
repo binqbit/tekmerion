@@ -443,7 +443,7 @@ fn malformed_canonical_predecessors_cannot_authorize_or_charge_for_a_successor()
     // Synthetic corruption at the genuine PDA exercises validation of retained
     // history, not just rejection of a different account address. Callers cannot
     // directly rewrite program-owned Case data with an ordinary transaction.
-    for variant in 0..10 {
+    for variant in 0..11 {
         let mut forged = original.clone();
         match variant {
             0 => {
@@ -460,6 +460,7 @@ fn malformed_canonical_predecessors_cannot_authorize_or_charge_for_a_successor()
                     6 => previous.nonce = 7,
                     7 => previous.finalized_at = None,
                     8 => previous.audit.response = None,
+                    9 => previous.author = pk(ctx.actor(Actor::Bob)),
                     _ => previous.audit.deadline = previous.finalized_at,
                 }
                 previous

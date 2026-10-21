@@ -54,6 +54,7 @@ impl TestContext {
         CaseAddress {
             policy: pk(self.policy),
             subject: pk(self.subject),
+            author: pk(self.actor(Actor::Author)),
             nonce: 0,
         }
     }

@@ -131,6 +131,7 @@ impl TestContext {
                 b"case",
                 policy.as_ref(),
                 subject.as_ref(),
+                keys[Actor::Author as usize].pubkey().as_ref(),
                 &0_u64.to_le_bytes(),
             ],
             MAIN,

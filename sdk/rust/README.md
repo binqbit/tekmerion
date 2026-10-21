@@ -37,7 +37,7 @@ and select their network with `cpi`, keeping host account views out of their bui
 | `program` | Original Anchor program crate, including account types, generated instructions and program identity |
 | `cpi` (`cpi`) | Original Anchor-generated CPI interface; no duplicate protocol wrapper |
 
-`CaseAddress` contains the Policy, subject and nonce; its helpers derive the Case,
+`CaseAddress` contains the Policy, subject, author and per-author nonce; its helpers derive the Case,
 vault and owner receipt using the program's PDA methods. It grants no authority.
 The Policy builder accepts the admin-selected `client_authority` public key;
 assignment requires the admin's signature, not the authority's signature. Policy

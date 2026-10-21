@@ -13,6 +13,7 @@ fn claim_uses_one_instruction_and_canonical_receipts_for_both_roles() {
     let case = CaseAddress {
         policy: Pubkey::new_from_array([44; 32]),
         subject: Pubkey::new_from_array([45; 32]),
+        author,
         nonce: 0,
     };
 
@@ -60,6 +61,7 @@ fn audit_preserves_the_decision_and_caller_order_of_quorum_destinations() {
     let case = CaseAddress {
         policy: Pubkey::new_from_array([22; 32]),
         subject: Pubkey::new_from_array([23; 32]),
+        author: Pubkey::new_from_array([24; 32]),
         nonce: 2,
     };
     let first = Pubkey::new_from_array([28; 32]);
@@ -105,6 +107,7 @@ fn contribution_keeps_the_requested_amount_and_separate_payer_and_token_owner() 
     let case = CaseAddress {
         policy: Pubkey::new_from_array([5; 32]),
         subject: Pubkey::new_from_array([6; 32]),
+        author: owner,
         nonce: 0,
     };
 

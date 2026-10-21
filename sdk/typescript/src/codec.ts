@@ -49,6 +49,7 @@ export function caseAddress(identity: CaseAddress, programId = PROGRAM_ID): [Pub
       Buffer.from('case'),
       identity.policy.toBuffer(),
       identity.subject.toBuffer(),
+      identity.author.toBuffer(),
       u64Bytes(identity.nonce),
     ],
     programId,

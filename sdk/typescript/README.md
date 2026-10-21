@@ -37,7 +37,7 @@ export function contributionInstruction(
 }
 ```
 
-`CaseAddress` is `{ policy: PublicKey, subject: PublicKey, nonce: bigint }`. The builders derive canonical Case, vault, policy, stake receipt and predecessor PDAs. They return unsigned `TransactionInstruction` values; the program enforces authorization and current state.
+`CaseAddress` is `{ policy: PublicKey, subject: PublicKey, author: PublicKey, nonce: bigint }`. The builders derive canonical Case, vault, policy, stake receipt and predecessor PDAs. They return unsigned `TransactionInstruction` values; the program enforces authorization and current state.
 
 | Builder                                                           | Inputs beyond the Case identity                                                                             |
 | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |

@@ -72,6 +72,7 @@ fn tkt_008_019_configured_wallet_authorizes_an_opaque_client_subject() {
             b"case",
             ctx.policy.as_ref(),
             ctx.subject.as_ref(),
+            ctx.actor(Actor::Author).as_ref(),
             &0_u64.to_le_bytes(),
         ],
         crate::support::MAIN,

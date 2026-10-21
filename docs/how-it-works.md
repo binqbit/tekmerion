@@ -84,6 +84,8 @@ Auditor payments happen together with the deciding vote. If one payment fails, t
 
 These checks enforce the agreed process. The auditors assess the evidence; the application is responsible for selecting independent reviewers and defining what a decision means for its users.
 
+Authors can submit competing assertions concurrently for the same subject. One author’s pending Case does not block another author. The application decides which accepted result to use; other Cases retain their own outcomes and payment rights.
+
 After rejection, an inconclusive audit or a timeout, the application may authorize a new attempt with fresh deposits. Previous withdrawals remain available. An accepted statement ends that sequence of attempts under the same rules.
 
 For the purpose behind the mechanism, see the [concept](concept.md). Implementation details belong in the [program reference](../programs/tekmerion/README.md), with integration instructions in the [SDK guide](../sdk/README.md).

@@ -49,6 +49,7 @@ Coverage includes:
 - Configured wallet authorization, opaque subjects, fresh successor collateral, cross-case isolation and stable terminal results across claims.
 - Absent and legitimately closed subjects preserve SDK reads, settlement and claims; subject identity remains bound to the Case.
 - First-use Policy approval: pre-signed creation uses the rules at execution, while confirmed acquisition followed by review/signing prevents later rule changes.
+- Concurrent authors on one subject: independent nonce-zero Cases, overlapping audits, same-author retry guards, cross-author predecessor rejection, separate vault payouts and preserved claims.
 - Invalid Policy creation and rent rollback, executable subjects, and malformed or inconsistent state at the canonical predecessor address; repaired inputs permit a fresh attempt without consuming previous claims.
 - Auditor signatures, unauthorized identities, duplicate votes, invalid answer/reason pairs, signed Case/account substitution and policy immutability.
 - Votes before full funding, substitution of another valid Policy, and pre-signed votes whose required quorum destinations change before execution; rejected votes preserve state and remain retryable with a newly reviewed transaction.

@@ -9,12 +9,13 @@ use super::instruction;
 pub struct CaseAddress {
     pub policy: Pubkey,
     pub subject: Pubkey,
+    pub author: Pubkey,
     pub nonce: u64,
 }
 
 impl CaseAddress {
     pub fn address(self) -> Pubkey {
-        Case::address(&self.policy, &self.subject, self.nonce).0
+        Case::address(&self.policy, &self.subject, &self.author, self.nonce).0
     }
 
     pub fn vault(self) -> Pubkey {
@@ -73,7 +74,7 @@ pub fn create_case(case: CaseAddress, input: CreateCase) -> Instruction {
     );
     if let Some(nonce) = case.nonce.checked_sub(1) {
         ix.accounts.push(AccountMeta::new_readonly(
-            Case::address(&case.policy, &case.subject, nonce).0,
+            Case::address(&case.policy, &case.subject, &case.author, nonce).0,
             false,
         ));
     }

@@ -27,6 +27,15 @@ Choose `mainnet` or `devnet` consistently with the contract's mint profile. A
 profile selects public identities; it does not deploy the contract or verify
 that an RPC endpoint serves that network.
 
+## Concurrent authors
+
+Case addresses bind Policy, subject, author and a nonce that starts at zero for
+each author. A successor requires that same author’s immediately preceding Case
+to have completed with audited No/Unknown or technical failure. Different
+authors can proceed concurrently, each with separate custody and claims. The
+application owns final-result selection; Tekmerion never cancels a peer Case
+because another one returned Yes.
+
 ## First Case with a Policy
 
 A Policy's admin can change its rules while `active_uses == 0`. A successful

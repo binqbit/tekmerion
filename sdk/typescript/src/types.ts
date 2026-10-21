@@ -43,10 +43,10 @@ export interface Policy {
 export interface CaseAddress {
   readonly policy: PublicKey;
   readonly subject: PublicKey;
+  readonly author: PublicKey;
   readonly nonce: bigint;
 }
 export interface Case extends CaseAddress {
-  readonly author: PublicKey;
   readonly previousCase: PublicKey | null;
   readonly agreementHash: readonly number[];
   readonly resultHash: readonly number[];

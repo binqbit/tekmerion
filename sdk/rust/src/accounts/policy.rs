@@ -6,7 +6,7 @@ use crate::{Result, SdkError};
 
 /// A canonical Policy authenticated independently of any Case.
 /// Unused policies are valid; the configured rules may still be updated by admin.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct PolicyView {
     observation: Observation,
     address: Pubkey,

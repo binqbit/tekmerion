@@ -136,8 +136,9 @@ later does not invalidate the Case or prevent settlement and withdrawals.
 Application code owns subject authorization and transitions. This authority and
 the auditor authorities are independent roles configured explicitly in Policy.
 
-The initial Case has nonce zero and no remaining creation accounts. A later
-attempt supplies exactly its canonical preceding Case, which must have ended
+Each author has an independent Case sequence for a Policy and subject. Its initial
+Case has nonce zero and no remaining creation accounts. A later attempt supplies
+exactly its canonical preceding Case from the same author, which must have ended
 with audited No/Unknown or technical failure. Yes does not permit a successor.
 Each attempt has a fresh bond and vault; preceding claims stay independent.
 Applications may enforce their own retry rules. Tests call Tekmerion directly
@@ -148,7 +149,7 @@ with wallet signers and read results from the Case account.
 | Account      | PDA seeds                                           | Reserved bytes including discriminator |
 | ------------ | --------------------------------------------------- | -------------------------------------: |
 | Policy       | `policy`, admin, identifier as little-endian u64    | 710                                    |
-| Case         | `case`, Policy, subject, nonce as little-endian u64 | 323                                    |
+| Case         | `case`, Policy, subject, author, nonce as little-endian u64 | 355                                    |
 | StakeReceipt | `receipt`, Case, owner                              | 83                                     |
 | Vault        | `vault`, Case                                       | Classic SPL Token account              |
 
