@@ -24,7 +24,7 @@
     "node": ">=20.18"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\" && tsc -p tsconfig.json",
     "test": "npm run build && npm run typecheck:examples && node --test tests/*.test.mjs",
     "prepack": "npm run build",
     "format:check": "prettier --check src/*.ts tests/*.mjs examples/*.ts package.json tsconfig*.json .prettierrc.json README.md",
