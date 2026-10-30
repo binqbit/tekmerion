@@ -126,3 +126,9 @@ authorizes its PDA using the same Policy committee as wallet auditors.
 Case identity for environments without Node globals or a wallet runtime. This
 small reader does not replace the full financial and relationship checks of
 `CaseView`; the caller still authenticates account ownership and finality.
+
+Chainlink support is an optional, separate
+[`@tekmerion/chainlink-sdk`](../chainlink-typescript/README.md) package. Installing
+the core SDK does not include a workflow, an AI client or adapter code. The
+package test unpacks the published file set into an independent directory and
+executes the standalone auditor example with no adapter installed.
