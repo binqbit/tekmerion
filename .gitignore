@@ -6,3 +6,5 @@ node_modules/
 
 /workflows/chainlink-appeals/config.local.json
 /workflows/chainlink-appeals/.env
+/workflows/chainlink-appeals/chainlink-appeals.wasm
+/workflows/chainlink-appeals/chainlink-appeals.js
