@@ -1,0 +1,20 @@
+{
+  "network": "devnet",
+  "policy": "REPLACE_WITH_POLICY_ADDRESS",
+  "archiveUrl": "",
+  "triggerKey": "REPLACE_WITH_CRE_HTTP_SIGNER_ADDRESS",
+  "agent": {
+    "model": "gpt-5.4-2026-03-05",
+    "reasoningEffort": "high",
+    "allowedTools": ["web_search"],
+    "maxOutputTokens": 6000,
+    "maxToolCalls": 8,
+    "maxExecutionSeconds": 240,
+    "deliveryReserveSeconds": 45,
+    "httpTimeoutSeconds": 60,
+    "maxDocumentBytes": 16384,
+    "maxResponseBytes": 96000,
+    "gatewayOrigins": ["https://ipfs.io"],
+    "allowedSearchDomains": ["sec.gov", "nasdaq.com", "nyse.com"]
+  }
+}

@@ -2,3 +2,7 @@
 target/
 node_modules/
 /sdk/typescript/dist/
+/workflows/chainlink-appeals/dist/
+
+/workflows/chainlink-appeals/config.local.json
+/workflows/chainlink-appeals/.env

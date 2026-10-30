@@ -1,0 +1,9 @@
+# Fill the ignored config.local.json and select the registry available to your tenant.
+# This single entrypoint requires the qualified confidential execution capability.
+staging-settings:
+  user-workflow:
+    workflow-name: tekmerion-appeals-staging
+  workflow-artifacts:
+    workflow-path: ./src/main.ts
+    config-path: ./config.local.json
+    secrets-path: ./secrets.yaml
