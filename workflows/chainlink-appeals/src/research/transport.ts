@@ -9,7 +9,7 @@ export interface Response {
 
 export interface ResearchTransport {
   get(url: string, limit: number): Response;
-  model(body: Uint8Array): Response;
+  model(body: Uint8Array, stage: "research" | "decision"): Response;
   now(): number;
 }
 

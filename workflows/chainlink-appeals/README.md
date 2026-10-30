@@ -98,6 +98,12 @@ domain includes subdomains, matching the provider's web_search contract.
 Source relevance and factual judgment remain model responsibilities; a valid
 schema and authorized delivery do not prove factual correctness.
 
+The request supplies the audit cutoff in both Unix seconds and UTC, so the agent
+does not need a search service to convert it. Web research starts with permitted
+primary links in the documents and counts searches, page opens and in-page
+searches against the same call budget. API-backed calculator or other non-URL
+sources are not permitted by a domain-only source policy.
+
 ## Configuration and trust
 
 Copy `.env.example` to ignored `.env` in this workflow directory. Set
@@ -161,7 +167,7 @@ execution identifiers so the document can be matched to the on-chain result.
 The full dialogue, HTTP exchanges and raw provider output are not stored.
 
 OpenAI returns a structured decision so `answer`, `reason`, `explanation` and
-`sources` can be validated before publication. `explanation` is the agent's
+`sourceIds` can be resolved against the research catalogue before publication. `explanation` is the agent's
 Markdown report; the source list may contain only consulted URLs permitted by
 the committed tool policy. Technical failures produce a short failure notice
 with the execution identity and error code, never a guessed Yes/No/Unknown.
@@ -174,12 +180,35 @@ change the decision. There is no separate artifact-size policy, chunk upload,
 assembly manifest or second evidence document. Normal CRE and HTTP transport
 limits still apply; the committed model token/response budgets remain enforced.
 
-The configured worst-case document fallback and model HTTP time must fit the
-execution window. Execution plus delivery reserve must fit the published
-five-minute CRE run limit. HTTP timeout is capped at 90 seconds, individual
-responses at 100 KB and model request bodies at 120 KB. Provider research must
-complete within that bounded call. A timeout produces a technical failure;
-it never produces a guessed verdict.
+When web search is enabled, the workflow first collects factual findings with the
+configured tools. It then makes one separate, tool-free decision request using
+the same model and reasoning setting. The final request receives the committed
+documents, research findings and a catalogue of URLs observed in completed tool
+calls. It returns citation IDs; the workflow resolves them to URLs. Unknown IDs,
+unlisted links and tool calls in the decision response are rejected. This binds
+citations to observed sources, but does not prove that an AI summary is accurate.
+Document-only policies skip research and make just the decision request.
+
+All HTTP time must fit the execution window, and execution plus delivery reserve
+must fit the five-minute CRE run limit. `documentTimeoutSeconds` bounds each
+document fetch and optional report upload. `researchTimeoutSeconds` and
+`decisionTimeoutSeconds` bound the two model stages. All three are committed in
+the immutable configuration hash. The example allocates 10 seconds per document,
+150 for research and 70 for the decision, within a 240-second execution window
+and 45-second delivery reserve. The worst-case budget includes both documents
+through every gateway; document-only policies omit the research timeout.
+Individual responses are capped at 100 KB and model request bodies at 120 KB.
+Each stage runs once per audit attempt. An incomplete response or timeout is a
+technical failure, never a guessed verdict; retries follow the on-chain Policy.
+
+This handler uses `HTTPClient` through `TeeRuntime`, not the separate
+`ConfidentialHTTPClient` capability. These application budgets do not grant
+deployment quotas. Qualify the selected confidential environment's HTTP limits
+before deployment; a local run does not prove that its quota is available.
+See the [confidential client reference](https://docs.chain.link/cre/reference/sdk/confidential-workflows-client-ts)
+and [service quotas](https://docs.chain.link/cre/service-quotas).
+Replacing the former shared timeout changes the configuration hash and requires
+a new Policy/Profile; existing immutable Profiles are not migrated.
 
 Cron queries Prepared and Retryable accounts using server-side state filters.
 Finished account history therefore does not count against pending discovery.

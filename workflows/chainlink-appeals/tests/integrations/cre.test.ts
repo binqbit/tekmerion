@@ -37,7 +37,7 @@ test("gateway refusals and oversized unverified responses cannot veto committed 
       triggerKey: "0x" + "22".repeat(20),
       agent: {
         ...agentConfig,
-        httpTimeoutSeconds: 30,
+        documentTimeoutSeconds: 15,
         gatewayOrigins: ["https://unavailable.test", "https://valid.test"],
       },
     };
@@ -49,6 +49,10 @@ test("gateway refusals and oversized unverified responses cannot veto committed 
     const calls: string[] = [];
     HttpActionsMock.testInstance().sendRequest = (input) => {
       calls.push(input.url);
+      assert.equal(
+        input.timeout?.seconds,
+        BigInt(config.agent.documentTimeoutSeconds),
+      );
       const unavailable = input.url.startsWith("https://unavailable.test/");
       return {
         statusCode: unavailable && failure !== "oversized" ? failure : 200,
@@ -98,6 +102,11 @@ for (const mode of [
       const model = s.ports.transport.model;
       s.ports.transport.model = (body) => {
         const response = model(body);
+        if (
+          JSON.parse(new TextDecoder().decode(body)).text.format.name ===
+          "audit_research"
+        )
+          return response;
         const value = JSON.parse(new TextDecoder().decode(response.body));
         const decision = JSON.parse(value.output.at(-1).content[0].text);
         decision.explanation =
@@ -247,6 +256,17 @@ for (const mode of [
       };
     };
     HttpActionsMock.testInstance().sendRequest = (input) => {
+      assert.equal(
+        input.timeout?.seconds,
+        BigInt(
+          input.method === "POST"
+            ? JSON.parse(Buffer.from(input.body!, "base64").toString()).text
+                .format.name === "audit_research"
+              ? agentConfig.researchTimeoutSeconds
+              : agentConfig.decisionTimeoutSeconds
+            : agentConfig.documentTimeoutSeconds,
+        ),
+      );
       const body = input.body
         ? new Uint8Array(Buffer.from(input.body, "base64"))
         : null;
@@ -286,7 +306,7 @@ for (const mode of [
     assert.equal(JSON.parse(output).stage, 1);
     assert.equal(reports, 3);
     assert.equal(writes, 2);
-    assert.equal(s.modelCalls, 1);
+    assert.equal(s.modelCalls, 2);
     assert.equal(
       artifacts.size,
       ["no-archive", "missing-archive-key", "empty-archive-key"].includes(mode)

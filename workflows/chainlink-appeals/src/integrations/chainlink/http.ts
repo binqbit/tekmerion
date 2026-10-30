@@ -8,6 +8,7 @@ export interface HttpRequest {
   body?: Uint8Array;
   headers: Record<string, string>;
   maxResponseBytes: number;
+  timeoutSeconds: number;
 }
 
 export interface HttpResponse {
@@ -23,7 +24,7 @@ export class HttpLimitError extends Error {
 
 export function createHttpClient<Config>(
   runtime: TeeRuntime<Config>,
-  limits: { maxCalls: number; timeoutSeconds: number },
+  limits: { maxCalls: number },
 ): (request: HttpRequest) => HttpResponse {
   const client = new cre.capabilities.HTTPClient();
   let calls = 0;
@@ -41,7 +42,7 @@ export function createHttpClient<Config>(
           ]),
         ),
         ...(request.body ? { body: base64(request.body) } : {}),
-        timeout: `${limits.timeoutSeconds}s`,
+        timeout: `${request.timeoutSeconds}s`,
       })
       .result();
     if (reply.body.length > request.maxResponseBytes)

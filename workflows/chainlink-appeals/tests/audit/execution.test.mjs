@@ -22,7 +22,7 @@ test("verified generic documents and research reach one bound verdict", () => {
   const report = executeAudit(s.ports, agentConfig);
   assert.equal(report.stage, 1);
   assert.equal(report.answer, 0);
-  assert.equal(s.modelCalls, 1);
+  assert.equal(s.modelCalls, 2);
   assert.equal(
     agentConfigHash(agentConfig),
     read("prepared").binding.profile.config.agentConfigHash,
@@ -122,7 +122,7 @@ test("WF03: terminal delivery precedes every archive operation; delivery failure
     () => executeAudit(failed.ports, agentConfig),
     /terminal delivery/,
   );
-  assert.equal(failed.modelCalls, 1);
+  assert.equal(failed.modelCalls, 2);
   assert.equal(failed.artifacts.length, 0);
 });
 
@@ -161,6 +161,23 @@ test("WF02: impossible budgets, hidden config and modified model are rejected be
     /configuration/,
   );
   assert.equal(s.reports.length, 0);
+  for (const field of [
+    "documentTimeoutSeconds",
+    "researchTimeoutSeconds",
+    "decisionTimeoutSeconds",
+  ]) {
+    const changed = scenario();
+    assert.throws(
+      () =>
+        executeAudit(changed.ports, {
+          ...agentConfig,
+          [field]: agentConfig[field] - 1,
+        }),
+      /configuration/,
+    );
+    assert.equal(changed.reports.length, 0);
+    assert.equal(changed.modelCalls, 0);
+  }
 });
 
 test("trigger only names a Case; an operator cannot supply its own documents or model", () => {

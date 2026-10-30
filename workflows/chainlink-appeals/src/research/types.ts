@@ -19,3 +19,9 @@ export interface ResearchResult {
   decision: Decision;
   responseId: string;
 }
+
+/** Provider findings remain untrusted; source URLs come only from validated tool output. */
+export interface Evidence {
+  findings: string;
+  sources: string[];
+}

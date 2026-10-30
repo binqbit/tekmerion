@@ -23,10 +23,9 @@ export function createAuditHttp<Config>(
   transport: ResearchTransport;
   publish(hash: string, bytes: Uint8Array): void;
 } {
-  // At most six gateway reads, one model request and one report upload.
+  // Document fallbacks, optional research, one verdict and one report upload.
   const request = createHttpClient(runtime, {
-    maxCalls: 2 * settings.agent.gatewayOrigins.length + 2,
-    timeoutSeconds: settings.agent.httpTimeoutSeconds,
+    maxCalls: 2 * settings.agent.gatewayOrigins.length + 3,
   });
   let archiveKey: string | null | undefined;
 
@@ -43,7 +42,10 @@ export function createAuditHttp<Config>(
     }
   }
 
-  function callModel(body: Uint8Array): Response {
+  function callModel(
+    body: Uint8Array,
+    stage: "research" | "decision",
+  ): Response {
     let key: string;
     try {
       key = runtime.getSecret({ id: "MODEL_KEY" }).result().value;
@@ -60,6 +62,10 @@ export function createAuditHttp<Config>(
         Authorization: "Bearer " + key,
       },
       maxResponseBytes: settings.agent.maxResponseBytes,
+      timeoutSeconds:
+        stage === "research"
+          ? settings.agent.researchTimeoutSeconds
+          : settings.agent.decisionTimeoutSeconds,
     });
   }
 
@@ -84,6 +90,7 @@ export function createAuditHttp<Config>(
         Authorization: "Bearer " + archiveKey,
       },
       maxResponseBytes: 1024,
+      timeoutSeconds: settings.agent.documentTimeoutSeconds,
     });
     check(
       response.status >= 200 && response.status < 300,
@@ -95,7 +102,13 @@ export function createAuditHttp<Config>(
     transport: {
       now: () => runtime.now().getTime(),
       get: (url, maxResponseBytes) =>
-        send({ url, method: "GET", headers: {}, maxResponseBytes }),
+        send({
+          url,
+          method: "GET",
+          headers: {},
+          maxResponseBytes,
+          timeoutSeconds: settings.agent.documentTimeoutSeconds,
+        }),
       model: callModel,
     },
     publish,

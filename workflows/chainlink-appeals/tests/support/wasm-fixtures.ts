@@ -142,13 +142,17 @@ export function recordedAudit(mode: string) {
       model: agentConfig.model,
       status: "completed",
       usage: { output_tokens: 100 },
+      ...(mode === "oversized-model"
+        ? { padding: "x".repeat(agentConfig.maxResponseBytes) }
+        : {}),
       output: [
         {
           type: "web_search_call",
           status: "completed",
           action: {
-            type: "open_page",
+            type: mode === "no" ? "find_in_page" : "open_page",
             url: "https://evidence.test/review",
+            ...(mode === "no" ? { pattern: "acceptance criteria" } : {}),
           },
         },
         {
@@ -159,12 +163,7 @@ export function recordedAudit(mode: string) {
             {
               type: "output_text",
               text: JSON.stringify({
-                answer,
-                reason:
-                  answer === "unknown" ? "conflicting_evidence" : "decisive",
-                explanation:
-                  "### Findings\nSynthetic evidence for the recorded WASM audit.",
-                sources: ["https://evidence.test/review"],
+                findings: "Synthetic review establishes acceptance criteria.",
               }),
             },
           ],
@@ -173,6 +172,38 @@ export function recordedAudit(mode: string) {
     }),
     mode === "provider-failure" ? 503 : 200,
   );
+  if (!["provider-failure", "oversized-model"].includes(mode)) {
+    secret("MODEL_KEY");
+    http(
+      JSON.stringify({
+        id: "resp_recorded_decision",
+        model: agentConfig.model,
+        status: "completed",
+        usage: { output_tokens: 100 },
+        output: [
+          {
+            type: "message",
+            role: "assistant",
+            status: "completed",
+            content: [
+              {
+                type: "output_text",
+                text: JSON.stringify({
+                  answer,
+                  reason:
+                    answer === "unknown" ? "conflicting_evidence" : "decisive",
+                  explanation:
+                    "### Findings\nSynthetic evidence for the recorded WASM audit. [S1]",
+                  sourceIds: ["S1"],
+                }),
+              },
+            ],
+          },
+        ],
+      }),
+      mode === "decision-failure" ? 503 : 200,
+    );
+  }
   nativeReport(3);
   delivered();
   if (mode !== "no-archive") {

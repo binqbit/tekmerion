@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { parseWorkflowConfig } from "../../dist/workflow/config.js";
-import { agentConfigHash } from "../../dist/research/config.js";
+import {
+  agentConfigHash,
+  parseAgentConfig,
+} from "../../dist/research/config.js";
 import { agentConfig, f } from "../support/fixtures.mjs";
 
 const settings = () => ({
@@ -10,6 +13,62 @@ const settings = () => ({
   policy: f.policy,
   triggerKey: "0x" + "22".repeat(20),
   agent: agentConfig,
+});
+
+test("document fallbacks and the model share a bounded execution window", () => {
+  const config = {
+    ...agentConfig,
+    documentTimeoutSeconds: 10,
+    researchTimeoutSeconds: 110,
+    decisionTimeoutSeconds: 70,
+    gatewayOrigins: [
+      "https://one.test",
+      "https://two.test",
+      "https://three.test",
+    ],
+  };
+  assert.doesNotThrow(() => parseAgentConfig(config)); // 6 * 10 + 110 + 70 = 240
+  assert.throws(
+    () => parseAgentConfig({ ...config, documentTimeoutSeconds: 11 }),
+    /HTTP budget/,
+  );
+  assert.throws(
+    () => parseAgentConfig({ ...config, maxExecutionSeconds: 239 }),
+    /HTTP budget/,
+  );
+  assert.throws(
+    () => parseAgentConfig({ ...config, deliveryReserveSeconds: 61 }),
+    /CRE run limit/,
+  );
+  for (const [field, maximum] of [
+    ["documentTimeoutSeconds", 30],
+    ["researchTimeoutSeconds", 180],
+    ["decisionTimeoutSeconds", 180],
+  ]) {
+    for (const invalid of [0, 4, 5.5, maximum + 1, "10", null]) {
+      assert.throws(() =>
+        parseAgentConfig({ ...agentConfig, [field]: invalid }),
+      );
+    }
+  }
+});
+
+test("all stage timeouts are committed and the old shared timeout cannot override them", () => {
+  const digest = agentConfigHash(agentConfig);
+  for (const field of [
+    "documentTimeoutSeconds",
+    "researchTimeoutSeconds",
+    "decisionTimeoutSeconds",
+  ]) {
+    const changed = { ...agentConfig, [field]: agentConfig[field] - 1 };
+    assert.notEqual(agentConfigHash(changed), digest);
+    const missing = { ...agentConfig };
+    delete missing[field];
+    assert.throws(() => parseAgentConfig(missing));
+  }
+  assert.throws(() =>
+    parseAgentConfig({ ...agentConfig, httpTimeoutSeconds: 60 }),
+  );
 });
 
 test("the example only needs deployment identities replaced to pass configuration validation", () => {

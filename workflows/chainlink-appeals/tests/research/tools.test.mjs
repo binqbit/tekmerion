@@ -6,8 +6,12 @@ import {
   parseAgentConfig,
 } from "../../dist/research/config.js";
 import { runResearch } from "../../dist/research/agent.js";
-import { parseResearchResponse } from "../../dist/research/openai/response.js";
-import { agentConfig, modelResponse } from "../support/fixtures.mjs";
+import { parseDecisionResponse } from "../../dist/research/openai/response.js";
+import {
+  agentConfig,
+  modelResponse,
+  evidenceResponse,
+} from "../support/fixtures.mjs";
 
 const documentOnly = {
   ...agentConfig,
@@ -83,7 +87,14 @@ test("document-only research fetches committed text but exposes no agent tools",
         assert.equal("max_tool_calls" in request, false);
         assert.equal("include" in request, false);
         assert.match(request.instructions, /No tools are permitted/);
-        assert.match(request.instructions, /Return sources as an empty array/);
+        assert.deepEqual(
+          JSON.parse(request.input[0].content).evidenceCatalogue,
+          [],
+        );
+        assert.equal(
+          request.text.format.schema.properties.sourceIds.maxItems,
+          0,
+        );
         assert.ok(!request.instructions.includes("enable web_search"));
         assert.equal(
           JSON.parse(request.input[0].content).documents.result.hash,
@@ -104,12 +115,12 @@ test("document-only research fetches committed text but exposes no agent tools",
 });
 
 test("disabled tools and unsupported citations cannot become a document-only verdict", () => {
-  const unsolicitedSearch = modelResponse();
+  const unsolicitedSearch = evidenceResponse();
   const unsolicitedTool = modelResponse({ withoutTools: true });
   unsolicitedTool.output.unshift({ type: "function_call", name: "fetch" });
   const fabricatedCitation = modelResponse({ withoutTools: true });
   const decision = JSON.parse(fabricatedCitation.output.at(-1).content[0].text);
-  decision.sources = ["https://evidence.test/release"];
+  decision.sourceIds = ["S1"];
   fabricatedCitation.output.at(-1).content[0].text = JSON.stringify(decision);
   for (const response of [
     unsolicitedSearch,
@@ -117,7 +128,11 @@ test("disabled tools and unsupported citations cannot become a document-only ver
     fabricatedCitation,
   ]) {
     assert.throws(
-      () => parseResearchResponse(utf8(JSON.stringify(response)), documentOnly),
+      () =>
+        parseDecisionResponse(utf8(JSON.stringify(response)), documentOnly, {
+          findings: "",
+          sources: [],
+        }),
       /technical failure/,
     );
   }
@@ -129,9 +144,10 @@ test("document-only No and substantive Unknown remain valid completed audits", (
     ["unknown", 2],
   ]) {
     const response = modelResponse({ answer, withoutTools: true });
-    const result = parseResearchResponse(
+    const result = parseDecisionResponse(
       utf8(JSON.stringify(response)),
       documentOnly,
+      { findings: "", sources: [] },
     );
     assert.equal(result.decision.answer, expected);
     assert.deepEqual(result.decision.sources, []);

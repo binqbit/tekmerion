@@ -12,7 +12,9 @@ export interface AgentConfig {
   maxToolCalls: number;
   maxExecutionSeconds: number;
   deliveryReserveSeconds: number;
-  httpTimeoutSeconds: number;
+  documentTimeoutSeconds: number;
+  researchTimeoutSeconds: number;
+  decisionTimeoutSeconds: number;
   maxDocumentBytes: number;
   maxResponseBytes: number;
   gatewayOrigins: string[];
@@ -28,7 +30,9 @@ export function parseAgentConfig(value: unknown): AgentConfig {
     "maxToolCalls",
     "maxExecutionSeconds",
     "deliveryReserveSeconds",
-    "httpTimeoutSeconds",
+    "documentTimeoutSeconds",
+    "researchTimeoutSeconds",
+    "decisionTimeoutSeconds",
     "maxDocumentBytes",
     "maxResponseBytes",
     "gatewayOrigins",
@@ -56,7 +60,9 @@ export function parseAgentConfig(value: unknown): AgentConfig {
   bounded("maxToolCalls", 0, 16);
   bounded("maxExecutionSeconds", 30, 240);
   bounded("deliveryReserveSeconds", 30, 120);
-  bounded("httpTimeoutSeconds", 5, 90);
+  bounded("documentTimeoutSeconds", 5, 30);
+  bounded("researchTimeoutSeconds", 5, 180);
+  bounded("decisionTimeoutSeconds", 5, 180);
   bounded("maxDocumentBytes", 1024, 16384);
   // Bound the provider response received within one CRE execution.
   bounded("maxResponseBytes", 8192, 100000);
@@ -108,9 +114,11 @@ export function parseAgentConfig(value: unknown): AgentConfig {
         config.allowedSearchDomains.length,
     "Duplicate execution policy entry",
   );
-  // One model call plus both documents, including all gateway fallbacks.
+  // Research (when tools are enabled), one verdict, and all document fallbacks.
   const longestHttpPath =
-    (2 * config.gatewayOrigins.length + 1) * config.httpTimeoutSeconds;
+    2 * config.gatewayOrigins.length * config.documentTimeoutSeconds +
+    (webSearchAllowed ? config.researchTimeoutSeconds : 0) +
+    config.decisionTimeoutSeconds;
   check(
     longestHttpPath <= config.maxExecutionSeconds,
     "HTTP budget cannot fit the execution window",

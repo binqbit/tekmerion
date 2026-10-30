@@ -36,7 +36,7 @@ export function read(stage) {
   return { binding, now: 1000n };
 }
 
-export function modelResponse(options = {}) {
+function researchFixture(options = {}) {
   const sources = [
     "https://evidence.test/release",
     "https://evidence.test/review",
@@ -107,12 +107,58 @@ export function modelResponse(options = {}) {
       },
     ],
   };
+  return response;
+}
+
+export const evidenceSources = [
+  "https://evidence.test/release",
+  "https://evidence.test/review",
+];
+export const evidence = {
+  findings: "The release and independent review establish timely delivery.",
+  sources: evidenceSources,
+};
+
+export function evidenceResponse() {
+  const response = researchFixture();
+  response.output.at(-1).content[0].text = JSON.stringify({
+    findings: evidence.findings,
+  });
+  return response;
+}
+
+export function providerResponse(body, options = {}) {
+  const request = JSON.parse(new TextDecoder().decode(body));
+  return request.text.format.name === "audit_research"
+    ? evidenceResponse()
+    : modelResponse(options);
+}
+
+export function modelResponse(options = {}) {
+  const response = researchFixture(options);
+  response.id = "resp_local_decision";
+  response.output = response.output.filter(
+    (item) => item.type !== "web_search_call",
+  );
+  const decision = JSON.parse(response.output.at(-1).content[0].text);
+  delete decision.sources;
+  decision.sourceIds = ["S1", "S2"];
+  decision.explanation = decision.explanation
+    .replace(
+      "[official release](https://evidence.test/release)",
+      "official release [S1]",
+    )
+    .replace(
+      "[independent review](https://evidence.test/review)",
+      "independent review [S2]",
+    );
+  response.output.at(-1).content[0].text = JSON.stringify(decision);
   if (options.withoutTools) {
     response.output = response.output.filter(
       (item) => item.type !== "web_search_call",
     );
     const decision = JSON.parse(response.output.at(-1).content[0].text);
-    decision.sources = [];
+    decision.sourceIds = [];
     decision.explanation =
       "The supplied documents establish the agreement's criteria.";
     response.output.at(-1).content[0].text = JSON.stringify(decision);
@@ -165,7 +211,7 @@ export function scenario(options = {}) {
         if (options.transportFailure) throw new Error("transport timeout");
         return {
           status: 200,
-          body: utf8(JSON.stringify(modelResponse(options))),
+          body: utf8(JSON.stringify(providerResponse(body, options))),
         };
       },
     },

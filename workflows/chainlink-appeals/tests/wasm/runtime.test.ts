@@ -296,6 +296,8 @@ for (const mode of [
   "no",
   "unknown",
   "provider-failure",
+  "oversized-model",
+  "decision-failure",
   "archive-failure",
   "no-archive",
 ]) {
@@ -316,7 +318,13 @@ for (const mode of [
     assert.deepEqual(JSON.parse(String(Value.wrap(result.value).unwrap())), {
       case: f.case,
       attempt: 0,
-      stage: mode === "provider-failure" ? 2 : 1,
+      stage: [
+        "provider-failure",
+        "oversized-model",
+        "decision-failure",
+      ].includes(mode)
+        ? 2
+        : 1,
     });
     const writes = calls
       .filter((call) => call.method === "WriteReport")
@@ -338,9 +346,12 @@ for (const mode of [
     assert.equal(terminal.requestDigest, f.requestDigest);
     assert.equal(terminal.executionId, claim.executionId);
     assert.equal(terminal.attemptIndex, claim.attemptIndex);
-    if (mode === "provider-failure") {
+    if (
+      ["provider-failure", "oversized-model", "decision-failure"].includes(mode)
+    ) {
       assert.equal(terminal.stage, 2);
-      if (terminal.stage === 2) assert.equal(terminal.failureCode, 2);
+      if (terminal.stage === 2)
+        assert.equal(terminal.failureCode, mode === "oversized-model" ? 67 : 2);
     } else {
       assert.equal(terminal.stage, 1);
       if (terminal.stage === 1) {
@@ -358,14 +369,36 @@ for (const mode of [
       );
     assert.deepEqual(
       requests.map((request) => request.method),
-      mode === "no-archive"
-        ? ["GET", "GET", "POST"]
-        : ["GET", "GET", "POST", "PUT"],
+      [
+        "GET",
+        "GET",
+        "POST",
+        ...(["provider-failure", "oversized-model"].includes(mode)
+          ? []
+          : ["POST"]),
+        ...(mode === "no-archive" ? [] : ["PUT"]),
+      ],
     );
+    for (const request of requests) {
+      assert.equal(
+        request.timeout?.seconds,
+        BigInt(
+          request.method === "POST"
+            ? JSON.parse(new TextDecoder().decode(request.body)).text.format
+                .name === "audit_research"
+              ? agentConfig.researchTimeoutSeconds
+              : agentConfig.decisionTimeoutSeconds
+            : agentConfig.documentTimeoutSeconds,
+        ),
+      );
+      assert.equal(request.timeout?.nanos, 0);
+    }
     const model = JSON.parse(new TextDecoder().decode(requests[2]!.body));
     const context = JSON.parse(model.input[0].content);
     assert.equal(context.documents.agreement.text, f.documents.agreement);
     assert.equal(context.documents.result.text, f.documents.result);
+    assert.equal(context.cutoffUnixSeconds, "1000");
+    assert.equal(context.cutoffUtc, "1970-01-01T00:16:40.000Z");
     assert.equal(model.model, agentConfig.model);
     assert.equal(model.reasoning.effort, agentConfig.reasoningEffort);
     assert.equal(requests[2]!.url, "https://api.openai.com/v1/responses");
@@ -387,14 +420,20 @@ for (const mode of [
     assert.equal(model.max_tool_calls, agentConfig.maxToolCalls);
     assert.deepEqual(
       secretRequests.map((item) => item.request.requests[0]!.id),
-      mode === "no-archive" ? ["MODEL_KEY"] : ["MODEL_KEY", "ARCHIVE_KEY"],
+      [
+        "MODEL_KEY",
+        ...(["provider-failure", "oversized-model"].includes(mode)
+          ? []
+          : ["MODEL_KEY"]),
+        ...(mode === "no-archive" ? [] : ["ARCHIVE_KEY"]),
+      ],
     );
     assert.ok(
       secretRequests[0]!.afterCalls >
         calls.indexOf(calls.find((call) => call.method === "WriteReport")!),
     );
     if (mode !== "no-archive") {
-      const archive = requests[3]!;
+      const archive = requests.at(-1)!;
       assert.deepEqual(archive.multiHeaders.Authorization!.values, [
         "Bearer synthetic-ARCHIVE_KEY",
       ]);
@@ -412,16 +451,22 @@ for (const mode of [
       const text = new TextDecoder().decode(archive.body);
       assert.match(
         text,
-        mode === "provider-failure"
+        ["provider-failure", "oversized-model", "decision-failure"].includes(
+          mode,
+        )
           ? /^# Audit execution failure/
           : /^# Audit report/,
       );
       assert.ok(!text.includes("synthetic-MODEL_KEY"));
       assert.ok(!text.includes("synthetic-ARCHIVE_KEY"));
-      if (mode !== "provider-failure")
+      if (
+        !["provider-failure", "oversized-model", "decision-failure"].includes(
+          mode,
+        )
+      )
         assert.ok(text.includes("### Findings\n\nSynthetic evidence"));
       assert.equal(calls.at(-1)!.method, "SendRequest");
-      assert.equal(secretRequests[1]!.afterCalls, calls.length - 1);
+      assert.equal(secretRequests.at(-1)!.afterCalls, calls.length - 1);
       if (mode === "yes" && process.env.CONFIDENTIAL_REPLAY_OUTPUT) {
         writeFileSync(
           process.env.CONFIDENTIAL_REPLAY_OUTPUT,

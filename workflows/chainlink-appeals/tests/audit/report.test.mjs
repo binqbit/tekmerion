@@ -6,6 +6,8 @@ import {
   agentConfig,
   f,
   modelResponse,
+  evidenceResponse,
+  evidenceSources,
   scenario,
 } from "../support/fixtures.mjs";
 
@@ -15,11 +17,13 @@ test("one final text report binds the verdict, assessment and sources without re
   response.provider_metadata = "private-transport-marker";
   const decision = JSON.parse(response.output.at(-1).content[0].text);
   decision.explanation =
-    "## Agreement criteria\nThe published release satisfies the requirements.\n\n## Supporting facts\nSee https://evidence.test/release for delivery and https://evidence.test/review for confirmation.";
+    "## Agreement criteria\nThe published release satisfies the requirements.\n\n## Supporting facts\nSee [S1] for delivery and [S2] for confirmation.";
   response.output.at(-1).content[0].text = JSON.stringify(decision);
-  s.ports.transport.model = () => ({
+  s.ports.transport.model = (_body, stage) => ({
     status: 200,
-    body: utf8(JSON.stringify(response)),
+    body: utf8(
+      JSON.stringify(stage === "research" ? evidenceResponse() : response),
+    ),
   });
   const result = executeAudit(s.ports, agentConfig);
   assert.equal(result.stage, 1);
@@ -30,10 +34,10 @@ test("one final text report binds the verdict, assessment and sources without re
   assert.match(text, /^# Audit report\n/);
   assert.ok(text.includes("## Audit context\n\n- Case: " + f.case));
   assert.ok(text.includes("### Agreement criteria\n\nThe published release"));
-  assert.ok(text.includes("\n\n### Supporting facts\n\nSee https://"));
+  assert.ok(text.includes("\n\n### Supporting facts\n\nSee [S1](<https://"));
   assert.equal(text.includes("\n## Agreement criteria"), false);
   assert.ok(text.includes(f.case));
-  for (const url of decision.sources) assert.ok(text.includes(url));
+  for (const url of evidenceSources) assert.ok(text.includes(url));
   assert.ok(!text.includes("private-transport-marker"));
   assert.ok(!text.includes("web_search_call"));
   assert.ok(!text.includes('"instructions"'));
@@ -65,9 +69,11 @@ test("assessment headings stay nested and spaced without changing lists or fence
     "The criteria are satisfied.",
   ].join("\r\n");
   response.output.at(-1).content[0].text = JSON.stringify(decision);
-  s.ports.transport.model = () => ({
+  s.ports.transport.model = (_body, stage) => ({
     status: 200,
-    body: utf8(JSON.stringify(response)),
+    body: utf8(
+      JSON.stringify(stage === "research" ? evidenceResponse() : response),
+    ),
   });
   const result = executeAudit(s.ports, agentConfig);
   const document = s.artifacts[0].bytes;
@@ -87,9 +93,11 @@ test("long final assessments are preserved without an extra artifact-size policy
   const decision = JSON.parse(response.output.at(-1).content[0].text);
   decision.explanation = "The evidence supports this criterion. ".repeat(300);
   response.output.at(-1).content[0].text = JSON.stringify(decision);
-  s.ports.transport.model = () => ({
+  s.ports.transport.model = (_body, stage) => ({
     status: 200,
-    body: utf8(JSON.stringify(response)),
+    body: utf8(
+      JSON.stringify(stage === "research" ? evidenceResponse() : response),
+    ),
   });
   assert.equal(executeAudit(s.ports, agentConfig).stage, 1);
   assert.ok(
