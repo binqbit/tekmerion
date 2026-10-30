@@ -44,18 +44,20 @@ Git.
 
 ## Release bundle
 
-| File              | Contents                                                        |
-| ----------------- | --------------------------------------------------------------- |
-| `tekmerion.so`    | Release SBF program binary                                      |
-| `tekmerion.json`  | Generated IDL checked against the maintained mainnet interface  |
-| `build-info.json` | Tool versions, source fingerprint, program ID and selected mint |
-| `SHA256SUMS`      | SHA-256 checksums for the other release files                   |
+| File                     | Contents                                                        |
+| ------------------------ | --------------------------------------------------------------- |
+| `tekmerion.so`           | Release SBF program binary                                      |
+| `tekmerion.json`         | Generated IDL checked against the maintained mainnet interface  |
+| `chainlink_auditor.so`   | Authenticated auditor adapter SBF                               |
+| `chainlink_auditor.json` | Generated adapter IDL                                           |
+| `build-info.json`        | Tool versions, source fingerprint, program ID and selected mint |
+| `SHA256SUMS`             | SHA-256 checksums for the other release files                   |
 
 `build-info.json` records the actual host and SBF compiler versions, build
 flags, program identity, mint, and Git revision and dirty status when available.
 Its `source_files` map contains hashes of the selected program, configuration,
 interface and build-script inputs; `source_sha256` fingerprints that map. The
-`artifacts` map records the binary and IDL hashes. `SHA256SUMS` covers those two
+`artifacts` map records the binary and IDL hashes. `SHA256SUMS` covers those four
 files and `build-info.json`.
 
 The bundle contains no private key. Keep its files together when handing a build
@@ -90,3 +92,7 @@ fixtures and mock RPCs. Its additional setup requirements and coverage are in
 the [test guide](../tests/README.md). Building the release bundle does not run
 this suite. [CI](../.github/workflows/contracts.yml) runs the local tests followed
 by the production build.
+
+## Chainlink integration
+
+See the [Chainlink developer guide](chainlink-integration.md) for the adapter ABI, lifecycle, workflow, enrollment and reproducible fixtures. The standard test runner covers this integration. The production bundle also contains `chainlink_auditor.so` and `chainlink_auditor.json`; neither building nor testing deploys them.

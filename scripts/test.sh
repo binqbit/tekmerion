@@ -30,9 +30,15 @@ runtime_manifest="$project_root/tests/Cargo.toml"
 sdk_manifest="$project_root/sdk/rust/Cargo.toml"
 fixture_manifest="$project_root/tests/programs/sdk_consumer/Cargo.toml"
 typescript_dir="$project_root/sdk/typescript"
+adapter_typescript_dir="$project_root/sdk/chainlink-typescript"
+chainlink_sdk_manifest="$project_root/sdk/chainlink-rust/Cargo.toml"
+forwarder_manifest="$project_root/tests/third-party/chainlink-solana/contracts/programs/keystone-forwarder/Cargo.toml"
+workflow_dir="$project_root/workflows/chainlink-appeals"
 source "$project_root/scripts/build-tools.sh"
 command -v node >/dev/null
 command -v npm >/dev/null
+command -v bun >/dev/null
+python3 scripts/verify-chainlink-source.py
 export BPF_OUT_DIR="$deploy_dir"
 # Quiet repeated local transport warnings; explicit user targets still win.
 export RUST_LOG="tarpc=error,${RUST_LOG:-error}"
@@ -42,13 +48,19 @@ restore_dependencies programs "$project_root/Cargo.toml"
 restore_dependencies sdk "$sdk_manifest"
 restore_dependencies consumer "$fixture_manifest"
 restore_dependencies runtime "$runtime_manifest"
+restore_dependencies chainlink-sdk "$chainlink_sdk_manifest"
+restore_dependencies forwarder "$forwarder_manifest"
 npm ci --prefix "$typescript_dir" --prefer-offline --no-audit --no-fund
+npm ci --prefix "$adapter_typescript_dir" --prefer-offline --no-audit --no-fund
+npm ci --prefix "$workflow_dir" --prefer-offline --no-audit --no-fund
 
 export CARGO_NET_OFFLINE=true
 host programs rustc --version
 anchor --version
 host programs cargo fmt --all -- --check
 host sdk cargo fmt --manifest-path "$sdk_manifest" --all -- --check
+host chainlink-sdk cargo fmt --manifest-path "$chainlink_sdk_manifest" --all -- --check
+host chainlink-sdk cargo clippy --manifest-path "$chainlink_sdk_manifest" --all-targets "${program_features[@]}" --locked --offline -- -D warnings
 host consumer cargo fmt --manifest-path "$fixture_manifest" --all -- --check
 host runtime cargo fmt --manifest-path "$runtime_manifest" --all -- --check
 host programs cargo clippy --workspace --all-targets "${program_features[@]}" --locked --offline -- -D warnings
@@ -75,9 +87,10 @@ if "Select exactly one network: mainnet or devnet" not in Path(sys.argv[1]).read
 PY
 done
 mkdir -p "$deploy_dir"
-for program in tekmerion sdk_consumer; do
+for program in tekmerion chainlink_auditor sdk_consumer; do
   manifest="$project_root/programs/tekmerion/Cargo.toml"
   if [[ "$program" == sdk_consumer ]]; then manifest="$fixture_manifest"; fi
+  if [[ "$program" == chainlink_auditor ]]; then manifest="$project_root/programs/chainlink-auditor/Cargo.toml"; fi
   build_log="$output_dir/sbf-$program.log"
   sbf "$program" --manifest-path "$manifest" --sbf-out-dir "$deploy_dir" \
     --tools-version "$sbf_tools_version" --arch "$sbf_arch" "${program_features[@]}" \
@@ -93,27 +106,33 @@ if errors:
 PY
   test -f "$deploy_dir/$program.so"
 done
+sbf forwarder --manifest-path "$forwarder_manifest" --sbf-out-dir "$deploy_dir" \
+  --tools-version "$sbf_tools_version" --arch "$sbf_arch" --offline --skip-tools-install \
+  --jobs "$CARGO_BUILD_JOBS" -- --locked --offline > "$output_dir/sbf-forwarder.log" 2>&1
+python3 scripts/check-sbf-log.py "$output_dir/sbf-forwarder.log"
 mkdir -p "$output_dir/idl"
-host programs anchor idl build --program-name tekmerion --out "$output_dir/idl/tekmerion.json" \
-  -- "${program_features[@]}" --locked --offline
-python3 - "$output_dir/idl" "$update_idl" <<'PY'
+for network in mainnet devnet; do
+  host programs anchor idl build --program-name tekmerion --out "$output_dir/idl/tekmerion-$network.json" \
+    -- --no-default-features --features "$network" --locked --offline
+  python3 - "$network" "$output_dir/idl/tekmerion-$network.json" "$update_idl" <<'PYIDL'
 import json
 from pathlib import Path
 import sys
 
-generated = Path(sys.argv[1])
-update = sys.argv[2] == "true"
-actual = json.loads((generated / "tekmerion.json").read_text())
-expected_path = Path("idl/tekmerion.json")
-if update:
-    expected_path.parent.mkdir(parents=True, exist_ok=True)
-    expected_path.write_text(json.dumps(actual, indent=2) + "\n")
-    print(f"Updated {expected_path}; review the interface diff.")
-elif not expected_path.exists() or json.loads(expected_path.read_text()) != actual:
-    raise SystemExit(f"IDL drift: {expected_path}; regenerate with --update-idl and review.")
-else:
-    print(f"Verified generated interface: {expected_path}")
-PY
+network, generated, update = sys.argv[1:]
+actual = json.loads(Path(generated).read_text())
+paths = [Path("idl/tekmerion.json" if network == "mainnet" else "idl/devnet/tekmerion.json"),
+         Path(f"sdk/typescript/src/idl/{network}.json")]
+for path in paths:
+    if update == "true":
+        path.write_text(json.dumps(actual, indent=2) + "\n")
+        print(f"Updated {path}; review the interface diff.")
+    elif not path.exists() or json.loads(path.read_text()) != actual:
+        raise SystemExit(f"IDL drift: {path}; regenerate with --update-idl and review.")
+    else:
+        print(f"Verified generated interface: {path}")
+PYIDL
+done
 
 host runtime cargo test --manifest-path "$runtime_manifest" "${program_features[@]}" --locked --offline -- --test-threads=2
 
@@ -140,6 +159,42 @@ else:
 PY
 
 host sdk cargo test --manifest-path "$sdk_manifest" --no-default-features --features mainnet,host,cpi,rpc --locked --offline
+source scripts/test-chainlink.sh
+if ! BPF_OUT_DIR="$output_dir/deploy-devnet" host runtime cargo run --manifest-path "$runtime_manifest" \
+  --example sdk_fixtures --no-default-features --features devnet --locked --offline \
+  > "$output_dir/sdk-fixtures-devnet.json" 2> "$output_dir/sdk-fixtures-devnet.log"; then
+  cat "$output_dir/sdk-fixtures-devnet.log" >&2
+  exit 1
+fi
+python3 - "$output_dir/sdk-fixtures-devnet.json" "$update_fixtures" <<'PYFIXTURES'
+import json
+from pathlib import Path
+import sys
+
+actual = json.loads(Path(sys.argv[1]).read_text())
+path = Path("sdk/fixtures/sdk-devnet.json")
+if sys.argv[2] == "true":
+    path.write_text(json.dumps(actual, indent=2) + "\n")
+    print(f"Updated {path}; review the protocol and quote changes.")
+elif not path.exists() or json.loads(path.read_text()) != actual:
+    raise SystemExit(f"SDK fixture drift: {path}; regenerate with --update-fixtures and review.")
+else:
+    print(f"Verified runtime SDK vectors: {path}")
+PYFIXTURES
+source scripts/test-confidential.sh
 npm run format:check --prefix "$typescript_dir"
 npm test --prefix "$typescript_dir"
-echo 'All local contract and SDK tests passed.'
+npm run format:check --prefix "$adapter_typescript_dir"
+npm test --prefix "$adapter_typescript_dir"
+npm test --prefix "$workflow_dir"
+(cd "$workflow_dir" && bun node_modules/@chainlink/cre-sdk/bin/cre-compile.ts src/main.ts "$output_dir/chainlink-appeals.wasm")
+(cd "$workflow_dir" && WORKFLOW_WASM="$output_dir/chainlink-appeals.wasm" \
+  CONFIDENTIAL_REPLAY_OUTPUT="$output_dir/confidential-wasm-verdict.json" bun test tests/wasm/runtime.test.ts)
+CONFIDENTIAL_REPLAY_OUTPUT="$output_dir/confidential-workflow-verdict.json" node --test "$workflow_dir/tests/audit/execution.test.mjs"
+for verdict in confidential-workflow-verdict confidential-wasm-verdict; do
+  BPF_OUT_DIR="$output_dir/deploy-confidential-mainnet" host runtime cargo run --manifest-path "$runtime_manifest" \
+    --example replay_confidential --no-default-features --features mainnet,local-fixtures --locked --offline \
+    -- "$output_dir/$verdict.json"
+done
+bash scripts/demo-confidential.sh --reuse-build
+echo 'All local contract, SDK and Chainlink workflow tests passed.'

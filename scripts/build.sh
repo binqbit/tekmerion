@@ -8,7 +8,7 @@ if (( $# )); then
     --help|-h)
       echo 'Usage: bash scripts/build.sh'
       echo 'Build the mainnet SBF release and verify its generated IDL.'
-      echo 'Output: target/production/release/{tekmerion.so,tekmerion.json,build-info.json,SHA256SUMS}'
+      echo 'Output: target/production/release/{tekmerion.so,tekmerion.json,chainlink_auditor.so,chainlink_auditor.json,build-info.json,SHA256SUMS}'
       echo 'Prepares pinned tools and locked dependencies; requires no Node.js, RPC or wallet.'
       echo 'Run bash scripts/test.sh separately before deploying a release.'
       exit 0 ;;
@@ -54,6 +54,14 @@ PY
 
 host programs anchor idl build --program-name tekmerion --out "$stage/tekmerion.json" \
   -- "${program_features[@]}" --locked --offline 2>&1 | tee "$output_dir/idl.log"
+
+sbf adapter --manifest-path "$project_root/programs/chainlink-auditor/Cargo.toml" \
+  --sbf-out-dir "$stage/deploy" --tools-version "$sbf_tools_version" --arch "$sbf_arch" \
+  "${program_features[@]}" --offline --skip-tools-install --jobs "$CARGO_BUILD_JOBS" \
+  -- --locked --offline > "$output_dir/adapter-build.log" 2>&1
+python3 scripts/check-sbf-log.py "$output_dir/adapter-build.log"
+host programs anchor idl build --program-name chainlink_auditor --out "$stage/chainlink_auditor.json" \
+  -- "${program_features[@]}" --locked --offline > "$output_dir/adapter-idl.log" 2>&1
 
 host programs rustc --version --verbose > "$stage/host-rustc.txt"
 anchor --version > "$stage/anchor.txt"
@@ -103,6 +111,20 @@ if (len(header) != 64 or header[:7] != b"\x7fELF\x02\x01\x01"
 
 shutil.copyfile(binary, bundle / "tekmerion.so")
 (bundle / "tekmerion.json").write_text(json.dumps(idl, indent=2) + "\n")
+adapter_idl = json.loads((stage / "chainlink_auditor.json").read_text())
+if adapter_idl != json.loads((root / "idl/chainlink_auditor.json").read_text()):
+    raise SystemExit("Chainlink adapter IDL drift")
+if adapter_idl["address"] != anchor["programs"]["localnet"]["chainlink_auditor"]:
+    raise SystemExit("Chainlink adapter identity mismatch")
+adapter_binary = stage / "deploy/chainlink_auditor.so"
+header = adapter_binary.read_bytes()[:64]
+if (len(header) != 64 or header[:7] != b"\x7fELF\x02\x01\x01"
+        or struct.unpack_from("<HH", header, 16) != (3, 263)
+        or struct.unpack_from("<I", header, 48)[0] != 0):
+    raise SystemExit("Invalid adapter SBF binary")
+shutil.copyfile(adapter_binary, bundle / "chainlink_auditor.so")
+(bundle / "chainlink_auditor.json").write_text(json.dumps(adapter_idl, indent=2) + "\n")
+artifacts = ["tekmerion.so", "tekmerion.json", "chainlink_auditor.so", "chainlink_auditor.json"]
 
 def sha256(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
@@ -111,6 +133,8 @@ inputs = ["Cargo.toml", "Cargo.lock", "Anchor.toml", "rust-toolchain.toml",
           "programs/tekmerion/Cargo.toml", "idl/tekmerion.json",
           "scripts/build.sh", "scripts/build-tools.sh", "scripts/sbf-cargo.sh"]
 inputs += [str(path.relative_to(root)) for path in (root / "programs/tekmerion/src").rglob("*.rs")]
+inputs += ["programs/chainlink-auditor/Cargo.toml", "idl/chainlink_auditor.json", "sdk/rust/Cargo.toml", "sdk/rust/Cargo.lock", "scripts/check-sbf-log.py"]
+inputs += [str(path.relative_to(root)) for folder in ["programs/chainlink-auditor/src", "sdk/rust/src"] for path in (root / folder).rglob("*.rs")]
 source_files = {name: sha256(root / name) for name in sorted(inputs)}
 source_digest = hashlib.sha256(json.dumps(source_files, sort_keys=True).encode()).hexdigest()
 
@@ -125,6 +149,7 @@ status = git_output("status", "--porcelain")
 info = {
     "program": {"name": "tekmerion", "id": idl["address"], "network": "mainnet",
                 "mint": next(iter(mints))},
+    "adapter": {"name": "chainlink_auditor", "id": adapter_idl["address"], "network": "mainnet"},
     "build": {"profile": "release", "features": ["mainnet"], "default_features": False,
               "overflow_checks": True, "sbf_arch": sys.argv[4],
               "platform_tools": sys.argv[3], "locked": True, "offline_compilation": True},
@@ -135,18 +160,18 @@ info = {
             "dirty": None if status is None else bool(status)},
     "source_sha256": source_digest,
     "source_files": source_files,
-    "artifacts": {name: sha256(bundle / name) for name in ["tekmerion.so", "tekmerion.json"]},
+    "artifacts": {name: sha256(bundle / name) for name in artifacts},
 }
 (bundle / "build-info.json").write_text(json.dumps(info, indent=2) + "\n")
 (bundle / "SHA256SUMS").write_text("".join(
     f"{sha256(bundle / name)}  {name}\n"
-    for name in ["tekmerion.so", "tekmerion.json", "build-info.json"]
+    for name in artifacts + ["build-info.json"]
 ))
 
 # Replace only these generated artifacts; never copy or replace deployment keys.
 release = root / "target/production/release"
 release.mkdir(parents=True, exist_ok=True)
-for name in ["tekmerion.so", "tekmerion.json", "build-info.json", "SHA256SUMS"]:
+for name in artifacts + ["build-info.json", "SHA256SUMS"]:
     (bundle / name).replace(release / name)
 print(f"Production build ready: {release}")
 print(f"Program ID: {idl['address']}")

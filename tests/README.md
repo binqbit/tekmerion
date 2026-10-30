@@ -74,3 +74,32 @@ SDK tests. SDK-specific instruction, decoder and mocked RPC tests live under
 offline; their public mint addresses do not connect the tests to a network.
 
 The direct vote ABI test independently checks the Anchor discriminator and answer/reason bytes. Signed transaction mutations verify that changing the Case, vault or answer invalidates the signature, and custody checks reject mismatched Case/vault pairs even with a new signature. Tests exercise local execution and transaction atomicity; a deployment and external audit operations require their own operational verification.
+
+## Chainlink integration
+
+See the [Chainlink developer guide](../docs/chainlink-integration.md) for the adapter ABI, lifecycle, workflow, enrollment and reproducible fixtures. The standard test runner covers this integration. The production bundle also contains `chainlink_auditor.so` and `chainlink_auditor.json`; neither building nor testing deploys them.
+
+Adapter SDK checks include the audit cutoff: even matching application times
+in the Request and Case are rejected at or after the deadline. The test starts
+from a genuine local Forwarder verdict and mutates the decoded snapshots; it
+does not imply that a caller can rewrite program-owned accounts.
+
+Retransmission checks use fresh signed Forwarder envelopes to reach the
+adapter's duplicate guard. Identical claims and terminal reports preserve
+Request, Case and token accounts both before application and after the deadline;
+a conflicting verdict is rejected without replacing the retained decision.
+
+The runner also executes the compiled workflow WASM through WASI with recorded
+CRE host replies. This checks actual entrypoint initialization, HTTP/cron
+subscriptions, TEE requirements, input validation and Solana discovery.
+Complete WASM audits cover Yes, No, Unknown, provider failure, archive failure
+and execution without an archive. They verify the committed document text,
+model settings, claim-before-credential ordering, native claim and terminal
+delivery, and the final Markdown report hash. Only synthetic credentials are
+available to the isolated host.
+
+The runner replays both TypeScript-produced and WASM-produced verdicts through
+the pinned Forwarder SBF and Tekmerion, including the exact report commitment.
+A successful TypeScript test or WASM compilation alone is not enough. For a
+focused run, use `npm run test:wasm` in `workflows/chainlink-appeals` after
+installing its dependencies and building the two SDKs.
