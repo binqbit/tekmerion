@@ -1157,6 +1157,11 @@
       "code": 6025,
       "name": "InvalidAuditFee",
       "msg": "Reviewed audit fee differs from the Policy fee"
+    },
+    {
+      "code": 6026,
+      "name": "AuditRequired",
+      "msg": "Policy requires a directly funded audit for every new Case"
     }
   ],
   "types": [
@@ -1263,6 +1268,20 @@
           },
           {
             "name": "Inconclusive"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditTrigger",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "OnDispute"
+          },
+          {
+            "name": "OnCreation"
           }
         ]
       }
@@ -1614,6 +1633,14 @@
           {
             "name": "audit_timeout",
             "type": "u64"
+          },
+          {
+            "name": "audit_trigger",
+            "type": {
+              "defined": {
+                "name": "AuditTrigger"
+              }
+            }
           }
         ]
       }

@@ -4,8 +4,8 @@ use anchor_spl::token::{Mint, Token, TokenAccount};
 use crate::calculations::time::{ChainDeadline, ChainTimestamp};
 use crate::state::case::CaseInitialization;
 use crate::{
-    Case, CaseFunding, CaseMode, CasePhase, CaseResult, CompletionMethod, Policy, StakeReceipt,
-    USDC_MINT, errors::TekmerionError,
+    AuditTrigger, Case, CaseFunding, CaseMode, CasePhase, CaseResult, CompletionMethod, Policy,
+    StakeReceipt, USDC_MINT, errors::TekmerionError,
 };
 
 #[derive(Accounts)]
@@ -104,6 +104,10 @@ pub(crate) fn handle(
     let (mode, author_principal, challenge_target, funding_deadline, audit_deadline) = match funding
     {
         CaseFunding::Bonded { principal } => {
+            require!(
+                rules.audit_trigger == AuditTrigger::OnDispute,
+                TekmerionError::AuditRequired
+            );
             require!(
                 principal >= rules.author_bond,
                 TekmerionError::InsufficientBond

@@ -4,7 +4,8 @@ use tekmerion::calculations::{
     time::{ChainDeadline, ChainTimestamp},
 };
 use tekmerion::{
-    AuditAnswer, Case, CaseMode, CasePhase, CaseResult, CompletionMethod, MAX_AUDITORS, Policy,
+    AuditAnswer, AuditTrigger, Case, CaseMode, CasePhase, CaseResult, CompletionMethod,
+    MAX_AUDITORS, Policy,
 };
 
 use crate::{Result, SdkError};
@@ -50,7 +51,8 @@ pub(super) fn validate(case: &Case, policy: &Policy, author_claimed: bool) -> Re
         || policy.active_uses == 0
         || match case.mode {
             CaseMode::Challenge => {
-                case.author_principal < rules.author_bond
+                rules.audit_trigger != AuditTrigger::OnDispute
+                    || case.author_principal < rules.author_bond
                     || case.challenge_target != rules.challenge_target
             }
             CaseMode::DirectAudit => {

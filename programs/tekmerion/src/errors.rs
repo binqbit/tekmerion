@@ -71,4 +71,6 @@ pub enum TekmerionError {
     InvalidCommitment,
     #[msg("Reviewed audit fee differs from the Policy fee")]
     InvalidAuditFee,
+    #[msg("Policy requires a directly funded audit for every new Case")]
+    AuditRequired,
 }

@@ -435,3 +435,15 @@ test('direct audit terminal entitlements cannot become bond rewards or optimisti
   });
   fail(() => evaluate(current, supplied), 'InvalidState');
 });
+
+test('immediate policies reject bonded lifecycle views and accept prepaid audits', async () => {
+  for (const name of ['funded', 'direct-auditing']) {
+    const current = snapshot(name);
+    const supplied = accounts(current.accounts);
+    supplied.policy = await mutateAccount(current.accounts.policy, 'Policy', (policy) => {
+      policy.rules.audit_trigger = { OnCreation: {} };
+    });
+    if (name === 'funded') fail(() => evaluate(current, supplied), 'InvalidState');
+    else assert.equal(evaluate(current, supplied).case.mode, 'direct');
+  }
+});

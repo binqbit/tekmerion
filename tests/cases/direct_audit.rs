@@ -2,7 +2,7 @@ use crate::support::{
     Actor, BALANCE, BOND, ExpectedError, TestContext, account_meta_mut, committee_rules, pk,
 };
 use tekmerion::{
-    AuditAnswer, CaseFunding, CaseMode, CasePhase, CompletionMethod,
+    AuditAnswer, AuditTrigger, CaseFunding, CaseMode, CasePhase, CompletionMethod,
     errors::TekmerionError as Error,
 };
 use tekmerion_sdk::{
@@ -368,4 +368,65 @@ fn direct_creation_and_sdk_share_checked_signed_clock_arithmetic() {
     direct(&mut ctx);
     assert_eq!(ctx.case_state().audit.deadline, Some(i64::MAX));
     assert_eq!(ctx.view().case().audit.deadline, Some(i64::MAX));
+}
+
+#[test]
+fn immediate_policy_rejects_bonded_creation_without_moving_funds_and_stays_locked() {
+    let mut rules = committee_rules(1, 1);
+    rules.audit_trigger = AuditTrigger::OnCreation;
+    let mut ctx = TestContext::with_rules(rules.clone(), BALANCE);
+    ctx.reject(
+        &[ctx.submit_case_ix(BOND)],
+        &ctx.creation_signers(),
+        ExpectedError::Protocol(Error::AuditRequired),
+    );
+    assert!(ctx.get_account(&ctx.case).is_none());
+    assert!(ctx.get_account(&ctx.vault).is_none());
+    assert_eq!(ctx.amount(ctx.token(Actor::Author)), BALANCE);
+    assert_eq!(ctx.policy_state().active_uses, 0);
+
+    direct(&mut ctx);
+    assert_eq!(ctx.view().case().phase(), CasePhase::Funded);
+    assert_eq!(
+        ctx.amount(ctx.token(Actor::Author)),
+        BALANCE - rules.audit_fee
+    );
+    let mut changed = rules;
+    changed.audit_trigger = AuditTrigger::OnDispute;
+    ctx.reject(
+        &[ctx.update_policy_ix(changed)],
+        &[Actor::Admin],
+        ExpectedError::Protocol(Error::PolicyInUse),
+    );
+    ctx.reject(
+        &[ctx.finalize_ix()],
+        &[],
+        ExpectedError::Protocol(Error::InvalidPhase),
+    );
+    ctx.deliver(&ctx.audit_decision(AuditAnswer::Yes));
+    assert_eq!(
+        ctx.case_state().completion_method(),
+        Some(CompletionMethod::Audited)
+    );
+}
+
+#[test]
+fn dispute_policy_waits_for_the_full_target_but_allows_voluntary_direct_audits() {
+    let mut challenged = TestContext::new();
+    challenged.create_case();
+    assert_eq!(challenged.case_state().phase(), CasePhase::Funding);
+    challenged.contribute(Actor::Alice, 99);
+    assert_eq!(challenged.case_state().phase(), CasePhase::Funding);
+    assert_eq!(challenged.case_state().audit.deadline, None);
+    challenged.contribute(Actor::Alice, 1);
+    assert_eq!(challenged.view().case().phase(), CasePhase::Funded);
+    assert!(challenged.case_state().audit.deadline.is_some());
+
+    let mut voluntary = TestContext::new();
+    direct(&mut voluntary);
+    assert_eq!(voluntary.view().case().phase(), CasePhase::Funded);
+    assert_eq!(
+        voluntary.amount(voluntary.token(Actor::Author)),
+        BALANCE - 7
+    );
 }

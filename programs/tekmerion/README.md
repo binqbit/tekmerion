@@ -120,7 +120,9 @@ a strict-majority threshold, positive minimum bond/target/durations, and a fee
 not exceeding either bond minimum or target. Cases retain the Policy, making
 those rules immutable. In challenge mode, the full author bond is at risk, including any excess over the minimum. A funded challenge fixes its audit deadline once.
 
-`CaseFunding::Bonded { principal }` starts a Challenge Case in Funding.
+`PolicyRules.audit_trigger` fixes when review starts. `AuditTrigger::OnCreation` requires every new Case to use `CaseFunding::DirectAudit`; a bonded creation fails atomically with `AuditRequired`. `AuditTrigger::OnDispute` allows bonded challenges and voluntary direct audits. Like all retained Policy rules, the trigger cannot change after acquisition or first Case creation.
+
+`CaseFunding::Bonded { principal }` starts a Challenge Case in Funding when the Policy uses `OnDispute`.
 `CaseFunding::DirectAudit { expected_fee }` verifies the reviewed fee equals the Policy fee, transfers only that fee from the author, and starts a DirectAudit Case in Funded. Its `author_principal` records the actual fee deposit, its challenge target/principal are zero, and `funding_deadline` records creation time (there is no funding window). Its audit deadline is creation time plus the Policy timeout. Any audited answer pays that fee to the deciding quorum and leaves no author/contributor entitlement. TechnicalFailure returns the fee to the author through `claim()`. No existing Case can convert modes.
 
 An unused Policy remains admin-editable until acquisition or creation executes.
@@ -150,7 +152,7 @@ with wallet signers and read results from the Case account.
 
 | Account      | PDA seeds                                           | Reserved bytes including discriminator |
 | ------------ | --------------------------------------------------- | -------------------------------------: |
-| Policy       | `policy`, admin, identifier as little-endian u64    | 710                                    |
+| Policy       | `policy`, admin, identifier as little-endian u64    | 711                                    |
 | Case         | `case`, Policy, subject, author, nonce as little-endian u64 | 356                                    |
 | StakeReceipt | `receipt`, Case, owner                              | 83                                     |
 | Vault        | `vault`, Case                                       | Classic SPL Token account              |

@@ -9,6 +9,7 @@ export type AuditReason =
   | 'conflictingEvidence'
   | 'unsupportedEvidence'
   | 'inconclusive';
+export type AuditTrigger = 'onDispute' | 'onCreation';
 export type CaseMode = 'challenge' | 'direct';
 export type CaseFunding =
   | { readonly kind: 'bonded'; readonly principal: bigint }
@@ -35,6 +36,7 @@ export interface PolicyRules {
   readonly auditFee: bigint;
   readonly fundingDuration: bigint;
   readonly auditTimeout: bigint;
+  readonly auditTrigger: AuditTrigger;
 }
 export interface Policy {
   readonly admin: PublicKey;

@@ -86,6 +86,7 @@ pub fn committee_rules(threshold: u8, count: usize) -> tekmerion::PolicyRules {
         audit_fee: 7,
         funding_duration: DURATION,
         audit_timeout: 300,
+        audit_trigger: tekmerion::AuditTrigger::OnDispute,
     }
 }
 

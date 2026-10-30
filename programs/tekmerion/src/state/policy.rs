@@ -18,6 +18,14 @@ impl AuditorConfig {
     pub const SPACE: usize = 2 * 32;
 }
 
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AuditTrigger {
+    /// A bonded Case waits for a funded challenge; voluntary direct audits remain available.
+    OnDispute,
+    /// Every new Case must pay for an audit immediately.
+    OnCreation,
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq, Eq)]
 pub struct PolicyRules {
     // Committee and voting threshold.
@@ -32,10 +40,11 @@ pub struct PolicyRules {
     // Funding and audit windows.
     pub funding_duration: u64,
     pub audit_timeout: u64,
+    pub audit_trigger: AuditTrigger,
 }
 
 impl PolicyRules {
-    pub const SPACE: usize = 4 + MAX_AUDITORS * AuditorConfig::SPACE + 1 + 5 * 8;
+    pub const SPACE: usize = 4 + MAX_AUDITORS * AuditorConfig::SPACE + 1 + 5 * 8 + 1;
 
     /// Strict majority prevents two different answers from reaching quorum.
     pub fn has_valid_parameters(&self) -> bool {
@@ -136,6 +145,7 @@ mod tests {
             audit_fee: 7,
             funding_duration: 60,
             audit_timeout: 120,
+            audit_trigger: AuditTrigger::OnDispute,
         }
     }
 

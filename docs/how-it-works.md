@@ -4,6 +4,11 @@ An author backs a statement with money. Other participants can pool money to cha
 
 The application defines the statement and chooses the auditors. Auditors review the evidence outside the contract. The contract verifies their signed decisions and enforces the financial outcome; the application then uses that result in its own process.
 
+An application can also appoint an [automated Chainlink auditor](chainlink.md).
+That guide explains the AI-assisted review, how to write its rules and the
+conditions for public release. The funding and payment process below also
+applies to that auditor.
+
 ## From a statement to a result
 
 Before participants commit funds, the rules define the minimum author deposit, challenge target, auditors, required number of matching answers, fee and deadlines. The application locks the rules and presents the locked terms to the author before asking for a deposit. Until that lock, the administrator can still revise them; afterward, they cannot be changed.
@@ -12,7 +17,7 @@ Before participants commit funds, the rules define the minimum author deposit, c
 flowchart TD
     Rules["Application locks the rules; author reviews them"] --> Direct["Direct audit: author deposits only the audit fee"]
     Direct --> Audit
-    Rules --> Author["Author submits a statement and deposits a bond"]
+    Rules -->|"Dispute policy"| Author["Author submits a statement and deposits a bond"]
     Author --> Challenge["Participants have time to fund a challenge"]
     Challenge -->|"Target reached"| Audit["Auditors review the statement and vote"]
     Challenge -->|"Target missed at deadline"| Accepted["Close review: accept statement and enable full refunds"]
@@ -20,6 +25,12 @@ flowchart TD
     Audit -->|"No agreement by audit deadline"| Timeout["Close review: no decision and enable full refunds"]
     Decision --> Payout["Matching auditors are paid; participants can withdraw their allocation"]
 ```
+
+The fixed policy selects when auditing is required. **Immediate review** allows
+only new, prepaid direct audits. **Review after a funded challenge** permits
+bonded cases and voluntary direct audits. This choice applies to any appointed
+auditor, including Chainlink, and cannot change after the policy is retained.
+Only the dispute-based choice allows a bonded case to finish without an audit.
 
 In challenge mode, the audit starts as soon as the challenge reaches its target and has its own fixed time limit from that moment. For example, if 70 of the required 100 USDC is collected and someone offers 50, the contract accepts only 30. Further contributions stop when the target is reached. Until the review ends, deposits remain locked.
 

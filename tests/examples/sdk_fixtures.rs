@@ -289,6 +289,7 @@ fn policy_rules(rules: &PolicyRules) -> Value {
     json!({
         "auditors": rules.auditors.iter().map(|auditor| json!({"authority": auditor.authority.to_string(), "feeRecipient": auditor.fee_recipient.to_string()})).collect::<Vec<_>>(),
         "threshold": rules.threshold, "authorBond": rules.author_bond.to_string(), "challengeTarget": rules.challenge_target.to_string(),
+        "auditTrigger": match rules.audit_trigger { tekmerion::AuditTrigger::OnDispute => "onDispute", tekmerion::AuditTrigger::OnCreation => "onCreation" },
         "auditFee": rules.audit_fee.to_string(), "fundingDuration": rules.funding_duration.to_string(), "auditTimeout": rules.audit_timeout.to_string(),
     })
 }

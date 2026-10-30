@@ -116,7 +116,7 @@ for (const network of ['mainnet', 'devnet']) {
         client.accountSize('Case'),
         client.accountSize('StakeReceipt'),
       ],
-      [710, 356, 83],
+      [711, 356, 83],
     );
   });
   for (const current of fixture.snapshots) {

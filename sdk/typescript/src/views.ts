@@ -91,6 +91,7 @@ export function validPolicyRules(rules: PolicyRules): boolean {
     if (typeof value !== 'bigint' || value < 0n || value > U64_MAX) return false;
   }
   return (
+    (rules.auditTrigger === 'onDispute' || rules.auditTrigger === 'onCreation') &&
     rules.authorBond > 0n &&
     rules.challengeTarget > 0n &&
     rules.fundingDuration > 0n &&
@@ -205,7 +206,8 @@ function lifecycle(
       same(state.previousCase, previous) &&
       policy.activeUses !== 0n &&
       (state.mode === 'challenge'
-        ? state.authorPrincipal >= rules.authorBond &&
+        ? rules.auditTrigger === 'onDispute' &&
+          state.authorPrincipal >= rules.authorBond &&
           state.challengeTarget === rules.challengeTarget
         : state.authorPrincipal === rules.auditFee &&
           state.challengeTarget === 0n &&

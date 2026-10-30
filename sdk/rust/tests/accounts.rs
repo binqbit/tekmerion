@@ -41,6 +41,7 @@ fn policy(count: usize, threshold: u8, fee: u64) -> Policy {
             audit_fee: fee,
             funding_duration: 100,
             audit_timeout: 100,
+            audit_trigger: tekmerion::AuditTrigger::OnDispute,
         },
         active_uses: 0,
         bump: Policy::address(&admin, 8).1,
