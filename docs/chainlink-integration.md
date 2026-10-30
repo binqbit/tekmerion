@@ -106,6 +106,11 @@ an authenticated verdict through its ordinary application permissions.
 
 ## Local checks and fixtures
 
+The [Docker CRE environment](../workflows/chainlink-appeals/docker/README.md)
+provides the official CLI, pinned build tools, workflow tests and HTTP simulation.
+It requires no host Node, Bun or CRE installation. CLI simulation still requires
+Chainlink authentication and, for Solana, a test wallet and configured RPC.
+
 Run `bash scripts/test.sh` from Tekmerion. It restores pinned tools and
 dependencies, builds real SBF programs and both network IDLs, checks SDKs and
 committed vectors, tests CRE capability integration and compiles WASM. The

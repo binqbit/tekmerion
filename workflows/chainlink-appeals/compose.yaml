@@ -1,0 +1,51 @@
+name: tekmerion-cre
+
+x-cre: &cre
+  image: tekmerion-cre:local
+  pull_policy: build
+  build:
+    context: ../..
+    dockerfile: workflows/chainlink-appeals/Dockerfile
+  init: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+
+services:
+  cre:
+    <<: *cre
+    command: [listen]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      CRE_SOLANA_RPC_URL: ${CRE_SOLANA_RPC_URL:-https://api.devnet.solana.com}
+    ports:
+      - "127.0.0.1:2000:2000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - cre-auth:/home/node/.cre
+      - type: bind
+        source: ./config.local.json
+        target: /run/cre/config.json
+        read_only: true
+        bind:
+          create_host_path: false
+
+  cre-login:
+    <<: *cre
+    profiles: [tools]
+    command: [login]
+    ports:
+      - "127.0.0.1:53682:53683"
+    volumes:
+      - cre-auth:/home/node/.cre
+
+  cre-tests:
+    <<: *cre
+    profiles: [tools]
+    command: [check]
+    network_mode: none
+
+volumes:
+  cre-auth:

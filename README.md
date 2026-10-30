@@ -35,6 +35,10 @@ The command prepares missing build tools and dependencies, then runs all contrac
 For a complete linked local appeal with recorded model responses and real contracts, run
 `bash scripts/demo-confidential.sh`. No tenant, API key or external server is needed.
 
+For the official CRE CLI in a container, follow the
+[Docker simulation guide](workflows/chainlink-appeals/docker/README.md).
+It includes workflow tests, browser login and a local HTTP listener.
+
 ## Repository structure
 
 | Directory                      | Purpose                                   |

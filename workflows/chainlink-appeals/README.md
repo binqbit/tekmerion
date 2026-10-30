@@ -10,6 +10,10 @@ execution claims, retries and application to Tekmerion.
 
 ## Run locally
 
+For an OS-independent environment with the official CRE CLI, use the
+[Docker setup](docker/README.md). It builds this workflow's WASM, includes a
+local HTTP listener and keeps CRE login state in a Docker volume.
+
 From Tekmerion, run `bash scripts/test.sh`. After the initial build,
 `bash scripts/demo-confidential.sh --reuse-build` replays the actual workflow
 report through real SBF adapter, Forwarder and core contracts. The model and DON
