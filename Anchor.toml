@@ -6,13 +6,14 @@ resolution = true
 
 [programs.localnet]
 tekmerion = "TEKxbA5q3EhSDSBeYiW9AT3GGPyzruBSQUcuQXxdy3s"
+chainlink_auditor = "CLAxRc3x7pW8DZFs8ypRVGVvEJjHeMxvTwn4HcyC7rtm"
 
 [provider]
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [workspace]
-members = ["programs/tekmerion"]
+members = ["programs/tekmerion", "programs/chainlink-auditor"]
 
 [scripts]
 test = "bash scripts/test.sh"

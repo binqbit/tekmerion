@@ -1,0 +1,1231 @@
+{
+  "address": "CLAxRc3x7pW8DZFs8ypRVGVvEJjHeMxvTwn4HcyC7rtm",
+  "metadata": {
+    "name": "chainlink_auditor",
+    "version": "1.0.0",
+    "spec": "0.1.0"
+  },
+  "instructions": [
+    {
+      "name": "apply_confidential_verdict",
+      "discriminator": [
+        132,
+        222,
+        220,
+        149,
+        244,
+        115,
+        121,
+        160
+      ],
+      "accounts": [
+        {
+          "name": "profile",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy"
+              }
+            ]
+          },
+          "relations": [
+            "request"
+          ]
+        },
+        {
+          "name": "policy"
+        },
+        {
+          "name": "case",
+          "writable": true,
+          "relations": [
+            "request"
+          ]
+        },
+        {
+          "name": "request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  114,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "profile"
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "vault",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "tekmerion_program",
+          "address": "TEKxbA5q3EhSDSBeYiW9AT3GGPyzruBSQUcuQXxdy3s"
+        },
+        {
+          "name": "fee_destination",
+          "writable": true
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "on_report",
+      "discriminator": [
+        214,
+        173,
+        18,
+        221,
+        173,
+        148,
+        151,
+        208
+      ],
+      "accounts": [
+        {
+          "name": "forwarder_state"
+        },
+        {
+          "name": "forwarder_authority",
+          "signer": true
+        },
+        {
+          "name": "profile",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy"
+              }
+            ]
+          },
+          "relations": [
+            "request"
+          ]
+        },
+        {
+          "name": "policy"
+        },
+        {
+          "name": "case",
+          "relations": [
+            "request"
+          ]
+        },
+        {
+          "name": "request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  114,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "profile"
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "metadata",
+          "type": "bytes"
+        },
+        {
+          "name": "report",
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "prepare_confidential_request",
+      "discriminator": [
+        92,
+        33,
+        69,
+        185,
+        129,
+        227,
+        50,
+        125
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "profile",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy"
+              }
+            ]
+          }
+        },
+        {
+          "name": "policy"
+        },
+        {
+          "name": "case"
+        },
+        {
+          "name": "request",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  114,
+                  101,
+                  113,
+                  117,
+                  101,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "profile"
+              },
+              {
+                "kind": "account",
+                "path": "case"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "register_confidential_profile",
+      "discriminator": [
+        205,
+        156,
+        126,
+        15,
+        180,
+        1,
+        107,
+        136
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "admin",
+          "signer": true,
+          "relations": [
+            "policy"
+          ]
+        },
+        {
+          "name": "policy",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  108,
+                  105,
+                  99,
+                  121
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy.admin",
+                "account": "Policy"
+              },
+              {
+                "kind": "account",
+                "path": "policy.identifier",
+                "account": "Policy"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                6,
+                184,
+                43,
+                118,
+                100,
+                242,
+                161,
+                24,
+                86,
+                151,
+                169,
+                204,
+                190,
+                172,
+                168,
+                204,
+                15,
+                162,
+                165,
+                144,
+                98,
+                76,
+                34,
+                166,
+                121,
+                62,
+                34,
+                100,
+                165,
+                222,
+                252,
+                22
+              ]
+            }
+          }
+        },
+        {
+          "name": "profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  104,
+                  97,
+                  105,
+                  110,
+                  108,
+                  105,
+                  110,
+                  107,
+                  95,
+                  112,
+                  114,
+                  111,
+                  102,
+                  105,
+                  108,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "policy"
+              }
+            ]
+          }
+        },
+        {
+          "name": "forwarder_program"
+        },
+        {
+          "name": "forwarder_state"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "config",
+          "type": {
+            "defined": {
+              "name": "ConfidentialConfig"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "ConfidentialProfile",
+      "discriminator": [
+        167,
+        172,
+        39,
+        253,
+        183,
+        249,
+        175,
+        31
+      ]
+    },
+    {
+      "name": "ConfidentialRequest",
+      "discriminator": [
+        61,
+        201,
+        251,
+        48,
+        85,
+        34,
+        116,
+        42
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidProfile",
+      "msg": "Invalid or unsupported profile configuration"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidBinding",
+      "msg": "Policy or Case identity does not match the profile"
+    },
+    {
+      "code": 6002,
+      "name": "AuditClosed",
+      "msg": "Case is not open for an audit"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidForwarder",
+      "msg": "Only the pinned forwarder authority may deliver reports"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidWorkflow",
+      "msg": "Report metadata does not match the pinned workflow"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidPayload",
+      "msg": "Invalid report version, length, commitment or decision"
+    },
+    {
+      "code": 6006,
+      "name": "ConflictingReport",
+      "msg": "A different verdict is already recorded"
+    },
+    {
+      "code": 6007,
+      "name": "NotReady",
+      "msg": "No authenticated verdict is ready to apply"
+    },
+    {
+      "code": 6008,
+      "name": "InvalidConfiguration",
+      "msg": "Invalid immutable workflow configuration"
+    },
+    {
+      "code": 6009,
+      "name": "UnqualifiedRelease",
+      "msg": "This confidential release has not been qualified for enrollment"
+    },
+    {
+      "code": 6010,
+      "name": "InvalidAttempt",
+      "msg": "The attempt is not authorized by the current request state"
+    },
+    {
+      "code": 6011,
+      "name": "AttemptsExhausted",
+      "msg": "The configured attempt limit or execution deadline is exhausted"
+    }
+  ],
+  "types": [
+    {
+      "name": "AuditAnswer",
+      "docs": [
+        "Authenticated audit answers. Infrastructure failure is not an answer."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Yes"
+          },
+          {
+            "name": "No"
+          },
+          {
+            "name": "Unknown"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditContext",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deadline",
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "votes",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AuditVote"
+                }
+              }
+            }
+          },
+          {
+            "name": "response",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "AuditDecision"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditDecision",
+      "docs": [
+        "Retained decision. The terminal response is the vote completing quorum."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "answer",
+            "type": {
+              "defined": {
+                "name": "AuditAnswer"
+              }
+            }
+          },
+          {
+            "name": "reason",
+            "type": {
+              "defined": {
+                "name": "AuditReason"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditReason",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Decisive"
+          },
+          {
+            "name": "MissingEvidence"
+          },
+          {
+            "name": "StaleEvidence"
+          },
+          {
+            "name": "ConflictingEvidence"
+          },
+          {
+            "name": "UnsupportedEvidence"
+          },
+          {
+            "name": "Inconclusive"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditTrigger",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "OnDispute"
+          },
+          {
+            "name": "OnCreation"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditVote",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "auditor_index",
+            "type": "u8"
+          },
+          {
+            "name": "response",
+            "type": {
+              "defined": {
+                "name": "AuditDecision"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditorConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "docs": [
+              "Wallet signer or a PDA that signs through its owning program."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_recipient",
+            "docs": [
+              "Wallet owning the USDC account that receives this auditor's fee share."
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Case",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "policy",
+            "type": "pubkey"
+          },
+          {
+            "name": "subject",
+            "type": "pubkey"
+          },
+          {
+            "name": "author",
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "previous_case",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "agreement_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "result_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "CaseMode"
+              }
+            }
+          },
+          {
+            "name": "author_principal",
+            "type": "u64"
+          },
+          {
+            "name": "challenge_target",
+            "type": "u64"
+          },
+          {
+            "name": "challenge_principal",
+            "type": "u64"
+          },
+          {
+            "name": "funding_deadline",
+            "type": "i64"
+          },
+          {
+            "name": "audit",
+            "type": {
+              "defined": {
+                "name": "AuditContext"
+              }
+            }
+          },
+          {
+            "name": "phase",
+            "type": {
+              "defined": {
+                "name": "CasePhase"
+              }
+            }
+          },
+          {
+            "name": "result",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "CaseResult"
+                }
+              }
+            }
+          },
+          {
+            "name": "finalized_at",
+            "docs": [
+              "Chain time of the single terminal transition, unaffected by claims."
+            ],
+            "type": {
+              "option": "i64"
+            }
+          },
+          {
+            "name": "author_entitlement",
+            "type": "u64"
+          },
+          {
+            "name": "contributor_entitlement",
+            "type": "u128"
+          },
+          {
+            "name": "fee_entitlement",
+            "type": "u64"
+          },
+          {
+            "name": "contributor_unpaid",
+            "type": "u128"
+          },
+          {
+            "name": "unclaimed_contributors",
+            "docs": [
+              "Accepted contributor receipts that have not discharged their claim."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "fee_claimed",
+            "type": "bool"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CaseMode",
+      "docs": [
+        "Immutable choice between optimistic challenges and an author-paid audit."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Challenge"
+          },
+          {
+            "name": "DirectAudit"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CasePhase",
+      "docs": [
+        "Lifecycle progress is separate from the assertion's answer."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Funding"
+          },
+          {
+            "name": "Funded"
+          },
+          {
+            "name": "Finalized"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CaseResult",
+      "docs": [
+        "Absence of an answer is represented by Option, never an invented Unknown."
+      ],
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Yes"
+          },
+          {
+            "name": "No"
+          },
+          {
+            "name": "Unknown"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfidentialConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "forwarder_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "forwarder_state",
+            "type": "pubkey"
+          },
+          {
+            "name": "workflow_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "agent_config_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "max_attempts",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfidentialProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "policy",
+            "type": "pubkey"
+          },
+          {
+            "name": "rules_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "config",
+            "type": {
+              "defined": {
+                "name": "ConfidentialConfig"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfidentialRequest",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "version",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "profile",
+            "type": "pubkey"
+          },
+          {
+            "name": "case",
+            "type": "pubkey"
+          },
+          {
+            "name": "digest",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "ConfidentialState"
+              }
+            }
+          },
+          {
+            "name": "attempts_started",
+            "type": "u16"
+          },
+          {
+            "name": "execution_id",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "claimed_at",
+            "type": "i64"
+          },
+          {
+            "name": "terminal_at",
+            "type": "i64"
+          },
+          {
+            "name": "terminal_payload_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "failure_code",
+            "type": "u8"
+          },
+          {
+            "name": "report_hash",
+            "type": {
+              "array": [
+                "u8",
+                32
+              ]
+            }
+          },
+          {
+            "name": "answer",
+            "type": "u8"
+          },
+          {
+            "name": "reason",
+            "type": "u8"
+          },
+          {
+            "name": "applied_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ConfidentialState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Prepared"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Retryable"
+          },
+          {
+            "name": "Ready"
+          },
+          {
+            "name": "Applied"
+          },
+          {
+            "name": "Stopped"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Policy",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "identifier",
+            "type": "u64"
+          },
+          {
+            "name": "client_authority",
+            "docs": [
+              "Admin-selected signer identity; its key or PDA derivation belongs to the client."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "rules",
+            "type": {
+              "defined": {
+                "name": "PolicyRules"
+              }
+            }
+          },
+          {
+            "name": "active_uses",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PolicyRules",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "auditors",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "AuditorConfig"
+                }
+              }
+            }
+          },
+          {
+            "name": "threshold",
+            "type": "u8"
+          },
+          {
+            "name": "author_bond",
+            "type": "u64"
+          },
+          {
+            "name": "challenge_target",
+            "type": "u64"
+          },
+          {
+            "name": "audit_fee",
+            "type": "u64"
+          },
+          {
+            "name": "funding_duration",
+            "type": "u64"
+          },
+          {
+            "name": "audit_timeout",
+            "type": "u64"
+          },
+          {
+            "name": "audit_trigger",
+            "type": {
+              "defined": {
+                "name": "AuditTrigger"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

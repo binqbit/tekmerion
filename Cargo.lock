@@ -2120,6 +2120,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "tekmerion-chainlink-auditor"
+version = "1.0.0"
+dependencies = [
+ "anchor-lang",
+ "solana-sha256-hasher",
+ "tekmerion-sdk",
+]
+
+[[package]]
+name = "tekmerion-sdk"
+version = "1.2.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "solana-instruction",
+ "tekmerion",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"

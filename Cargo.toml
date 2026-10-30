@@ -1,6 +1,6 @@
 [workspace]
-members = ["programs/tekmerion"]
-exclude = ["sdk/rust", "tests"]
+members = ["programs/tekmerion", "programs/chainlink-auditor"]
+exclude = ["sdk/rust", "sdk/chainlink-rust", "tests"]
 resolver = "3"
 
 [workspace.package]
