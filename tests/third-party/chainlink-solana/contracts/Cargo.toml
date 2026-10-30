@@ -1,0 +1,10 @@
+# Local test workspace; upstream program source is unmodified (see UPSTREAM.json).
+[workspace]
+resolver = "2"
+members = ["programs/keystone-forwarder", "crates/arrayvec"]
+[workspace.lints.rust]
+unexpected_cfgs = { level = "allow", check-cfg = ['cfg(target_os, values("solana"))', 'cfg(feature, values("anchor-debug", "no-log-ix-name", "custom-heap", "custom-panic"))'] }
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1

@@ -1,0 +1,62 @@
+{
+  "repository": "https://github.com/smartcontractkit/chainlink-solana",
+  "revision": "bc2c7530dbcb8d9e1f28a7d8363c6d56620b9a22",
+  "purpose": "Local SBF authentication tests; not a production deployment",
+  "files": [
+    {
+      "path": "contracts/crates/arrayvec/Cargo.toml",
+      "git_blob": "d834290eb4cc966c6ad6f181d1de39343f7cbb3f",
+      "sha256": "6d6191d2e708d146544a74fb81e9bca8c43d62777f6f89888dcf25a2c4664c95"
+    },
+    {
+      "path": "contracts/crates/arrayvec/src/lib.rs",
+      "git_blob": "9312c2338bee02dad3626a5de57cfefffd52aa11",
+      "sha256": "253445b9189c740e67142454b68f71ab81689d05b4441cf82401e8c73e18a8fb"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/Cargo.toml",
+      "git_blob": "ad80416e81161ca4a0ff338875b03dc79b4a6e35",
+      "sha256": "a07fe67c2a8dc1aebbbb9d7f3704bb354fa781bf596d93e9e740ad4f129477a7"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/Xargo.toml",
+      "git_blob": "475fb71ed15ac290627b732b78c87efc41c8026d",
+      "sha256": "815f2dfb6197712a703a8e1f75b03c6991721e9eb7c40dfaec8b0b49da4aa629"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/common.rs",
+      "git_blob": "6678c9b3290bec66f8110601d62ed73a3089c1d7",
+      "sha256": "0e241b0de17ba849f3ca0371ed071674aa588ca4b8900fed65f6705b49f2936e"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/context.rs",
+      "git_blob": "e568c334479dd93c88b2a4e242ebc5197c2fa4f0",
+      "sha256": "6397763ecf758e59b221e18fddd77be50847839e29fa7d188ffa909543cc622f"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/error.rs",
+      "git_blob": "7ad909ff5a7f1eb97dd6a1a54080c5f4c4085dcf",
+      "sha256": "8ab3a904f4384ce04ddfdeaaf969034dcb4844ff8e671f81ccad35719e421113"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/events.rs",
+      "git_blob": "9261b2c681b165aab767ff6288c148965a0d5881",
+      "sha256": "315a6cf8e8143c746a4ddbc6c044ef6a2e09029557437f2183d4c92af0d328ba"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/lib.rs",
+      "git_blob": "f25a10a2cb672e6df441313093db2bee0aa5412d",
+      "sha256": "dfb8351402ab142b827309da20a108bbc01f54e428a571e837ed84d62389477d"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/state.rs",
+      "git_blob": "2a8ea2542e26d4ef18926167755c8c4922427b1f",
+      "sha256": "a3bd19fdd86ef50d3a27428d63da64425349d867ebac596207f71b7ac7eca329"
+    },
+    {
+      "path": "contracts/programs/keystone-forwarder/src/utils.rs",
+      "git_blob": "f677cabca7dd100cc88bc278295512f18df6e711",
+      "sha256": "461ff5a9cb53a78862b08bc975ff045ed90962b76fd98ae03fef9e7c7537ccf9"
+    }
+  ]
+}
