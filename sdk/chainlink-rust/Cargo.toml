@@ -1,0 +1,27 @@
+[package]
+name = "tekmerion-chainlink-sdk"
+version = "1.0.0"
+edition = "2024"
+rust-version = "1.89"
+publish = false
+
+[workspace]
+
+[features]
+default = ["mainnet"]
+mainnet = ["chainlink-auditor/mainnet", "tekmerion-sdk/mainnet"]
+devnet = ["chainlink-auditor/devnet", "tekmerion-sdk/devnet"]
+local-fixtures = ["chainlink-auditor/local-fixtures"]
+
+[dependencies]
+anchor-lang = { version = "=1.2.1", default-features = false, features = ["solana-v3"] }
+anchor-spl = { version = "=1.2.1", default-features = false, features = ["solana-v3", "token"] }
+chainlink-auditor = { package = "tekmerion-chainlink-auditor", path = "../../programs/chainlink-auditor", default-features = false, features = ["no-entrypoint"] }
+tekmerion-sdk = { path = "../rust", default-features = false, features = ["host"] }
+solana-instruction = "~3.4.0"
+
+[profile.dev]
+debug = 0
+
+[profile.test]
+debug = 0

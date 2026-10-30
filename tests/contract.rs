@@ -33,3 +33,7 @@ mod setup;
 #[path = "cases/stake_receipts.rs"]
 mod stake_receipts;
 use tekmerion_contract_tests::support;
+
+#[cfg(feature = "local-fixtures")]
+#[path = "cases/confidential.rs"]
+mod confidential;

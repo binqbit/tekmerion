@@ -1,4 +1,8 @@
 pub mod audit;
+#[cfg(feature = "local-fixtures")]
+pub mod chainlink;
+#[cfg(feature = "local-fixtures")]
+pub mod confidential;
 mod context;
 pub mod instructions;
 mod scenarios;

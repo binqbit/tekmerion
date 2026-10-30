@@ -1,0 +1,14 @@
+{
+  "model": "fixture-researcher-2026-10-23",
+  "reasoningEffort": "high",
+  "allowedTools": ["web_search"],
+  "maxOutputTokens": 6000,
+  "maxToolCalls": 8,
+  "maxExecutionSeconds": 240,
+  "deliveryReserveSeconds": 45,
+  "httpTimeoutSeconds": 60,
+  "maxDocumentBytes": 16384,
+  "maxResponseBytes": 96000,
+  "gatewayOrigins": ["https://ipfs.example.org"],
+  "allowedSearchDomains": ["evidence.test"]
+}

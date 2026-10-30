@@ -1,0 +1,6 @@
+{
+  "kind": "synthetic",
+  "agreement": "# Independent software delivery audit\n\nAccept the delivery only if release 2.4.0 of Atlas Renderer is publicly available and an independent review confirms that the image export acceptance checks pass. Release and review must have been published before the audit cutoff.\n\n## Evidence\n\nOfficial release: https://evidence.test/release\nIndependent review: https://evidence.test/review\n\nCheck both sources. A planned release or an uncompleted review is insufficient. If evidence is unavailable or contradictory, explain the uncertainty.\n",
+  "result": "# Delivery claim\n\nAtlas Renderer 2.4.0 is publicly available and its independent image export acceptance review passed. Both publications occurred at 1970-01-01T00:10:00Z.\n",
+  "evidence": "Atlas Renderer 2.4.0 was publicly released at 1970-01-01T00:10:00Z. The independent review published at that time passed all image export acceptance checks."
+}

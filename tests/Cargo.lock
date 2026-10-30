@@ -8093,12 +8093,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "tekmerion-chainlink-auditor"
+version = "1.0.0"
+dependencies = [
+ "anchor-lang",
+ "solana-sha256-hasher",
+ "tekmerion-sdk",
+]
+
+[[package]]
+name = "tekmerion-chainlink-sdk"
+version = "1.0.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "solana-instruction",
+ "tekmerion-chainlink-auditor",
+ "tekmerion-sdk",
+]
+
+[[package]]
 name = "tekmerion-contract-tests"
 version = "1.2.0"
 dependencies = [
  "anchor-lang",
+ "k256",
  "serde_json",
  "sha2 0.10.9",
+ "sha3",
  "solana-account 4.3.2",
  "solana-address 2.6.1",
  "solana-clock",
@@ -8116,6 +8138,7 @@ dependencies = [
  "solana-transaction-error",
  "spl-token-interface 2.0.0",
  "tekmerion",
+ "tekmerion-chainlink-sdk",
  "tekmerion-sdk",
  "tekmerion-sdk-consumer",
  "tokio",
