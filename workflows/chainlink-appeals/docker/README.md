@@ -7,6 +7,11 @@ for CRE login. Node, Bun, Javy and CRE are installed inside the image. Both
 
 Commands below start in `workflows/chainlink-appeals/`.
 
+The `enrollment MAX_ATTEMPTS` and `release` commands print the official Devnet
+mock configuration and a read-only deployment manifest. `trigger-address KEY_FILE`
+derives the public EVM trigger address without displaying its key. The release
+helper requires `CRE_CONSUMER_PROGRAM` for the integrating program ID.
+
 ## Build and check the workflow
 
 ```sh

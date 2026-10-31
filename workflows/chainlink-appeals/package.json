@@ -14,7 +14,8 @@
     "@noble/hashes": "1.8.0",
     "@tekmerion/chainlink-sdk": "file:../../sdk/chainlink-typescript",
     "@tekmerion/sdk": "file:../../sdk/typescript",
-    "core-js-pure": "3.51.0"
+    "core-js-pure": "3.51.0",
+    "viem": "2.57.7"
   },
   "devDependencies": {
     "@bufbuild/protobuf": "2.6.3",
