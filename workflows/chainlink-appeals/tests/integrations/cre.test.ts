@@ -227,7 +227,9 @@ for (const mode of [
         new Uint8Array(32).fill(mode === "wrong-workflow" ? 0x12 : 0x11),
         45,
       );
-      metadata[108] = ++reports;
+      reports++;
+      // CRE CLI's single-report consensus capability always uses this ID.
+      metadata[108] = 1;
       return {
         rawReport: base64(concat(metadata, input.encodedPayload)),
         sigs: [],

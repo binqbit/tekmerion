@@ -7,7 +7,6 @@ pub const METADATA_LEN: usize = 64;
 /// Fixed Forwarder metadata order: workflow ID, name, owner, report ID.
 pub(crate) struct WorkflowMetadata {
     pub workflow_id: [u8; 32],
-    pub report_id: [u8; 2],
 }
 
 impl WorkflowMetadata {
@@ -15,10 +14,7 @@ impl WorkflowMetadata {
         require!(bytes.len() == METADATA_LEN, AdapterError::InvalidWorkflow);
         let mut workflow_id = [0; 32];
         workflow_id.copy_from_slice(&bytes[..32]);
-        Ok(Self {
-            workflow_id,
-            report_id: [bytes[METADATA_LEN - 2], bytes[METADATA_LEN - 1]],
-        })
+        Ok(Self { workflow_id })
     }
 }
 

@@ -103,7 +103,7 @@ impl ConfidentialContext {
             self.config.workflow_id.as_slice(),
             &[0x33; 10],
             &[0x22; 20],
-            sdk::payload::report_id(stage).unwrap().as_slice(),
+            &[0, if stage == 0 { 2 } else { 3 }],
         ]
         .concat()
     }

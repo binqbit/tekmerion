@@ -5,7 +5,6 @@ import {
   ADAPTER_IDS,
   encodeReport,
   requestAddress,
-  reportId,
   type AuditReport,
   type ChainlinkNetwork,
 } from "@tekmerion/chainlink-sdk/wire";
@@ -56,7 +55,6 @@ export function createReportChannel<Config>(
       {
         workflowId: config.workflowId,
         executionId,
-        reportId: reportId(report.stage),
       },
       payload,
     );

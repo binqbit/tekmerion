@@ -2,7 +2,6 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   ADAPTER_IDS,
-  reportId,
   encodeConfig,
   encodeReport,
   decodeReport,
@@ -96,10 +95,6 @@ test('profile configuration pins workflow and agent identity with bounded retry 
   assert.throws(() => encodeConfig({ ...config, agentConfigHash: '00'.repeat(32) }));
   assert.throws(() => encodeConfig({ ...config, workflowId: '00'.repeat(32) }));
   assert.throws(() => encodeConfig({ ...config, workflowOwner: '00'.repeat(20) }));
-  assert.equal(reportId(0), '0002');
-  assert.equal(reportId(1), '0003');
-  assert.equal(reportId(2), '0003');
-  assert.throws(() => reportId(3));
 });
 
 test('the audit trigger is part of the immutable Chainlink Policy commitment', () => {

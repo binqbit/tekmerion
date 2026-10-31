@@ -34,8 +34,7 @@ pub(crate) fn handle(ctx: Context<OnReport>, metadata: &[u8], bytes: &[u8]) -> R
         AdapterError::InvalidPayload
     );
     let payload = AuditReport::decode(bytes)?;
-    ctx.accounts
-        .authenticate_delivery(metadata, payload.prefix.stage)?;
+    ctx.accounts.authenticate_delivery(metadata)?;
     ctx.accounts.validate_request()?;
     ctx.accounts.request.receive(
         &payload,
@@ -48,10 +47,9 @@ pub(crate) fn handle(ctx: Context<OnReport>, metadata: &[u8], bytes: &[u8]) -> R
 }
 
 impl OnReport<'_> {
-    fn authenticate_delivery(&self, metadata: &[u8], stage: u8) -> Result<()> {
+    fn authenticate_delivery(&self, metadata: &[u8]) -> Result<()> {
         report::authenticate(
             &self.profile.config,
-            stage,
             &self.forwarder_state.to_account_info(),
             self.forwarder_authority.key(),
             metadata,

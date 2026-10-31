@@ -84,12 +84,12 @@ export function recordedAudit(mode: string) {
       ],
     });
   }
-  function nativeReport(id: number) {
+  function nativeReport() {
     const metadata = new Uint8Array(109);
     metadata[0] = 1;
     metadata.set(new Uint8Array(32).fill(1), 1);
     metadata.set(new Uint8Array(32).fill(0x11), 45);
-    metadata[108] = id;
+    metadata[108] = 1;
     callback++;
     replies.push({ reportMetadata: metadata });
   }
@@ -128,8 +128,8 @@ export function recordedAudit(mode: string) {
 
   read("prepared");
   read("prepared");
-  nativeReport(1);
-  nativeReport(2);
+  nativeReport();
+  nativeReport();
   delivered();
   read("claimed");
   http(f.documents.agreement);
@@ -204,7 +204,7 @@ export function recordedAudit(mode: string) {
       mode === "decision-failure" ? 503 : 200,
     );
   }
-  nativeReport(3);
+  nativeReport();
   delivered();
   if (mode !== "no-archive") {
     secret("ARCHIVE_KEY");

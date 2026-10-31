@@ -94,7 +94,7 @@ workflow supplied a report. It does not independently prove the provider's
 internal execution, model weights, private reasoning or the truth of a source.
 
 Solana verifies the Profile, Case commitments, authenticated execution,
-request digest, report identity and deadline. It does **not** independently
+request digest, execution identity and deadline. It does **not** independently
 recompute the initial prompt or receive a native attestation of its exact HTTP
 bytes. Correct document retrieval, research and result interpretation belong
 to the qualified workflow's trusted execution boundary.

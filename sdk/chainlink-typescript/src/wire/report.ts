@@ -2,11 +2,6 @@
 import { check, concat, hex, unhex, validateDecision } from '@tekmerion/sdk/wire';
 import { BoundedReader, u16 } from './binary.js';
 
-export function reportId(stage: number): string {
-  check(stage === 0 || stage === 1 || stage === 2, 'Invalid report stage');
-  return stage === 0 ? '0002' : '0003';
-}
-
 export function retryableFailure(code: number): boolean {
   check(
     Number.isInteger(code) && ((code >= 1 && code <= 4) || (code >= 64 && code <= 70)),

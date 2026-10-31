@@ -6,14 +6,6 @@ pub const PREFIX_LEN: usize = 68;
 pub const VERDICT_LEN: usize = 102;
 pub const FAILURE_LEN: usize = 101;
 
-pub fn report_id(stage: u8) -> Result<[u8; 2]> {
-    match stage {
-        0 => Ok([0, 2]),
-        1 | 2 => Ok([0, 3]),
-        _ => err!(AdapterError::InvalidPayload),
-    }
-}
-
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Debug, PartialEq, Eq)]
 pub struct ReportPrefix {
     pub version: u8,

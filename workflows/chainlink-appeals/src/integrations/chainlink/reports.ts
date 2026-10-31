@@ -29,7 +29,7 @@ export function deliverForwarderReport<Config>(
     accounts: { key: string; writable: boolean }[];
     computeLimit: number;
   },
-  expected: { workflowId: string; executionId: string; reportId: string },
+  expected: { workflowId: string; executionId: string },
   payload: Uint8Array,
 ): boolean {
   const accounts = target.accounts.map((account) =>
@@ -47,8 +47,7 @@ export function deliverForwarderReport<Config>(
     .result();
   check(
     report.executionId() === expected.executionId &&
-      report.workflowId() === expected.workflowId &&
-      report.reportId() === expected.reportId,
+      report.workflowId() === expected.workflowId,
     "Unexpected native report routing",
   );
   // The transmitter consumes state/authority and forwards the remaining receiver accounts.
