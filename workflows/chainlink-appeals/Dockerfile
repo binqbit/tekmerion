@@ -10,8 +10,8 @@ COPY workflows/chainlink-appeals/docker/install-cre.sh /tmp/install-cre.sh
 RUN sh /tmp/install-cre.sh && rm /tmp/install-cre.sh
 
 WORKDIR /opt/tekmerion
-RUN chown node:node . && mkdir -p /home/node/.cre /home/node/runtime \
-    && chown -R node:node /home/node/.cre /home/node/runtime
+RUN chown node:node . && mkdir -p /home/node/.cre /home/node/runtime /home/node/simulations \
+    && chown -R node:node /home/node/.cre /home/node/runtime /home/node/simulations
 ENV HOME=/home/node
 USER node
 

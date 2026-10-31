@@ -7,10 +7,41 @@ for CRE login. Node, Bun, Javy and CRE are installed inside the image. Both
 
 Commands below start in `workflows/chainlink-appeals/`.
 
-The `enrollment MAX_ATTEMPTS` and `release` commands print the official Devnet
-mock configuration and a read-only deployment manifest. `trigger-address KEY_FILE`
-derives the public EVM trigger address without displaying its key. The release
-helper requires `CRE_CONSUMER_PROGRAM` for the integrating program ID.
+For service-driven Devnet execution, the Market repository provides
+`compose.chainlink-devnet.yaml`. Its authenticated gateway persists admissions
+and runs one broadcast simulation at a time. It does not use the rate-limited
+manual listener described below. The `enrollment MAX_ATTEMPTS` and `release`
+commands print the matching Profile configuration and a read-only deployment
+manifest. Both use the official Devnet mock and CLI simulator identity.
+The release helper takes its integrating program ID from `CRE_CONSUMER_PROGRAM`;
+the Market overlay supplies Manteon's ID without coupling the workflow to it.
+
+### Service boundaries
+
+`src/` remains the deployable WASM workflow. It contains no local queue, Docker
+process management or simulation verdict path. The local Node tools have these
+separate responsibilities:
+
+| Module under `tools/simulator/` | Responsibility |
+| --- | --- |
+| `auth.mjs` / `server.mjs` | Authenticate the existing CRE request format and acknowledge admission |
+| `queue.mjs` | Persist admissions, deduplicate request IDs and serialize executions |
+| `process.mjs` | Bound and stop the CLI process group, including subprocesses |
+| `devnet.mjs` | Inspect immutable enrollment and export deployment pins through read-only RPC |
+| `run.mjs` | Validate startup prerequisites and connect these components |
+
+This gateway is needed because the manual CLI listener can acknowledge requests
+that its rate limit later skips. The backend needs a durable admission rather
+than treating that acknowledgement as an execution. The queue does not decide
+verdicts or retry AI evaluations; the workflow and on-chain Request enforce those
+rules. A successful CLI exit is an execution status, never the Case's verdict.
+
+Startup checks CRE authentication and required environment values before accepting
+jobs. This does not verify model credentials, wallet funding or future service
+availability. Storage failures stop admissions and make health checks fail;
+repair storage before restarting. Queued jobs resume, whereas a job whose CLI
+started is retained as interrupted after a restart. Shutdown cancels the whole
+CLI process group before another job can run.
 
 ## Build and check the workflow
 

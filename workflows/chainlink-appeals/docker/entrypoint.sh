@@ -30,6 +30,9 @@ case "$command" in
   trigger-address)
     exec node "$workflow/tools/devnet.mjs" trigger-address "$@"
     ;;
+  gateway)
+    exec node "$workflow/tools/simulator/run.mjs"
+    ;;
   listen|simulate)
     if [ -z "${CRE_SOLANA_PRIVATE_KEY:-}" ]; then
       echo 'Set CRE_SOLANA_PRIVATE_KEY to a dedicated test keypair in the workflow .env.' >&2
@@ -51,7 +54,7 @@ case "$command" in
       --env "$runtime/.env" --wasm "$workflow/chainlink-appeals.wasm" "$@"
     ;;
   *)
-    echo 'Usage: listen | simulate [CRE flags] | enrollment MAX_ATTEMPTS | release [URL] | trigger-address KEY_FILE | login | status | config | check' >&2
+    echo 'Usage: listen | simulate [CRE flags] | gateway | enrollment MAX_ATTEMPTS | release [URL] | trigger-address KEY_FILE | login | status | config | check' >&2
     exit 2
     ;;
 esac
