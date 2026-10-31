@@ -6,7 +6,8 @@ import {
   type DescMessage,
   type MessageInitShape,
 } from "@bufbuild/protobuf";
-import { address } from "@tekmerion/sdk/wire";
+import { address, decodeCaseIdentity } from "@tekmerion/sdk/wire";
+import { requestDigest } from "@tekmerion/chainlink-sdk/wire";
 import { SDK_PB, SOLANA_PB, HTTP_CLIENT_PB } from "@chainlink/cre-sdk/pb";
 
 const utf8 = (value: string) => new TextEncoder().encode(value);
@@ -46,10 +47,14 @@ export function capabilityReply<S extends DescMessage>(
   );
 }
 
-export function recordedAudit(mode: string) {
+export function recordedAudit(
+  mode: string,
+  overrides: { agentConfigHash?: string; sourceUrl?: string } = {},
+) {
   const replies: (Uint8Array | { reportMetadata: Uint8Array })[] = [];
   const secretReplies: Uint8Array[] = [];
   let callback = 0;
+  let digest = f.requestDigest;
   function reply<S extends DescMessage>(schema: S, value: MessageInitShape<S>) {
     replies.push(capabilityReply(callback++, schema, value));
   }
@@ -67,6 +72,18 @@ export function recordedAudit(mode: string) {
         },
       }),
     );
+    if (overrides.agentConfigHash) {
+      const profile = records[0].account.data.body.value;
+      profile.set(Buffer.from(overrides.agentConfigHash, "hex"), 170);
+      digest = requestDigest(
+        f.profile,
+        profile,
+        f.case,
+        decodeCaseIdentity(records[2].account.data.body.value),
+        f.network,
+      );
+      records[3].account.data.body.value.set(Buffer.from(digest, "hex"), 74);
+    }
     const clock = new Uint8Array(40);
     new DataView(clock.buffer).setBigInt64(32, 1000n, true);
     reply(SOLANA_PB.GetMultipleAccountsWithOptsReplySchema, {
@@ -151,7 +168,7 @@ export function recordedAudit(mode: string) {
           status: "completed",
           action: {
             type: mode === "no" ? "find_in_page" : "open_page",
-            url: "https://evidence.test/review",
+            url: overrides.sourceUrl ?? "https://evidence.test/review",
             ...(mode === "no" ? { pattern: "acceptance criteria" } : {}),
           },
         },
@@ -210,5 +227,5 @@ export function recordedAudit(mode: string) {
     secret("ARCHIVE_KEY");
     http("{}", mode === "archive-failure" ? 503 : 200);
   }
-  return { replies, secretReplies };
+  return { replies, secretReplies, requestDigest: digest };
 }

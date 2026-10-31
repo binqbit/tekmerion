@@ -220,6 +220,7 @@ function approvedSource(value: unknown, config: AgentConfig): string {
   const url = publicUrl(parsed.href);
   const host = parsed.hostname;
   if (
+    config.allowedSearchDomains.length > 0 &&
     !config.allowedSearchDomains.some(
       (domain) => host === domain || host.endsWith("." + domain),
     )

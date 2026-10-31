@@ -18,6 +18,7 @@ export interface AgentConfig {
   maxDocumentBytes: number;
   maxResponseBytes: number;
   gatewayOrigins: string[];
+  /** Empty permits any public web source when web_search is enabled. */
   allowedSearchDomains: string[];
 }
 
@@ -95,10 +96,9 @@ export function parseAgentConfig(value: unknown): AgentConfig {
   check(
     Array.isArray(fields.allowedSearchDomains) &&
       (webSearchAllowed
-        ? fields.allowedSearchDomains.length >= 1 &&
-          fields.allowedSearchDomains.length <= 100
+        ? fields.allowedSearchDomains.length <= 100
         : fields.allowedSearchDomains.length === 0),
-    "Pin search domains only when web_search is allowed",
+    "Use at most 100 search domains only when web_search is allowed",
   );
   for (const domain of fields.allowedSearchDomains) {
     check(

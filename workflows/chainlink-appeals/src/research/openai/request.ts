@@ -48,7 +48,9 @@ export function buildResearchRequest(
       tools: [
         {
           type: "web_search",
-          filters: { allowed_domains: config.allowedSearchDomains },
+          ...(config.allowedSearchDomains.length
+            ? { filters: { allowed_domains: config.allowedSearchDomains } }
+            : {}),
         },
       ],
       tool_choice: "auto",

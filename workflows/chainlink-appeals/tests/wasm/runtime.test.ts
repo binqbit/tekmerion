@@ -140,6 +140,7 @@ const trigger = <S extends DescMessage>(
 test("compiled workflow registers authorized HTTP and minute cron handlers with TEE requirements", () => {
   for (const agent of [
     agentConfig,
+    { ...agentConfig, allowedSearchDomains: [] },
     {
       ...agentConfig,
       allowedTools: [],
@@ -182,6 +183,63 @@ test("compiled workflow registers authorized HTTP and minute cron handlers with 
       assert.deepEqual(tee.value.teeTypeAndRegions[0]!.regions, ["us-west-2"]);
     }
   }
+});
+
+test("compiled public-web audit omits domain filters and accepts a consulted unrelated public source", () => {
+  const agent = { ...agentConfig, allowedSearchDomains: [] };
+  const agentHash = hex(
+    hash(
+      utf8(
+        JSON.stringify(
+          Object.fromEntries(
+            Object.keys(agent)
+              .sort()
+              .map((key) => [key, agent[key]]),
+          ),
+        ),
+      ),
+    ),
+  );
+  const sourceUrl = "https://another.example.org/review";
+  const recorded = recordedAudit("yes", {
+    agentConfigHash: agentHash,
+    sourceUrl,
+  });
+  const { result, calls } = run(
+    trigger(0n, HTTP_TRIGGER_PB.PayloadSchema, {
+      input: utf8(JSON.stringify({ case: f.case })),
+    }),
+    { ...settings, agent },
+    recorded.replies,
+    recorded.secretReplies,
+  );
+  assert.equal(result.case, "value", String(result.value));
+  const reports = calls
+    .filter((call) => call.method === "WriteReport")
+    .map((call) =>
+      fromBinary(SOLANA_PB.WriteReportRequestSchema, call.payload!.value),
+    );
+  const terminal = decodeReport(reports[1]!.report!.rawReport.slice(145));
+  assert.equal(terminal.stage, 1);
+  assert.equal(terminal.requestDigest, recorded.requestDigest);
+  if (terminal.stage === 1) assert.equal(terminal.answer, 0);
+  const requests = calls
+    .filter((call) => call.method === "SendRequest")
+    .map((call) =>
+      fromBinary(HTTP_CLIENT_PB.RequestSchema, call.payload!.value),
+    );
+  const research = JSON.parse(new TextDecoder().decode(requests[2]!.body));
+  assert.deepEqual(research.tools, [{ type: "web_search" }]);
+  assert.match(research.instructions, /public HTTPS web/);
+  const decision = JSON.parse(new TextDecoder().decode(requests[3]!.body));
+  assert.deepEqual(decision.tools, []);
+  assert.equal(decision.tool_choice, "none");
+  assert.deepEqual(JSON.parse(decision.input[0].content).evidenceCatalogue, [
+    { id: "S1", url: sourceUrl },
+  ]);
+  assert.ok(
+    new TextDecoder().decode(requests.at(-1)!.body).includes(sourceUrl),
+  );
 });
 
 test("compiled workflow starts without archive settings or secret access", () => {

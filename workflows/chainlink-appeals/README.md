@@ -136,10 +136,11 @@ canonical agent configuration hash to enroll in Profile. The hash covers the
 model revision, reasoning effort, allowed tools, permitted domains, document
 gateways and budgets. It is not a reconstruction of an AI HTTP request.
 
-The example pins the real `gpt-5.4-2026-03-05` snapshot and uses SEC, Nasdaq and
-NYSE as example sources for US listing agreements. Review the allowed domains
-against your Agreement before creating its Policy; these are not universal
-sources for every event. Only the Policy address and the CRE HTTP signer's
+The example pins the real `gpt-5.4-2026-03-05` snapshot and allows research across
+the public HTTPS web. An empty `allowedSearchDomains` list imposes no domain
+filter; a nonempty list limits research to those domains and their subdomains.
+Review that choice against your Agreement before creating its Policy.
+Only the Policy address and the CRE HTTP signer's
 address remain placeholders because they belong to your deployment. Archive
 uploads are disabled by default. See the [model reference](https://developers.openai.com/api/docs/models/gpt-5.4)
 for the supported snapshot, reasoning and web-search capabilities.
@@ -232,10 +233,11 @@ and canonicalization apply in unit tests and in the compiled workflow.
 Set these fields manually in `agent` before enrolling its hash in Profile.
 `allowedTools` is mandatory; an omitted list never enables tools implicitly.
 
-| Audit mode | `allowedTools` | `maxToolCalls` | `allowedSearchDomains` |
-| --- | --- | --- | --- |
-| Supplied documents only | `[]` | `0` | `[]` |
-| Bounded web research | `["web_search"]` | `1`–`16` | `1`–`100` reviewed domains |
+| Audit mode              | `allowedTools`   | `maxToolCalls` | `allowedSearchDomains`     |
+| ----------------------- | ---------------- | -------------- | -------------------------- |
+| Supplied documents only | `[]`             | `0`            | `[]`                       |
+| Public-web research     | `["web_search"]` | `1`–`16`       | `[]`                       |
+| Bounded web research    | `["web_search"]` | `1`–`16`       | `1`–`100` reviewed domains |
 
 `web_search` is currently the only supported agent tool. It includes the
 provider's search, open-page and find actions; these are not separate permissions.
@@ -248,9 +250,12 @@ that is mandatory input loading, not an agent capability. URLs inside those
 documents remain text. The prompt directs the agent to return Unknown when
 external verification is required but unavailable, and `sources` must be empty.
 
-With web research, the request includes only the allowed tool, pinned domains
-and call budget. Final `sources` may contain only URLs recorded as consulted
-by that tool on a permitted domain. The response parser rejects unauthorized
+With web research, the request includes only the allowed tool and call budget.
+A nonempty domain list also supplies the pinned domain filter; an empty list
+omits that filter. Final `sources` may contain only public HTTPS URLs recorded
+as consulted by that tool, restricted to the configured domains when listed.
+Private hosts, credentials, fragments and explicit ports remain rejected.
+The response parser rejects unauthorized
 tools and unsubstantiated citations in either mode as technical failures.
 Citation checks establish reported tool use, not the truth of a page's content.
 

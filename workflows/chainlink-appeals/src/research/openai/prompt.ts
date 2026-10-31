@@ -43,7 +43,9 @@ export function buildResearchInstructions(config: AgentConfig): string {
     "Do not give a verdict, recommend yes/no/unknown, or write a final audit report. Return only factual findings, publication dates, contradictions and missing evidence.",
     "Do not use tools to convert the supplied Unix cutoff; its exact UTC representation is already provided.",
     `Use at most ${config.maxToolCalls} tool calls, including page opens and in-page searches. Finish the findings within this budget.`,
-    "Use only web page search, open_page and find_in_page within the configured domains. Do not invoke calculator, finance, weather or other API-backed services.",
+    config.allowedSearchDomains.length
+      ? "Use only web page search, open_page and find_in_page within the configured domains. Do not invoke calculator, finance, weather or other API-backed services."
+      : "Use only public HTTPS web page search, open_page and find_in_page. Do not invoke calculator, finance, weather or other API-backed services.",
     "Start with permitted primary-source URLs in the documents. Expand only to resolve missing or conflicting evidence.",
     "Distinguish actual events from planned events. Include source attribution in your factual summary; do not claim to have visited a URL merely because a document mentions it.",
   ].join(" ");

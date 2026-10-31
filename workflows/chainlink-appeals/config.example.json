@@ -17,6 +17,6 @@
     "maxDocumentBytes": 16384,
     "maxResponseBytes": 96000,
     "gatewayOrigins": ["https://ipfs.io"],
-    "allowedSearchDomains": ["sec.gov", "nasdaq.com", "nyse.com"]
+    "allowedSearchDomains": []
   }
 }
