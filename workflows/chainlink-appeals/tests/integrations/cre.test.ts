@@ -238,7 +238,12 @@ for (const mode of [
     });
     receiver.writeReport = ({ report, remainingAccounts, computeConfig }) => {
       writes++;
-      assert.equal(remainingAccounts.length, 4);
+      assert.equal(remainingAccounts.length, 6);
+      // The native transmitter consumes state/authority before the receiver CPI.
+      assert.deepEqual(
+        remainingAccounts.slice(2).map((account) => base58(account.publicKey)),
+        [f.profile, f.policy, f.case, f.request],
+      );
       assert.equal(computeConfig?.computeLimit, 400000);
       const p = decodeReport(report.rawReport.slice(145));
       if (p.stage === 0) {

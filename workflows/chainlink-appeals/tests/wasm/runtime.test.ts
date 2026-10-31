@@ -14,7 +14,7 @@ import {
   type MessageInitShape,
 } from "@bufbuild/protobuf";
 import { Value } from "@chainlink/cre-sdk";
-import { address, hash, hex } from "@tekmerion/sdk/wire";
+import { address, base58, hash, hex } from "@tekmerion/sdk/wire";
 import { decodeReport } from "@tekmerion/chainlink-sdk/wire";
 import type { WorkflowConfig } from "../../src/workflow/config.js";
 import {
@@ -337,7 +337,13 @@ for (const mode of [
         hex(write.receiver),
         hex(address(f.snapshots.prepared[0].owner)),
       );
-      assert.equal(write.remainingAccounts.length, 4);
+      assert.equal(write.remainingAccounts.length, 6);
+      assert.deepEqual(
+        write.remainingAccounts
+          .slice(2)
+          .map((account) => base58(account.publicKey)),
+        [f.profile, f.policy, f.case, f.request],
+      );
       assert.equal(write.computeConfig!.computeLimit, 400000);
     }
     const claim = decodeReport(writes[0]!.report!.rawReport.slice(145));

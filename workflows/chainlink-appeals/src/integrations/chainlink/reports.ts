@@ -51,12 +51,11 @@ export function deliverForwarderReport<Config>(
       report.reportId() === expected.reportId,
     "Unexpected native report routing",
   );
-  // The Forwarder supplies its state and authority; pass only the receiver accounts.
-  const remainingAccounts = accounts.slice(2);
+  // The transmitter consumes state/authority and forwards the remaining receiver accounts.
   const result = new cre.capabilities.SolanaClient(target.selector)
     .writeReport(runtime.usingTheDons(), {
       receiver: "0x" + hex(address(target.receiver)),
-      remainingAccounts: solanaAccountMetasToJson(remainingAccounts),
+      remainingAccounts: solanaAccountMetasToJson(accounts),
       computeConfig: { computeLimit: target.computeLimit },
       report,
     })
