@@ -84,6 +84,12 @@ in the Request and Case are rejected at or after the deadline. The test starts
 from a genuine local Forwarder verdict and mutates the decoded snapshots; it
 does not imply that a caller can rewrite program-owned accounts.
 
+Forwarder enrollment tests use the normal program builds for both networks.
+They accept a separately initialized state and an arbitrary declared executable,
+reject substituted programs and wrong state owners, and preserve the immutable
+Profile. `local-fixtures` only enables these test scenarios in the host suite;
+it does not change the Auditor program's permissions.
+
 Retransmission checks use fresh signed Forwarder envelopes to reach the
 adapter's duplicate guard. Identical claims and terminal reports preserve
 Request, Case and token accounts both before application and after the deadline;

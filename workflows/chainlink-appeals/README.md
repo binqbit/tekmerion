@@ -217,9 +217,10 @@ do not monopolize every invocation.
 A Case trigger addresses a specific prepared Request without a broad scan.
 Preparation and Ready application remain permissionless keeper operations.
 
-Production enrollment remains closed with `UnqualifiedRelease` until a live
-confidential tenant, native Solana delivery, pinned release identity and
-model/tool limits have been qualified. A local replay does not remove this gate.
+The immutable Profile selects the Forwarder program and state; the adapter
+does not impose an address allowlist. Verify the selected transport, live
+confidential execution and model/tool limits before relying on a production
+setup. Local replay proves interoperability, not those operational properties.
 
 The WASM build uses a pinned standalone WHATWG URL implementation because Javy
 does not provide the browser URL constructor. Base64 uses the SDK-compatible

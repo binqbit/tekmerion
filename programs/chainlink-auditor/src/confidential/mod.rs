@@ -2,7 +2,6 @@
 
 pub mod binding;
 pub mod payload;
-pub mod release;
 
 pub const VERSION: u8 = 3;
 pub const DEFAULT_MAX_ATTEMPTS: u16 = 3;

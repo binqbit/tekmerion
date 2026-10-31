@@ -1,17 +1,12 @@
 #!/usr/bin/env bash
-# Sourced by test.sh. Synthetic DON support is built into an isolated local artifact.
+# Sourced by test.sh. Local oracle fixtures exercise the normal program artifacts.
 for network in mainnet devnet; do
   confidential_deploy="$output_dir/deploy-confidential-$network"
   production_deploy="$deploy_dir"
   if [[ "$network" == devnet ]]; then production_deploy="$output_dir/deploy-devnet"; fi
   mkdir -p "$confidential_deploy"
   cp "$production_deploy/tekmerion.so" "$production_deploy/keystone_forwarder.so" "$confidential_deploy/"
-  log="$output_dir/sbf-confidential-$network.log"
-  sbf "confidential-$network" --manifest-path "$project_root/programs/chainlink-auditor/Cargo.toml" \
-    --sbf-out-dir "$confidential_deploy" --tools-version "$sbf_tools_version" --arch "$sbf_arch" \
-    --no-default-features --features "$network,local-fixtures" --offline --skip-tools-install \
-    --jobs "$CARGO_BUILD_JOBS" -- --locked --offline > "$log" 2>&1
-  python3 scripts/check-sbf-log.py "$log"
+  cp "$production_deploy/chainlink_auditor.so" "$confidential_deploy/"
   host runtime cargo clippy --manifest-path "$runtime_manifest" \
     --all-targets --no-default-features --features "$network,local-fixtures" --locked --offline -- -D warnings
   BPF_OUT_DIR="$confidential_deploy" host runtime cargo test --manifest-path "$runtime_manifest" \

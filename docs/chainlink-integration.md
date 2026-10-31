@@ -89,7 +89,7 @@ The current provider adapter uses OpenAI Responses with provider-hosted web
 research. HTTP requests and secret access run inside the confidential workflow;
 model inference and web research occur at the provider, outside the Chainlink
 enclave. These execution guarantees require live release qualification.
-Native Forwarder authentication establishes which qualified
+Native Forwarder authentication establishes which configured
 workflow supplied a report. It does not independently prove the provider's
 internal execution, model weights, private reasoning or the truth of a source.
 
@@ -132,13 +132,21 @@ ABI/vector changes can be regenerated with
 
 ## Public deployment
 
-Enrollment currently fails with `UnqualifiedRelease` outside the separate local
-fixture build. Supplying a manifest or an administrator flag cannot activate
-production. Qualification must establish immutable program and workflow
-identities, Forwarder/DON authorization, confidential transport, secret handling,
+A Policy administrator selects the Forwarder program and state when creating
+the immutable Profile. There is no built-in address allowlist or release gate.
+The contract verifies that the program is executable, owns the selected state,
+and supplies the correct state-scoped PDA signer for reports.
+
+Enrollment does not establish who operates the chosen Forwarder. Before live
+use, verify program and workflow identities, Forwarder/DON authorization,
+confidential transport, secret handling,
 claim-before-AI ordering, retry and terminal delivery, independent discovery,
 and sufficient transaction and deadline budgets. See
 [qualification](confidential-auditor.md#local-verification-and-release-qualification).
+
+The Profile fixes addresses; it does not freeze upgrades or oracle-configuration
+changes permitted by the external Forwarder. Its governance remains part of the
+selected transport's trust model.
 
 Build artifacts with `bash scripts/build.sh`; building does not deploy them.
 Configure the workflow using its [README](../workflows/chainlink-appeals/README.md).

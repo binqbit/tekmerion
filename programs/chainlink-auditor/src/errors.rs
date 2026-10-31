@@ -20,8 +20,6 @@ pub enum AdapterError {
     NotReady,
     #[msg("Invalid immutable workflow configuration")]
     InvalidConfiguration,
-    #[msg("This confidential release has not been qualified for enrollment")]
-    UnqualifiedRelease,
     #[msg("The attempt is not authorized by the current request state")]
     InvalidAttempt,
     #[msg("The configured attempt limit or execution deadline is exhausted")]

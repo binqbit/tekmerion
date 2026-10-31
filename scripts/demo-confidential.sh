@@ -21,4 +21,4 @@ host runtime cargo run --manifest-path tests/Cargo.toml --example replay_confide
   --no-default-features --features mainnet,local-fixtures --locked --offline \
   -- "$output_dir/confidential-demo/verdict.json"
 echo "Recorded agent verdict verified by Forwarder SBF and applied by core: $output_dir/confidential-demo/verdict.json"
-echo 'Synthetic local DON/model evidence only; public confidential enrollment remains closed.'
+echo 'Synthetic local DON/model evidence only; this does not qualify a live Chainlink deployment.'

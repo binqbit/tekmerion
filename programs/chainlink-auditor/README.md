@@ -7,9 +7,9 @@ binding and submits a standard Tekmerion vote. It does not render AI requests
 or interpret Agreement text.
 
 The [verification guide](../../docs/confidential-auditor.md) explains the
-review safeguards, failure handling and trust boundaries. Public confidential enrollment remains
-blocked until an actual deployment is qualified. Local fixtures use synthetic
-DON keys and the pinned upstream Forwarder.
+review safeguards, failure handling and trust boundaries. Each Profile declares
+its Forwarder program and state; registration does not use an address allowlist.
+Local fixtures use synthetic DON keys and the pinned upstream Forwarder.
 
 ## Code boundaries
 
@@ -22,8 +22,6 @@ DON keys and the pinned upstream Forwarder.
   `state/request/receive.rs` implements its transitions.
 - `confidential/binding.rs` binds a Request to the actual Case, Policy, Profile
   and network. `confidential/payload.rs` strictly decodes version 3 reports.
-- `confidential/release.rs` qualifies enrollment. The production build rejects
-  unqualified deployments; a separate fixture feature accepts synthetic identities.
 - `report.rs` authenticates Forwarder state, its scoped signer and the workflow
   metadata. `payload.rs` validates the generic Tekmerion decision vocabulary.
 
@@ -32,6 +30,10 @@ DON keys and the pinned upstream Forwarder.
 The **Profile** commits one Policy's authorized workflow, Forwarder, configuration
 hash and retry limit. It has no update instruction. The actual agent configuration
 belongs to the workflow; its canonical JSON hash must match this commitment.
+The declared Forwarder must be executable and own the declared state. Both
+addresses are immutable for the Policy. Enrollment does not certify that the
+chosen program is operated by Chainlink or that its oracle configuration is trustworthy.
+The selected program must support the expected report delivery and scoped PDA signer.
 
 The **Request** binds one Case and retains its current execution identifier,
 attempt counter, terminal message hash and verdict. A later attempt can start

@@ -23,4 +23,4 @@ version 3 claim, verdict and technical-failure messages.
 There are no AI request renderers or specification upload instructions in this
 SDK. The workflow owns agent configuration and verifies its canonical hash
 against the Profile. See the [protocol reference](../../docs/confidential-auditor.md)
-for account fields, retry rules and the release qualification boundary.
+for account commitments, retry rules and transport trust requirements.

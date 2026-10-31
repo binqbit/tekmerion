@@ -5,9 +5,9 @@ result follows the rules agreed by its participants. The auditor can be a
 human committee or an automated reviewer using AI and Chainlink. In both
 cases, Tekmerion enforces the review deadlines, decision and payments.
 
-The integration is implemented for local testing. Public use requires a
-qualified live deployment; the current implementation does not enable public
-enrollment.
+The integration includes a working local test path. Each review setup fixes
+its delivery channel in advance. Before relying on a live setup, verify its
+operator and execution guarantees; creating it does not provide that assurance.
 
 ## Who does what
 

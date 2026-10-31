@@ -150,13 +150,12 @@ on the configured Solana RPC. The workflow verifies those accounts and their
 commitments before calling the model. It also confirms execution claims on-chain
 before research. A dry run cannot substitute for those confirmed state changes.
 
-The CLI's Solana simulation uses its own mock Forwarder. That is different from
-the qualified Forwarder identity accepted by the production adapter. This setup
-does not disable `UnqualifiedRelease`, change authentication or make simulated
-reports acceptable to deployed contracts. For a complete deterministic local
-contract lifecycle, use the existing `scripts/demo-confidential.sh` replay; it
-explicitly uses local fixtures. Live confidential deployment remains a separate
-qualification step.
+The CLI's Solana simulation uses its own mock Forwarder. A receiving Profile
+must declare the corresponding program and state to accept its reports; a
+Profile configured for another Forwarder rejects them. For a deterministic
+local contract lifecycle, use `scripts/demo-confidential.sh` with its local
+oracle fixtures and ordinary contract build. Neither path establishes live
+DON or confidential execution guarantees.
 
 The image and Compose files do not start an autonomous Chainlink network, deploy
 contracts, request funds, or broadcast transactions. They provide a repeatable

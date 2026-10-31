@@ -34,11 +34,11 @@ pub struct RegisterConfidentialProfile<'info> {
         bump,
     )]
     pub profile: Box<Account<'info, ConfidentialProfile>>,
-    // Approved delivery identity.
-    /// CHECK: release validation pins the official executable identity.
+    // Delivery identity chosen by this Policy.
+    /// CHECK: executable address must match the declared configuration.
     #[account(executable, address = config.forwarder_program)]
     pub forwarder_program: UncheckedAccount<'info>,
-    /// CHECK: owner, key and release identity are all verified.
+    /// CHECK: the declared state must belong to the declared Forwarder program.
     #[account(
         address = config.forwarder_state,
         owner = config.forwarder_program,
@@ -63,9 +63,6 @@ pub(crate) fn handle(
             && policy.rules.auditors[0].authority == ctx.accounts.profile.key(),
         AdapterError::InvalidProfile
     );
-
-    // Enrollment remains blocked until the actual deployment is qualified.
-    confidential::release::validate(&config)?;
 
     // Pin the policy rules and deployment identity once.
     ctx.accounts.profile.set_inner(ConfidentialProfile {

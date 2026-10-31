@@ -86,6 +86,11 @@ application's submission rules and requires its own payment.
 
 ## What participants are trusting
 
+The delivery channel is selected before the review setup is used and cannot
+be replaced for that setup. Participants must trust its operator. A custom
+channel can pass the same authentication checks without being operated by
+Chainlink; creating a setup does not certify its independence.
+
 These checks bind a delivered answer to the selected workflow, original task
 and current execution. The backend's ordinary service permissions do not let
 it replace that task or cast the auditor's vote. Independent participants can
@@ -109,8 +114,8 @@ They exercise real local contracts, recorded research and authenticated delivery
 using synthetic Chainlink identities. They establish local interoperability;
 they do not establish live confidential execution or model accuracy.
 
-Public enrollment remains closed until an actual deployment is qualified.
-Qualification must cover the real workflow identity, confidential execution,
-secret handling, trustworthy delivery, failure recovery and enough time to
-apply a decision. Running local tests or providing an operator's declaration
-does not activate public enrollment.
+The review setup fixes its delivery channel and workflow before it is used.
+Before live use, verify who operates that channel, the real workflow identity,
+confidential execution, secret handling, failure recovery and enough time to
+apply a decision. Creating a setup or running local tests does not certify
+those properties.

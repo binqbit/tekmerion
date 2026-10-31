@@ -77,6 +77,7 @@ For another project, pack both SDKs and install their generated archives togethe
 with the declared `@solana/web3.js` peer version. No Manteon package is required.
 
 Tests compare v3 account commitments, instruction privileges and report bytes
-with independent Rust/SBF fixtures for both networks. Local fixtures do not
-qualify a live confidential deployment; production enrollment retains the
-adapter's release qualification checks.
+with independent Rust/SBF fixtures for both networks. The same contract builds
+accept the Forwarder program and state declared by each immutable Profile.
+Local fixtures do not qualify a live confidential deployment; state ownership,
+signer and workflow checks remain enforced.

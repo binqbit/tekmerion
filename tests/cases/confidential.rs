@@ -1,5 +1,5 @@
 use crate::support::{Actor, ExpectedError, confidential::ConfidentialContext, pk};
-use anchor_lang::{AccountSerialize, InstructionData};
+use anchor_lang::{AccountSerialize, InstructionData, error::ErrorCode};
 use root::program::errors::AdapterError;
 use tekmerion::{CasePhase, CaseResult};
 use tekmerion_chainlink_sdk::{
@@ -56,21 +56,131 @@ fn confidential_policy_and_profile_are_created_atomically_and_cannot_be_reconfig
     assert_eq!(profile.config, c.config);
     assert_eq!(policy.rules.auditors[0].authority, profile_key);
 
-    let mut replacement = c.config.clone();
-    replacement.agent_config_hash = [0x77; 32];
-    let overwrite = sdk::register_profile(
-        pk(c.base.bank.actor(Actor::Payer)),
-        pk(c.base.bank.actor(Actor::Admin)),
-        policy_key,
-        replacement,
+    for field in 0..4 {
+        let mut replacement = c.config.clone();
+        match field {
+            0 => replacement.forwarder_program = anchor_lang::system_program::ID,
+            1 => replacement.forwarder_state = pk(c.base.bank.actor(Actor::Admin)),
+            2 => replacement.workflow_id = [0x77; 32],
+            _ => replacement.agent_config_hash = [0x77; 32],
+        }
+        let overwrite = sdk::register_profile(
+            pk(c.base.bank.actor(Actor::Payer)),
+            pk(c.base.bank.actor(Actor::Admin)),
+            policy_key,
+            replacement,
+        );
+        assert!(
+            c.base
+                .bank
+                .send(&[overwrite], &[Actor::Admin], &[])
+                .is_err()
+        );
+        assert_eq!(c.base.bank.account(profile_key), account);
+    }
+}
+
+#[test]
+fn confidential_profile_accepts_an_independent_forwarder_state_and_workflow() {
+    use solana_instruction::{AccountMeta, Instruction};
+    use solana_keypair::Keypair;
+    use solana_signer::Signer;
+
+    let mut c = ConfidentialContext::configured(3);
+    let state = Keypair::new_from_array([0xf2; 32]);
+    let initialize = Instruction {
+        program_id: c.config.forwarder_program,
+        accounts: vec![
+            AccountMeta::new(state.pubkey(), true),
+            AccountMeta::new(pk(c.base.bank.actor(Actor::Admin)), true),
+            AccountMeta::new_readonly(anchor_lang::system_program::ID, false),
+        ],
+        data: crate::support::chainlink::discriminator("initialize"),
+    };
+    c.base
+        .bank
+        .send(&[initialize], &[Actor::Admin], &[&state])
+        .unwrap();
+    let mut config = c.config.clone();
+    config.forwarder_state = state.pubkey();
+    config.workflow_id = [0x44; 32];
+    let input = policy_creation(&c, 3);
+    let profile_key = sdk::ConfidentialProfile::address(
+        &tekmerion::Policy::address(&input.admin, input.identifier).0,
+    )
+    .0;
+    c.base
+        .bank
+        .ok(&sdk::create_policy(input, config.clone()), &[Actor::Admin]);
+    let account = c.base.bank.account(profile_key);
+    let profile = <sdk::ConfidentialProfile as anchor_lang::AccountDeserialize>::try_deserialize(
+        &mut account.data.as_slice(),
+    )
+    .unwrap();
+    assert_eq!(profile.config, config);
+}
+
+#[test]
+fn confidential_profile_does_not_require_a_known_forwarder_program() {
+    let mut c = ConfidentialContext::configured(3);
+    let mut config = c.config.clone();
+    // An existing executable and its owned account exercise generic enrollment.
+    // This does not assert that the token program implements report delivery.
+    config.forwarder_program = pk(crate::support::TOKEN);
+    config.forwarder_state = pk(c.base.bank.token(Actor::Author));
+    let input = policy_creation(&c, 4);
+    let profile_key = sdk::ConfidentialProfile::address(
+        &tekmerion::Policy::address(&input.admin, input.identifier).0,
+    )
+    .0;
+    c.base
+        .bank
+        .ok(&sdk::create_policy(input, config.clone()), &[Actor::Admin]);
+    let account = c.base.bank.account(profile_key);
+    let profile = <sdk::ConfidentialProfile as anchor_lang::AccountDeserialize>::try_deserialize(
+        &mut account.data.as_slice(),
+    )
+    .unwrap();
+    assert_eq!(profile.config, config);
+}
+
+#[test]
+fn confidential_profile_rejects_invalid_program_or_state_owner() {
+    let mut c = ConfidentialContext::configured(3);
+    let input = policy_creation(&c, 5);
+    let mut instructions = sdk::create_policy(input, c.config.clone());
+    let program = instructions[1]
+        .accounts
+        .iter_mut()
+        .find(|account| account.pubkey == c.config.forwarder_program)
+        .unwrap();
+    program.pubkey = anchor_lang::system_program::ID;
+    c.base.bank.reject_at(
+        &instructions,
+        &[Actor::Admin],
+        1,
+        ExpectedError::Anchor(ErrorCode::ConstraintAddress),
     );
-    assert!(
-        c.base
-            .bank
-            .send(&[overwrite], &[Actor::Admin], &[])
-            .is_err()
+
+    let input = policy_creation(&c, 6);
+    let mut config = c.config.clone();
+    config.forwarder_state = pk(c.base.bank.actor(Actor::Admin));
+    c.base.bank.reject_at(
+        &sdk::create_policy(input, config),
+        &[Actor::Admin],
+        1,
+        ExpectedError::Anchor(ErrorCode::ConstraintOwner),
     );
-    assert_eq!(c.base.bank.account(profile_key), account);
+
+    let input = policy_creation(&c, 7);
+    let mut config = c.config.clone();
+    config.forwarder_program = pk(c.base.bank.actor(Actor::Admin));
+    c.base.bank.reject_at(
+        &sdk::create_policy(input, config),
+        &[Actor::Admin],
+        1,
+        ExpectedError::Anchor(ErrorCode::ConstraintExecutable),
+    );
 }
 
 #[test]
@@ -437,6 +547,12 @@ fn confidential_sdk_request_reader_rejects_unbound_policy_and_configuration() {
     read(&policy, &profile).unwrap();
     let mut changed_profile = c.profile();
     changed_profile.config.agent_config_hash[0] ^= 1;
+    assert!(read(&policy, &changed_profile).is_err());
+    let mut changed_profile = c.profile();
+    changed_profile.config.forwarder_program = pk(crate::support::TOKEN);
+    assert!(read(&policy, &changed_profile).is_err());
+    let mut changed_profile = c.profile();
+    changed_profile.config.forwarder_state = pk(c.base.bank.actor(Actor::Admin));
     assert!(read(&policy, &changed_profile).is_err());
     let mut changed_policy = c.base.bank.policy_state();
     changed_policy.rules.audit_fee += 1;

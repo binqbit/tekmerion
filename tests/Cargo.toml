@@ -16,7 +16,8 @@ name = "contract"
 path = "contract.rs"
 
 [features]
-local-fixtures = ["tekmerion-chainlink-sdk/local-fixtures"]
+# Enables local Forwarder test scenarios; it does not alter the program build.
+local-fixtures = []
 default = ["mainnet"]
 mainnet = [
     "tekmerion/mainnet",

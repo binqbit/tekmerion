@@ -36,7 +36,7 @@ function sameMetas(idl, metas, name) {
   );
 }
 
-test('the adapter exposes only enrollment, preparation, official reports and permissionless application', () => {
+test('the adapter exposes only enrollment, preparation, authenticated reports and permissionless application', () => {
   const { client, identity, view, vector, policy, idl } = setup();
   assert.deepEqual(
     idl.instructions.map((instruction) => instruction.name).sort(),
