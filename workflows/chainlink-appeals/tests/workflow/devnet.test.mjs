@@ -44,7 +44,8 @@ function rpcFixture() {
   const calls = [];
   const rpc = async (method, params) => {
     calls.push([method, params]);
-    if (method === "getGenesisHash") return DEVNET.genesisHash;
+    if (method === "getGenesisHash")
+      return "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
     if (params[0].length === 3)
       return {
         context: { slot: 123 },
@@ -78,6 +79,10 @@ function rpcFixture() {
 }
 
 test("Devnet enrollment binds the official CLI transport and the exact agent configuration", () => {
+  assert.equal(
+    DEVNET.genesisHash,
+    "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  );
   const enrollment = enrollmentConfig(config, 3);
   assert.equal(enrollment.workflowId, "1".repeat(64));
   assert.equal(enrollment.forwarderProgram, DEVNET.forwarderProgram);
@@ -127,6 +132,14 @@ test("preflight rejects the wrong cluster, missing programs and incompatible imm
   await assert.rejects(
     inspectDevnet(config, async (method, params) =>
       method === "getGenesisHash" ? "wrong-chain" : f.rpc(method, params),
+    ),
+    /not Devnet/,
+  );
+  await assert.rejects(
+    inspectDevnet(config, async (method, params) =>
+      method === "getGenesisHash"
+        ? "EtWTRABZaYq6iMfeYKouRu166VU2xqa1"
+        : f.rpc(method, params),
     ),
     /not Devnet/,
   );

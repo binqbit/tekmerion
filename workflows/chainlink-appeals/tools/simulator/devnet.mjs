@@ -12,7 +12,7 @@ export const DEVNET = Object.freeze({
   forwarderProgram: "7kuEAA3mSC1Tz8gQjnvH7bKFda9xSPRRin9SZbH49cNK",
   forwarderState: "5Tipz3yhTBdVsDbaBxZkrp7Gjf3brGq5SKkxReefPMP7",
   workflowId: "1".repeat(64),
-  genesisHash: "EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+  genesisHash: "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
 });
 const loader = "BPFLoaderUpgradeab1e11111111111111111111111";
 const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
